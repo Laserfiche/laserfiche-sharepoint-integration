@@ -513,7 +513,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public onTemplateChange = async (ev: Event) => {
     const templatechange = (ev as CustomEvent<number>).detail;
     await this.updateFieldValuesAsync();
-  };
+  }
   public async updateFieldValuesAsync(): Promise<void> {
     try {
       const fieldValues = await this.lfFieldsService.getAllFieldDefinitionsAsync();
@@ -527,15 +527,15 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public loginCompleted = async () => {
     $("#mainWebpartContent").show();
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-  };
+  }
 
   //lf-login will trigger on click on Sign Out
   public logoutCompleted = async () => {
     $("#mainWebpartContent").hide();
-  };
+  }
   public onDialogOpened = () => {
     $("div.adhoc-modal").css("height", "450px");
-  };
+  }
   public async getAndInitializeRepositoryClientAndServicesAsync() {
     const accessToken = this.loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
@@ -615,7 +615,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       columns: newColumns,
       items: newItems,
     });
-  };
+  }
 
   //Open New folder Modal Popup
   public OpenNewFolderModal() {
@@ -879,7 +879,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           fileExtension /* document.getElementById('importFile')["value"].split('\\').pop().split(".")[1] */
       );
     }
-  };
+  }
 
   //On scroll display remaining items
   public ScrollToDisplayLazyLoadItems = (e) => {
@@ -892,7 +892,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       });*/
       }
     }
-  };
+  }
 
   public async GetLazyLoadItems() {
     var itemslength = this.state.items.length;
