@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as $ from 'jquery';
-import * as bootstrap from 'bootstrap';
 import { IManageMappingsPageProps } from "./IManageMappingsPageProps";
 import { IManageMappingsPageState } from "./IManageMappingsPageState";
 import { IListItem } from './IListItem';

@@ -8,7 +8,6 @@ import {
   IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-//import queryString from 'query-string';
 import * as strings from 'LaserficheRepositoryAccessWebPartWebPartStrings';
 import LaserficheRepositoryAccessWebPart from './components/LaserficheRepositoryAccessWebPart';
 import { ILaserficheRepositoryAccessWebPartProps } from './components/ILaserficheRepositoryAccessWebPartProps';

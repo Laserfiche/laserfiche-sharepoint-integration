@@ -1,6 +1,4 @@
 import * as React from "react";
-import * as $ from 'jquery';
-import * as bootstrap from 'bootstrap';
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../Assets/CSS/bootstrap.min.css');
 

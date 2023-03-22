@@ -1,22 +1,16 @@
 import { override } from '@microsoft/decorators';
 import { Log } from '@microsoft/sp-core-library';
 import CustomDailog from './CustomDailog';
-import axios from 'axios';
-import styles from './SendToLaserFiche.module.scss';
-import * as jQuery from 'jquery';
 import {
   BaseListViewCommandSet,
   Command,
   IListViewCommandSetListViewUpdatedParameters,
   IListViewCommandSetExecuteEventParameters
 } from '@microsoft/sp-listview-extensibility';
-import { Dialog, BaseDialog,IDialogConfiguration} from '@microsoft/sp-dialog';
-import * as strings from 'SavetoLaserficheCommandSetStrings';
-import{SPHttpClient, SPHttpClientResponse, HttpClient,HttpClientResponse, IHttpClientOptions} from "@microsoft/sp-http";
+import{SPHttpClient, SPHttpClientResponse} from "@microsoft/sp-http";
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as React from 'react';
 import { Navigation } from 'spfx-navigation';
-import { when } from 'jquery';
 
 SPComponentLoader.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js', { globalExportsName: 'jQuery' });
 

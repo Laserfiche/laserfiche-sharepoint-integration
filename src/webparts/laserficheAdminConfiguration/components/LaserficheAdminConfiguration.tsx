@@ -1,5 +1,4 @@
 import * as React from 'react';
-import styles from './LaserficheAdminConfiguration.module.scss';
 import { ILaserficheAdminConfigurationProps } from './ILaserficheAdminConfigurationProps';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { Stack, StackItem } from 'office-ui-fabric-react';

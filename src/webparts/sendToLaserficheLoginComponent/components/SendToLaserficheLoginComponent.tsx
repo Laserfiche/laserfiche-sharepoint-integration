@@ -1,13 +1,10 @@
 import * as React from 'react';
-import * as jQuery from 'jquery';
-import styles from './SendToLaserficheLoginComponent.module.scss';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISendToLaserficheLoginComponentState } from './ISendToLaserficheLoginComponentState';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import CustomDailog from './SendToLaserficheCustomDialog';
 import { Navigation } from 'spfx-navigation';
-import { result } from 'lodash';
-import { CreateEntryResult, IRepositoryApiClient, RepositoryApiClient, PostEntryWithEdocMetadataRequest, PutFieldValsRequest, FileParameter,FieldToUpdate,ValueToUpdate } from '@laserfiche/lf-repository-api-client';
+import { CreateEntryResult, PostEntryWithEdocMetadataRequest, PutFieldValsRequest, FileParameter,FieldToUpdate,ValueToUpdate } from '@laserfiche/lf-repository-api-client';
 import { LoginState } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';

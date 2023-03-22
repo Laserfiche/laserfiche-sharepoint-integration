@@ -1,11 +1,10 @@
 import * as React from "react";
 import * as $ from 'jquery';
-import * as bootstrap from 'bootstrap';
-import { NavLink, Route } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { IManageConfigurationPageState } from './IManageConfigurationPageState';
 import { IListItem } from './IListItem';
-import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
+import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
