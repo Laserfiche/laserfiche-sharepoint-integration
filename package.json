@@ -14,7 +14,6 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.4",
     "@laserfiche/lf-repository-api-client": "^1.0.12",
     "@laserfiche/lf-ui-components-services": "^13.0.1",
     "@laserfiche/types-lf-ui-components": "^13.1.3",

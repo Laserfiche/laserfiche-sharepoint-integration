@@ -15,7 +15,6 @@ import { IRepositoryApiClientExInternal } from "../../../../repository-client/re
 import { RepositoryClientExInternal } from "../../../../repository-client/repository-client";
 import { clientId } from "../../../constants";
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('@fortawesome/fontawesome-free/css/all.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
@@ -814,7 +813,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
             </td>
             <td>
               <span style={{ fontSize: "13px", color: "red" }}>Required field in Laserfiche</span>
-              <span id={'a'+index}  style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="fa fa-exclamation-triangle fa-lg" style={{"marginRight":"7px"}}></span>Data types mismatch</span>
+              <span id={'a'+index}  style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="material-icons">warning</span>Data types mismatch</span>
             </td>
           </tr>
         );
@@ -835,8 +834,8 @@ export default class EditManageConfiguration extends React.Component<IEditManage
               </select>
             </td>
             <td>
-              <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
-              <span id={'a'+index} style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="fa fa-exclamation-triangle fa-lg" style={{"marginRight":"7px"}}></span>Data types mismatch</span>
+              <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
+              <span id={'a'+index} style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="material-icons">warning</span>Data types mismatch</span>
             </td>
           </tr>
         );

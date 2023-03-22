@@ -498,8 +498,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                             </select>
                         </td>
                         <td className="text-center">
-                            <a href="javascript:;" className="ml-3" onClick={this.EditSpecificMapping(index)}><span className="fa fa-pencil-alt fa-lg mt-2"></span></a>
-                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.EditSpecificMapping(index)}><span className="material-icons">edit</span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
                         </td>
                     </tr>
                 );
@@ -520,8 +520,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                             </select>
                         </td>
                         <td className="text-center">
-                            <a href="javascript:;" className="ml-3" onClick={this.SaveSpecificMapping(index)} ><span className="fa fa-save fa-lg mt-2"></span></a>
-                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.SaveSpecificMapping(index)} ><span className="material-icons">save</span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
                         </td>
                     </tr>
                 );

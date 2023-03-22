@@ -37,7 +37,6 @@ import { clientId } from "../../constants";
 require("../../../../node_modules/bootstrap/dist/js/bootstrap.min.js");
 require("../../../Assets/CSS/bootstrap.min.css");
 require("../../../Assets/CSS/custom.css");
-require("../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css");
 
 declare global {
   namespace JSX {
@@ -1007,7 +1006,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                       title="Open File"
                       onClick={() => this.OpenFileOrFolder(this.state.checkeditemfolderornot, this.state.checkeditemid)}
                     >
-                      <span className="fa fa-file-alt fa-2x"></span>
+                      <span className="material-icons">description</span>
                     </a>
                     <span>
                       <a
@@ -1016,7 +1015,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                         title="Upload File"
                         onClick={() => this.OpenImportFileModal()}
                       >
-                        <span className="fa fa-file-upload fa-2x"></span>
+                        <span className="material-icons">upload</span>
                       </a>
                     </span>
                     <span>
@@ -1026,7 +1025,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                         title="Create Folder"
                         onClick={() => this.OpenNewFolderModal()}
                       >
-                        <span className="fa fa-folder-plus fa-2x"></span>
+                        <span className="material-icons">create_new_folder</span>
                       </a>
                     </span>
                   </div>
@@ -1035,7 +1034,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                       <input type="text" className="form-control" placeholder="Search Filename" />
                       <div className="input-group-append">
                         <button className="btn btn-secondary " type="button" id="button-addon2">
-                          <span className="fa fa-search text-white"></span>
+                        <span className="material-icons">search</span>
                         </button>
                       </div>
                     </div>

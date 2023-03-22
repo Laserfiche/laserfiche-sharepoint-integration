@@ -6,7 +6,6 @@ import { IManageConfigurationPageState } from './IManageConfigurationPageState';
 import { IListItem } from './IListItem';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
@@ -126,8 +125,8 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
                 <tr id="addr0" key={index}>
                     <td>{this.state.configurationRows[index].ConfigurationName}</td>
                     <td className="text-center">
-                        <span><NavLink to={'/EditManageConfiguration/' + this.state.configurationRows[index].ConfigurationName} style={{ marginRight: "18px", fontWeight: '500', fontSize: '15px' }}><span className="fa fa-pencil-alt fa-lg"></span></NavLink></span>
-                        <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificConfiguration(index)}><span className="fa fa-trash-alt fa-lg"></span></a>
+                        <span><NavLink to={'/EditManageConfiguration/' + this.state.configurationRows[index].ConfigurationName} style={{ marginRight: "18px", fontWeight: '500', fontSize: '15px' }}><span className="material-icons">edit</span></NavLink></span>
+                        <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificConfiguration(index)}><span className="material-icons">delete</span></a>
                     </td>
                 </tr>
             );
