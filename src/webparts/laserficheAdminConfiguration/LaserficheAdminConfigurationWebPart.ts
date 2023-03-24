@@ -44,11 +44,11 @@ export default class LaserficheAdminConfigurationWebPart extends BaseClientSideW
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     const searchParams = new URLSearchParams(location.search);
-    const devemode = searchParams.get('devMode');
+    const devMode = searchParams.get('devMode');
 
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devemode.toLocaleLowerCase() === 'true') {
+    if (devMode.toLocaleLowerCase() === 'true') {
       conditionalGroupFields = [
         PropertyPaneTextField('WebPartTitle', {
           label: strings.WebPartTitle,

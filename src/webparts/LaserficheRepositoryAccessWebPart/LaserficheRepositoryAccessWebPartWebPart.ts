@@ -43,11 +43,11 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     const searchParams = new URLSearchParams(location.search);
-    const devemode = searchParams.get('devMode');
+    const devMode = searchParams.get('devMode');
 
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devemode === 'true') {
+    if (devMode === 'true') {
       conditionalGroupFields = [
         PropertyPaneTextField('WebPartTitle', {
           label: strings.WebPartTitle,
