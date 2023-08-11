@@ -44,15 +44,15 @@ const initialConfig: ProfileConfiguration = {
 
 export default function AddNewManageConfiguration(
   props: IAddNewManageConfigurationProps
-) {
+): JSX.Element {
   const [profileConfig, setProfileConfig] = useState(initialConfig);
   const [validate, setValidate] = useState(false);
   const [configNameError, setConfigNameError] = useState(undefined);
-  const handleProfileConfigUpdate = (profileConfig: ProfileConfiguration) => {
+  const handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void = (profileConfig: ProfileConfiguration) => {
     setValidate(false);
     setProfileConfig(profileConfig);
   };
-  function handleProfileConfigNameChange(e: React.ChangeEvent) {
+  function handleProfileConfigNameChange(e: React.ChangeEvent): void {
     const newName = (e.target as HTMLInputElement).value;
     const profileConfiguration = { ...profileConfig };
     profileConfiguration.ConfigurationName = newName;
@@ -60,10 +60,10 @@ export default function AddNewManageConfiguration(
     setProfileConfig(profileConfiguration);
   }
 
-  async function saveSPConfigurations(
+  async function saveSPConfigurationsAsync(
     Id: string,
     configsToSave: ProfileConfiguration[]
-  ) {
+  ): Promise<boolean> {
     const restApiUrl = `${getSPListURL(
       props.context,
       ADMIN_CONFIGURATION_LIST
@@ -95,13 +95,13 @@ export default function AddNewManageConfiguration(
     // TODO should this really throw?
   }
 
-  async function SaveNewManageConfiguration() {
+  async function saveNewManageConfigurationAsync(): Promise<boolean> {
     setValidate(true);
     setConfigNameError(undefined);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
       const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
-      if (manageConfigurationConfig != null) {
+      if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] =
           JSON.parse(configWithCurrentName.JsonValue) ?? [];
@@ -112,7 +112,7 @@ export default function AddNewManageConfiguration(
         if (!profileExists) {
           const allConfigurations =
             savedProfileConfigurations.concat(profileConfig);
-          const succeeeded = await saveSPConfigurations(
+          const succeeeded = await saveSPConfigurationsAsync(
             configWithCurrentName.Id,
             allConfigurations
           );
@@ -126,7 +126,7 @@ export default function AddNewManageConfiguration(
           );
         }
       } else {
-        const suceeded = await SaveNewPageConfiguration();
+        const suceeded = await saveNewPageConfigurationAsync();
         return suceeded;
       }
     }
@@ -157,7 +157,7 @@ export default function AddNewManageConfiguration(
     }
   }
 
-  async function SaveNewPageConfiguration() {
+  async function saveNewPageConfigurationAsync(): Promise<boolean> {
     const profileConfigAsString = JSON.stringify([profileConfig]);
     const restApiUrl = `${getSPListURL(
       props.context,
@@ -191,7 +191,7 @@ export default function AddNewManageConfiguration(
   if (validate) {
     if (configNameError) {
       configNameValidation = configNameError;
-    } else if (profileConfig.ConfigurationName == '') {
+    } else if (!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );
@@ -248,7 +248,7 @@ export default function AddNewManageConfiguration(
       createNew={true}
       context={props.context}
       handleProfileConfigUpdate={handleProfileConfigUpdate}
-      saveConfiguration={SaveNewManageConfiguration}
+      saveConfiguration={saveNewManageConfigurationAsync}
       validate={validate}
     />
   );

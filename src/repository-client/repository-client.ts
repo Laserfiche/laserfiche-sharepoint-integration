@@ -12,17 +12,19 @@ export class RepositoryClientExInternal {
   public addAuthorizationHeader(
     request: RequestInit,
     accessToken: string | undefined
-  ) {
+  ): void {
     const headers: Headers | undefined = new Headers(request.headers);
     const AUTH = 'Authorization';
     headers.set(AUTH, 'Bearer ' + accessToken);
     request.headers = headers;
   }
 
-  public beforeFetchRequestAsync = async (
+  public beforeFetchRequestAsync: (
     url: string,
     request: RequestInit
-  ) => {
+  ) => Promise<{
+    regionalDomain: string;
+  }> = async (url: string, request: RequestInit) => {
     // TODO trigger authorization flow if no accessToken
     const lfLogin = document.querySelector('lf-login') as NgElement &
       WithProperties<LfLoginComponent>;
@@ -37,7 +39,11 @@ export class RepositoryClientExInternal {
     }
   };
 
-  public afterFetchResponseAsync = async (
+  public afterFetchResponseAsync: (
+    url: string,
+    response: ResponseInit,
+    request: RequestInit
+  ) => Promise<boolean> = async (
     url: string,
     response: ResponseInit,
     request: RequestInit
@@ -58,7 +64,10 @@ export class RepositoryClientExInternal {
     return false;
   };
 
-  public getCurrentRepo = async () => {
+  public getCurrentRepo: () => Promise<{
+    repoId: string;
+    repoName: string;
+  }> = async () => {
     if (this.repoClient) {
       const repos = await this.repoClient.repositoriesClient.getRepositoryList(
         {}
@@ -80,7 +89,7 @@ export class RepositoryClientExInternal {
         beforeFetchRequestAsync: this.beforeFetchRequestAsync,
         afterFetchResponseAsync: this.afterFetchResponseAsync,
       });
-    const clearCurrentRepo = () => {
+    const clearCurrentRepo: () => void = () => {
       if (this.repoClient) {
         this.repoClient._repoId = undefined;
         this.repoClient._repoName = undefined;

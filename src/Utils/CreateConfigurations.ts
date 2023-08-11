@@ -5,103 +5,30 @@ import {
 } from '@microsoft/sp-http';
 import {
   ADMIN_CONFIGURATION_LIST,
-  DOCUMENT_NAME_CONFIG_LIST,
 } from '../webparts/constants';
 import { getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 
-const documentNameTokens = [
-  '%(count)',
-  '%(date)',
-  '%(datetime)',
-  '%(gcount)',
-  '%(id)',
-  '%(name)',
-  '%(parent)',
-  '%(parentid)',
-  '%(parentname)',
-  '%(parentuuid)',
-  '%(time)',
-  '%(username)',
-  '%(usersid)',
-  '%(uuid)',
-];
-
 export class CreateConfigurations {
-  public static ensureDocumentConfigListCreated(context: BaseComponentContext) {
-    const listUrl: string = getSPListURL(context, DOCUMENT_NAME_CONFIG_LIST);
-    context.spHttpClient
-      .get(listUrl, SPHttpClient.configurations.v1)
-      .then((response: SPHttpClientResponse) => {
-        if (response.status === 200) {
-          return;
-        }
-        if (response.status === 404) {
-          CreateConfigurations.createDocumentConfigNameList(context);
-        }
-      });
-  }
-
-  private static createDocumentConfigNameList(context: BaseComponentContext) {
-    const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
-    const listDefinition = {
-      Title: DOCUMENT_NAME_CONFIG_LIST,
-      Description: 'My description',
-      BaseTemplate: 100,
-    };
-    const spHttpClientOptions: ISPHttpClientOptions = {
-      body: JSON.stringify(listDefinition),
-    };
-    context.spHttpClient
-      .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
-      .then((responses: SPHttpClientResponse) => {
-        return responses.json();
-      })
-      .then((responses: { value: [] }): void => {
-        console.log(responses);
-        const documentlist = responses['Title'];
-        this.AddItemsInDocumentConfigList(context, documentlist);
-      });
-  }
-
-  private static AddItemsInDocumentConfigList(
-    context: BaseComponentContext,
-    documentList: string
-  ) {
-    for (const tokenName of documentNameTokens) {
-      const restApiUrl: string = getSPListURL(context, documentList) + '/items';
-      const body: string = JSON.stringify({ Title: tokenName });
-      const options: ISPHttpClientOptions = {
-        headers: {
-          Accept: 'application/json;odata=nometadata',
-          'content-type': 'application/json;odata=nometadata',
-          'odata-version': '',
-        },
-        body,
-      };
-      context.spHttpClient.post(
-        restApiUrl,
-        SPHttpClient.configurations.v1,
-        options
-      );
+  public static async ensureAdminConfigListCreatedAsync(
+    context: BaseComponentContext
+  ): Promise<void> {
+    const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
+    const response = await context.spHttpClient.get(
+      listUrl,
+      SPHttpClient.configurations.v1
+    );
+    if (response.status === 200) {
+      return;
+    }
+    if (response.status === 404) {
+      await CreateConfigurations.createAdminConfigListAsync(context);
     }
   }
 
-  public static ensureAdminConfigListCreated(context: BaseComponentContext) {
-    const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
-    context.spHttpClient
-      .get(listUrl, SPHttpClient.configurations.v1)
-      .then((response: SPHttpClientResponse) => {
-        if (response.status === 200) {
-          return;
-        }
-        if (response.status === 404) {
-          CreateConfigurations.createAdminConfigList(context);
-        }
-      });
-  }
-
-  private static createAdminConfigList(context: BaseComponentContext) {
+  private static async createAdminConfigListAsync(
+    context: BaseComponentContext
+  ): Promise<void> {
     const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
     const listDefinition = {
       Title: ADMIN_CONFIGURATION_LIST,
@@ -111,21 +38,18 @@ export class CreateConfigurations {
     const spHttpClientOptions: ISPHttpClientOptions = {
       body: JSON.stringify(listDefinition),
     };
-    context.spHttpClient
-      .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
-      .then((responses: SPHttpClientResponse) => {
-        return responses.json();
-      })
-      .then(async (responses: { value: [] }): Promise<void> => {
-        const listtitle = responses['Title'];
-        await this.GetFormDigestValue(context, listtitle);
-      });
+    const responses: SPHttpClientResponse = await context.spHttpClient.post(
+      url,
+      SPHttpClient.configurations.v1,
+      spHttpClientOptions
+    );
+    const adminConfigList = await responses.json();
+    const listTitle = adminConfigList.Title;
+    const formDigestValue = await this.getFormDigestValueAsync(context);
+    await this.createColumnsAsync(context, listTitle, formDigestValue);
   }
 
-  private static async GetFormDigestValue(
-    context: BaseComponentContext,
-    listTitle: string
-  ) {
+  private static async getFormDigestValueAsync(context: BaseComponentContext): Promise<string> {
     try {
       const res = await fetch(
         context.pageContext.web.absoluteUrl + '/_api/contextinfo',
@@ -137,17 +61,17 @@ export class CreateConfigurations {
       const contextInfo = await res.json();
       const FormDigestValue =
         contextInfo.d.GetContextWebInformation.FormDigestValue;
-      this.CreateColumns(context, listTitle, FormDigestValue);
+      return FormDigestValue;
     } catch {
       // TODO handle
     }
   }
 
-  private static async CreateColumns(
+  private static async createColumnsAsync(
     context: BaseComponentContext,
     listTitle: string,
     formDigestValue: string
-  ) {
+  ): Promise<void> {
     const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
     try {
       await fetch(siteUrl, {

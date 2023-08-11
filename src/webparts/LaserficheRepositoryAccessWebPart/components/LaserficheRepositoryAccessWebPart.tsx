@@ -14,6 +14,7 @@ require('../../../Assets/CSS/custom.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 
 declare global {
   // eslint-disable-next-line
@@ -27,7 +28,9 @@ declare global {
   }
 }
 
-export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepositoryAccessWebPartProps) {
+export default function LaserficheRepositoryAccessWebPart(
+  props: ILaserficheRepositoryAccessWebPartProps
+): JSX.Element {
   const [webClientUrl, setWebClientUrl] = React.useState('');
   const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
@@ -36,76 +39,80 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  
+
   const region = getRegion();
 
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 
   useEffect(() => {
-    SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    ).then(() => {
-      SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-      ).then(() => {
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-        );
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-        );
-        const loginCompleted = async () => {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          setLoggedIn(true);
-        };
-        const logoutCompleted = async () => {
-          setLoggedIn(false);
-          window.location.href =
-            props.context.pageContext.web.absoluteUrl +
-            props.laserficheRedirectPage;
-        };
+    const ensureRepoClientInitializedAsync: () => Promise<void> = async () => {
+      if (!repoClient) {
+        const repoClientCreator = new RepositoryClientExInternal();
+        const repoClient =
+          await repoClientCreator.createRepositoryClientAsync();
+        setRepoClient(repoClient);
+      }
+    };
 
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
+    const getAndInitializeRepositoryClientAndServicesAsync: () => Promise<void> =
+      async () => {
+        const accessToken =
+          loginComponent?.current?.authorization_credentials?.accessToken;
+        setWebClientUrl(
+          loginComponent?.current?.account_endpoints.webClientUrl
         );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
-        if (loginComponent.current.authorization_credentials) {
-          getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-            setLoggedIn(true);
-          });
+        if (accessToken) {
+          await ensureRepoClientInitializedAsync();
+        } else {
+          // user is not logged in
         }
-      });
+      };
+
+    const initializeComponentAsync: () => Promise<void> = async () => {
+      await SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+      );
+      await SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
+      );
+      SPComponentLoader.loadCss(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+      );
+      SPComponentLoader.loadCss(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+      );
+      const loginCompleted: () => Promise<void> = async () => {
+        await getAndInitializeRepositoryClientAndServicesAsync();
+        setLoggedIn(true);
+      };
+      const logoutCompleted: () => Promise<void> = async () => {
+        setLoggedIn(false);
+        window.location.href =
+          props.context.pageContext.web.absoluteUrl +
+          props.laserficheRedirectPage;
+      };
+
+      loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+      loginComponent.current.addEventListener(
+        'logoutCompleted',
+        logoutCompleted
+      );
+      if (loginComponent.current.authorization_credentials) {
+        await getAndInitializeRepositoryClientAndServicesAsync();
+        setLoggedIn(true);
+      }
+    };
+
+    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
     });
   }, []);
 
-  //lf-login will trigger on click on Sign in to Laserfiche
-
-  const getAndInitializeRepositoryClientAndServicesAsync = async () => {
-    const accessToken =
-      loginComponent?.current?.authorization_credentials?.accessToken;
-    setWebClientUrl(loginComponent?.current?.account_endpoints.webClientUrl);
-    if (accessToken) {
-      await ensureRepoClientInitializedAsync();
-    } else {
-      // user is not logged in
-    }
-  };
-
-  const ensureRepoClientInitializedAsync = async () => {
-    if (!repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal();
-      const repoClient = await repoClientCreator.createRepositoryClientAsync();
-      setRepoClient(repoClient);
-    }
-  };
-
   return (
-    <div>
+    <React.StrictMode>
       <div style={{ display: 'none' }}>
         <SvgHtmlIcons />
       </div>
@@ -129,6 +136,6 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
           loggedIn={loggedIn}
         />
       </div>
-    </div>
+    </React.StrictMode>
   );
 }

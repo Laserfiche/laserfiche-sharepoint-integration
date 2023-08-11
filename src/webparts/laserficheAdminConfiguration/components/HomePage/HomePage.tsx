@@ -2,7 +2,7 @@ import * as React from 'react';
 require('./../../adminConfig.css');
 require('../../../../Assets/CSS/bootstrap.min.css');
 
-export default function HomePage() {
+export default function HomePage(): JSX.Element {
   return (
     <div className='container-fluid p-3'>
       <main className='bg-white shadow-sm' style={{ width: '80%' }}>

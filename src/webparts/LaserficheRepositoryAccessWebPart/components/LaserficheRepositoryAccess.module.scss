@@ -1,3 +1,24 @@
 .lfAdhocMinHeight {
-    height: 450px;
+  height: 450px;
+}
+
+.lfMaterialIconButton {
+  cursor: pointer;
+  display: flex;
+  height: 24px;
+  width: 24px;
+  align-items: center;
+  border: none;
+  background: inherit;
+  justify-content: center;
+  color: #646464;
+  margin-right: 10px;
+}
+
+.lfMaterialIconButton:hover {
+  color: #4d4b4b;
+}
+
+.buttonContainer {
+  display: flex;
 }

@@ -1,49 +1,31 @@
-.overlay {
-  position: relative;
-  display: block;
-  opacity: 0;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 50%;
-  height: 100%;
-  z-index: 1;
-  background-color: rgb(46, 44, 44);
+.signInHeaderText {
+  margin-left: 10px;
+  font-size: 22px;
+  font-weight: bold;
 }
-.maindialog {
-  background-color: white;
-  padding: 30px;
-  transition: all 5s ease-in-out;
-  max-height: fit-content;
+
+.signInHeader {
+  border-bottom: 3px solid #ce7a14;
+  margin-block-end: 32px;
+  display: flex;
+  align-items: center;
 }
-.text {
-  position: relative;
+
+.laserficheLogo {
+  height: 30px;
+  width: 30px;
+}
+
+.signInLabel {
+  text-align: center;
   font-size: 16px;
-  color: black;
-  //z-index: 4;
+}
+
+.loginButton {
   text-align: center;
 }
-.button {
-  color: #178080;
-  margin-left: 200px;
-  font-weight: bold;
-  writing-mode: tb;
-  display: flex;
-  flex-direction: column;
-}
-.button1 {
-  //font-weight: bold;
-  color: black;
-  font-size: 15px;
-}
-.button2 {
-  //font-weight: bold;
-  color: rgb(8, 8, 8);
-  font-size: 15px;
-  margin-right: 16px;
-}
-.href {
-  font-weight: bold;
-  color: rgb(9, 34, 172);
+
+.signInFooter {
+  margin-top: 35px;
+  text-align: center;
 }

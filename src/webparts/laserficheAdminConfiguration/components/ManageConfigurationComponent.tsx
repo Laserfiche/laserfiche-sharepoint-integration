@@ -1,6 +1,7 @@
 import {
   ODataValueContextOfIListOfWTemplateInfo,
   ODataValueOfIListOfTemplateFieldInfo,
+  ProblemDetails,
   TemplateFieldInfo,
   WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
@@ -14,8 +15,11 @@ import {
   SharePointLaserficheColumnMatching,
   SPProfileConfigurationData,
 } from './ProfileConfigurationComponents';
+import styles from './LaserficheAdminConfiguration.module.scss';
 
-export default function ManageConfiguration(props: IManageConfigurationProps) {
+export default function ManageConfiguration(
+  props: IManageConfigurationProps
+): JSX.Element {
   const [availableLfTemplates, setAvailableLfTemplates] = useState<
     WTemplateInfo[] | undefined
   >([]);
@@ -25,27 +29,69 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
     SPProfileConfigurationData[] | undefined
   >(undefined);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
-  React.useEffect(() => {
-    if (props.repoClient) {
-      getAllAvailableTemplates().then((templates: WTemplateInfo[]) => {
-        templates.sort();
-        setAvailableLfTemplates(templates);
-      });
-      if (props.profileConfig.selectedTemplateName) {
-        GetLaserficheFields(props.profileConfig.selectedTemplateName).then(
-          (templateFields) => {
-            setLfFieldsForSelectedTemplate(templateFields);
+
+  async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
+    const repoId = await props.repoClient.getCurrentRepoId();
+    const templateInfo: WTemplateInfo[] = [];
+    await props.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
+      {
+        callback: async (response: ODataValueContextOfIListOfWTemplateInfo) => {
+          if (response.value) {
+            templateInfo.push(...response.value);
           }
-        );
+          return true;
+        },
+        repoId,
       }
-      GetAllSharePointSiteColumns().then((contents: SPProfileConfigurationData[]) => {
-        contents.sort((a, b) => (a.Title > b.Title ? 1 : -1));
-        setAvailableSPFields(contents);
+    );
+    return templateInfo;
+  }
+
+  const getLaserficheFieldsAsync: (
+    templateName: string
+  ) => Promise<TemplateFieldInfo[]> = async (templateName: string) => {
+    if (templateName?.length > 0) {
+      const repoId = await props.repoClient.getCurrentRepoId();
+      const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
+        await props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
+          { repoId, templateName: templateName }
+        );
+      const fieldsValues: TemplateFieldInfo[] = apiTemplateResponse.value;
+      return fieldsValues;
+    } else {
+      return null;
+    }
+  };
+
+  React.useEffect(() => {
+    const initializeComponentAsync: () => Promise<void> = async () => {
+      const templates: WTemplateInfo[] = await getAllAvailableTemplates();
+      templates.sort();
+      setAvailableLfTemplates(templates);
+      if (props.profileConfig.selectedTemplateName) {
+        const templateFields: TemplateFieldInfo[] =
+          await getLaserficheFieldsAsync(
+            props.profileConfig.selectedTemplateName
+          );
+        setLfFieldsForSelectedTemplate(templateFields);
+      }
+      const spColumns: SPProfileConfigurationData[] =
+        await getAllSharePointSiteColumnsAsync();
+      spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
+      setAvailableSPFields(spColumns);
+    };
+    if (props.repoClient) {
+      initializeComponentAsync().catch((err: Error | ProblemDetails) => {
+        console.warn(
+          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+        );
       });
     }
   }, [props.repoClient]);
 
-  async function GetAllSharePointSiteColumns(): Promise<SPProfileConfigurationData[]> {
+  async function getAllSharePointSiteColumnsAsync(): Promise<
+    SPProfileConfigurationData[]
+  > {
     const restApiUrl: string =
       props.context.pageContext.web.absoluteUrl +
       "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
@@ -66,24 +112,10 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
     }
   }
 
-  async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
-    const repoId = await props.repoClient.getCurrentRepoId();
-    const templateInfo: WTemplateInfo[] = [];
-    await props.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
-      {
-        callback: async (response: ODataValueContextOfIListOfWTemplateInfo) => {
-          if (response.value) {
-            templateInfo.push(...response.value);
-          }
-          return true;
-        },
-        repoId,
-      }
-    );
-    return templateInfo;
-  }
-  const OnChangeTemplate = async (templateName: string) => {
-    const templateFields = await GetLaserficheFields(templateName);
+  const onChangeTemplateAsync: (templateName: string) => Promise<void> = async (
+    templateName: string
+  ) => {
+    const templateFields = await getLaserficheFieldsAsync(templateName);
     if (templateFields) {
       const array = [];
       for (let index = 0; index < templateFields.length; index++) {
@@ -113,35 +145,18 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
     }
   };
 
-  const GetLaserficheFields: (
-    templateName: string
-  ) => Promise<TemplateFieldInfo[]> = async (templateName: string) => {
-    if (templateName?.length > 0) {
-      const repoId = await props.repoClient.getCurrentRepoId();
-      const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
-        await props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
-          { repoId, templateName: templateName }
-        );
-      const fieldsValues: TemplateFieldInfo[] = apiTemplateResponse.value;
-      return fieldsValues;
-    } else {
-      return null;
-    }
-  };
-
-  function ConfirmButton() {
+  function onClickConfirmButton(): void {
     history.back();
     setShowConfirmModal(false);
   }
 
-  function saveConfiguration() {
-    props.saveConfiguration().then((succeeded) => {
-      if (succeeded) {
-        setShowConfirmModal(true);
-      } else {
-        // TODO add error dialog
-      }
-    });
+  async function saveConfigurationAsync(): Promise<void> {
+    const succeeded: boolean = await props.saveConfiguration();
+    if (succeeded) {
+      setShowConfirmModal(true);
+    } else {
+      // TODO add error dialog
+    }
   }
 
   return (
@@ -168,7 +183,7 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
                   availableLfTemplates={availableLfTemplates}
                   repoClient={props.repoClient}
                   loggedIn={props.loggedIn}
-                  handleTemplateChange={OnChangeTemplate}
+                  handleTemplateChange={onChangeTemplateAsync}
                   profileConfig={props.profileConfig}
                   handleProfileConfigUpdate={props.handleProfileConfigUpdate}
                 />
@@ -185,21 +200,24 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
                   validate={props.validate}
                 />
               </div>
-              <div className='card-footer bg-transparent'>
+              <div
+                className={`${styles.footerIcons} card-footer bg-transparent`}
+              >
                 {props.loggedIn && (
-                  <NavLink id='navid' to='/ManageConfigurationsPage'>
-                    <a className='btn btn-primary pl-5 pr-5 float-right ml-2'>
-                      Back
-                    </a>
+                  <NavLink
+                    id='navid'
+                    to='/ManageConfigurationsPage'
+                    className={styles.navLinkNoUnderline}
+                  >
+                    <button className='lf-button sec-button'>Back</button>
                   </NavLink>
                 )}
-                <a
-                  href='javascript:;'
-                  className='btn btn-primary pl-5 pr-5 float-right ml-2'
-                  onClick={saveConfiguration}
+                <button
+                  className={`${styles.marginLeftButton} lf-button primary-button`}
+                  onClick={saveConfigurationAsync}
                 >
                   Save
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -222,7 +240,7 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
                 type='button'
                 className='btn btn-primary btn-sm'
                 data-dismiss='modal'
-                onClick={ConfirmButton}
+                onClick={onClickConfirmButton}
               >
                 OK
               </button>

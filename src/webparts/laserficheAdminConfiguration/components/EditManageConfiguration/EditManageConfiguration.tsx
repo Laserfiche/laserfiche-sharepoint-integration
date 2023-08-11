@@ -15,6 +15,7 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -33,13 +34,15 @@ declare global {
 
 export default function EditManageConfiguration(
   props: IEditManageConfigurationProps
-) {
+): JSX.Element {
   const [profileConfig, setProfileConfig] = useState<
     ProfileConfiguration | undefined
   >(undefined);
 
   const [validate, setValidate] = useState(false);
-  const handleProfileConfigUpdate = (profileConfig: ProfileConfiguration) => {
+  const handleProfileConfigUpdate: (
+    profileConfig: ProfileConfiguration
+  ) => void = (profileConfig: ProfileConfiguration) => {
     setValidate(false);
     setProfileConfig(profileConfig);
   };
@@ -69,28 +72,34 @@ export default function EditManageConfiguration(
   }
 
   useEffect(() => {
-    GetItemIdByTitle().then((results: IListItem[]) => {
+    const initializeComponentAsync: () => Promise<void> = async () => {
+      const results = await GetItemIdByTitle();
       const configurationName = props.match.params.name;
-      if (results != null) {
+      if (results?.length > 0) {
         const profileConfigs = JSON.parse(results[0].JsonValue);
         if (profileConfigs.length > 0) {
           for (let i = 0; i < profileConfigs.length; i++) {
-            if (profileConfigs[i].ConfigurationName == configurationName) {
+            if (profileConfigs[i].ConfigurationName === configurationName) {
               const selectedConfig: ProfileConfiguration = profileConfigs[i];
               setProfileConfig(selectedConfig);
             }
           }
         }
       }
+    };
+    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
     });
   }, []);
 
-  async function SaveEditExisitingConfiguration() {
+  async function saveEditExistingConfigurationAsync(): Promise<boolean> {
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
       const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
-      if (manageConfigurationConfig != null) {
+      if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] = JSON.parse(
           configWithCurrentName.JsonValue
@@ -102,7 +111,7 @@ export default function EditManageConfiguration(
         if (profileIndex !== -1) {
           savedProfileConfigurations[profileIndex] = profileConfig;
           const configsToSave = savedProfileConfigurations;
-          const succeeded = await saveSPConfigurations(
+          const succeeded = await saveSPConfigurationsAsync(
             configWithCurrentName.Id,
             configsToSave
           );
@@ -115,10 +124,10 @@ export default function EditManageConfiguration(
     return false;
   }
 
-  async function saveSPConfigurations(
+  async function saveSPConfigurationsAsync(
     Id: string,
     configsToSave: ProfileConfiguration[]
-  ) {
+  ): Promise<boolean> {
     const restApiUrl = `${getSPListURL(
       props.context,
       ADMIN_CONFIGURATION_LIST
@@ -165,7 +174,7 @@ export default function EditManageConfiguration(
       createNew={false}
       context={props.context}
       handleProfileConfigUpdate={handleProfileConfigUpdate}
-      saveConfiguration={SaveEditExisitingConfiguration}
+      saveConfiguration={saveEditExistingConfigurationAsync}
       validate={validate}
     />
   ) : (

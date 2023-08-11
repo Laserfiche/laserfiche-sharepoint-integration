@@ -6,6 +6,7 @@ import {
   FieldToUpdate,
   ValueToUpdate,
   PutFieldValsRequest,
+  Entry,
 } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
@@ -21,6 +22,7 @@ export interface SavedToLaserficheDocumentData {
   fileLink: string;
   pathBack: string;
   metadataSaved: boolean;
+  fileName: string;
 }
 
 export class SaveDocumentToLaserfiche {
@@ -64,11 +66,14 @@ export class SaveDocumentToLaserfiche {
     return newRepoClient;
   }
 
-  async GetFileData() {
+  async GetFileData(): Promise<Blob> {
     const spFileUrl = this.spFileMetadata.fileUrl;
     const fileNameWithExt = this.spFileMetadata.fileName;
     const encodedFileName = encodeURIComponent(fileNameWithExt);
-    const encodedSpFileUrl = spFileUrl?.replace(fileNameWithExt, encodedFileName);
+    const encodedSpFileUrl = spFileUrl?.replace(
+      fileNameWithExt,
+      encodedFileName
+    );
     const fullSPDataUrl = window.location.origin + encodedSpFileUrl;
     try {
       const res = await fetch(fullSPDataUrl, {
@@ -153,7 +158,8 @@ export class SaveDocumentToLaserfiche {
           filenameWithoutExt
         );
       fileName = docNameReplacedWithFileName;
-      fileNameInEdoc = docNameReplacedWithFileName + `.${fileExtensionWithPeriod}`;
+      fileNameInEdoc =
+        docNameReplacedWithFileName + `.${fileExtensionWithPeriod}`;
       extension = fileExtensionWithPeriod;
     }
     const electronicDocument: FileParameter = {
@@ -176,9 +182,9 @@ export class SaveDocumentToLaserfiche {
       const entryId = entryCreateResult.operations.entryCreate.entryId ?? 1;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
-        repoId,
         webClientUrl,
-        false
+        false,
+        repoId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
@@ -193,8 +199,20 @@ export class SaveDocumentToLaserfiche {
       } else {
         // TODO what should happen?
       }
+      const fileInfo: SavedToLaserficheDocumentData = {
+        fileLink,
+        pathBack: path,
+        metadataSaved: true,
+        fileName,
+      };
 
-      return { fileLink, pathBack: path, metadataSaved: true };
+      await this.tryUpdateFileNameAsync(
+        repoClient,
+        repoId,
+        entryCreateResult,
+        fileInfo
+      );
+      return fileInfo;
     } catch (error) {
       const conflict409 =
         error.operations.setFields.exceptions[0].statusCode === 409;
@@ -203,9 +221,9 @@ export class SaveDocumentToLaserfiche {
 
         const fileLink = getEntryWebAccessUrl(
           entryId.toString(),
-          repoId,
           webClientUrl,
-          false
+          false,
+          repoId
         );
         const fileUrl = this.spFileMetadata.fileUrl;
         const fileUrlWithoutDocName = fileUrl.slice(
@@ -214,7 +232,15 @@ export class SaveDocumentToLaserfiche {
         );
         const path = window.location.origin + fileUrlWithoutDocName;
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-        return { fileLink, pathBack: path, metadataSaved: false };
+        const fileInfo: SavedToLaserficheDocumentData = {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName,
+        };
+
+        await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
+        return fileInfo;
       } else {
         window.alert(`Error uploading file: ${JSON.stringify(error)}`);
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -223,7 +249,7 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  getRequestMetadata(request: PostEntryWithEdocMetadataRequest) {
+  getRequestMetadata(request: PostEntryWithEdocMetadataRequest): PostEntryWithEdocMetadataRequest {
     const fileMetadata: IPostEntryWithEdocMetadataRequest =
       this.spFileMetadata.metadata;
     const fieldsAlone = fileMetadata.metadata.fields;
@@ -283,16 +309,28 @@ export class SaveDocumentToLaserfiche {
       const entryId = entryCreateResult.operations.entryCreate.entryId;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
-        repoId,
         webClientUrl,
-        false
+        false,
+        repoId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
       const path = window.location.origin + fileUrlWithoutDocName;
 
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      return { fileLink, pathBack: path, metadataSaved: true };
+      const fileInfo: SavedToLaserficheDocumentData = {
+        fileLink,
+        pathBack: path,
+        metadataSaved: true,
+        fileName: fileNameWithExt,
+      };
+      await this.tryUpdateFileNameAsync(
+        repoClient,
+        repoId,
+        entryCreateResult,
+        fileInfo
+      );
+      return fileInfo;
     } catch (error) {
       window.alert(`Error uploading file: ${JSON.stringify(error)}`);
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -300,7 +338,25 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAsync() {
+  private async tryUpdateFileNameAsync(
+    repoClient: IRepositoryApiClientExInternal,
+    repoId: string,
+    entryCreateResult: CreateEntryResult,
+    fileInfo: SavedToLaserficheDocumentData
+  ): Promise<void> {
+    try {
+      const entryInfo: Entry = await repoClient.entriesClient.getEntry({
+        repoId,
+        entryId: entryCreateResult.operations.entryCreate.entryId,
+      });
+
+      fileInfo.fileName = entryInfo.name;
+    } catch {
+      // do nothing, keep default file name
+    }
+  }
+
+  async deleteSPFileAsync(): Promise<void> {
     const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
     const spUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,
@@ -324,7 +380,7 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAndReplaceWithLinkAsync(docFilelink: string) {
+  async deleteSPFileAndReplaceWithLinkAsync(docFilelink: string): Promise<void> {
     const filenameWithoutExt = PathUtils.removeFileExtension(
       this.spFileMetadata.fileName
     );
@@ -342,14 +398,17 @@ export class SaveDocumentToLaserfiche {
     });
     if (deleteFile.ok) {
       alert('File replaced with link successfully');
-      this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
+      await this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       console.log('An error occurred. Please try again.');
     }
   }
 
-  async replaceFileWithLinkAsync(filenameWithoutExt: string, docFileLink: string) {
+  async replaceFileWithLinkAsync(
+    filenameWithoutExt: string,
+    docFileLink: string
+  ): Promise<void> {
     const resp = await fetch(
       this.spFileMetadata.contextPageAbsoluteUrl + '/_api/contextinfo',
       {
@@ -360,7 +419,7 @@ export class SaveDocumentToLaserfiche {
     if (resp.ok) {
       const data = await resp.json();
       const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-      this.createLinkAsync(filenameWithoutExt, docFileLink, FormDigestValue);
+      await this.createLinkAsync(filenameWithoutExt, docFileLink, FormDigestValue);
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       console.log('Failed');
@@ -371,7 +430,7 @@ export class SaveDocumentToLaserfiche {
     filenameWithoutExt: string,
     docFileLink: string,
     formDigestValue: string
-  ) {
+  ): Promise<void> {
     const encodedFileName = encodeURIComponent(filenameWithoutExt);
     const path = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,

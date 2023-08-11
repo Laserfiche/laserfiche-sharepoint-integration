@@ -1,91 +1,89 @@
 import * as React from 'react';
-import { Navigation } from 'spfx-navigation';
 import styles from './SendToLaserFiche.module.scss';
+import { SPComponentLoader } from '@microsoft/sp-loader';
+import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
 
-const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving your document to Laserfiche';
+const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
-export default function LoadingDialog() {
+export default function LoadingDialog(): JSX.Element {
   return (
     <>
-      <img
-        style={{ marginLeft: '28%' }}
-        src='/_layouts/15/images/progress.gif'
-        id='imgid'
-      />
+      <img src='/_layouts/15/images/progress.gif' />
+      <br />
+      <div>{SAVING_DOCUMENT_TO_LASERFICHE}</div>
+    </>
+  );
+}
+
+const DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME =
+  'Document successfully uploaded to Laserfiche with name:';
+const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
+  'All metadata failed to save due to at least one invalid field';
+const TEMPLATE_FIELDS_NOT_APPLIED =
+  'The Laserfiche template and fields were not applied to this document.';
+const CLOSE = 'Close';
+const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
+
+export function SavedToLaserficheSuccessDialogText(props: {
+  successfulSave: SavedToLaserficheDocumentData;
+}): JSX.Element {
+  React.useEffect(() => {
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+    );
+  }, []);
+
+  const metadataFailedNotice: JSX.Element = (
+    <span>
+      {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
+      <br /> <p style={{ color: 'red' }}>{TEMPLATE_FIELDS_NOT_APPLIED}</p>
+    </span>
+  );
+
+  return (
+    <>
       <div>
-        <p className={styles.text}>{SAVING_DOCUMENT_TO_LASERFICHE}</p>
+        {`${DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME}  ${props.successfulSave.fileName}.`}
+        {!props.successfulSave.metadataSaved && metadataFailedNotice}
       </div>
     </>
   );
 }
 
-const DOCUMENT_UPLOADED = 'Document uploaded';
-const DOCUMENT_UPLOADED_METADATA_FAILED =
-  'Document uploaded to repository, updating metadata failed due to constraint mismatch';
-const TEMPLATE_FIELDS_NOT_APPLIED =
-  'The Laserfiche template and fields were not applied to this document.';
-const CLOSE = 'Close';
-const GO_TO_FILE = 'Go to File';
-const GO_TO_LIBRARY = 'Go to Library';
-const CLICK_HERE_VIEW_FILE_LASERFICHE =
-  'Click here to view the file in Laserfiche';
-const CLICK_HERE_GO_SHAREPOINT_LIBRARY =
-  'Click here to go back to your SharePoint library';
-
-export function SavedToLaserficheSuccessDialog(props: {
+export function SavedToLaserficheSuccessDialogButtons(props: {
   closeClick: () => Promise<void>;
-  successfulSave: {
-    fileLink: string;
-    pathBack: string;
-    metadataSaved: boolean;
-  };
-}) {
-  const metadataFailedNotice: JSX.Element = (
-    <span>
-      {DOCUMENT_UPLOADED_METADATA_FAILED}
-      <br /> <p style={{ color: 'red' }}>{TEMPLATE_FIELDS_NOT_APPLIED}</p>
-    </span>
-  );
+  successfulSave: SavedToLaserficheDocumentData;
+}): JSX.Element {
+  React.useEffect(() => {
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+    );
+  }, []);
 
-  function viewFile() {
+  function viewFile(): void {
     window.open(props.successfulSave.fileLink);
-  }
-
-  function redirect() {
-    Navigation.navigate(props.successfulSave.pathBack, true);
   }
 
   return (
     <>
-      <div>
-        <p className={styles.text}>
-          {props.successfulSave.metadataSaved
-            ? DOCUMENT_UPLOADED
-            : metadataFailedNotice}
-        </p>
-      </div>
-
-      <div className={styles.button}>
-        <button className={styles.button1} onClick={props.closeClick}>
-          {CLOSE}
-        </button>
-        {props.successfulSave.fileLink && (
-          <button
-            className={styles.button2}
-            title={CLICK_HERE_VIEW_FILE_LASERFICHE}
-            onClick={viewFile}
-          >
-            {GO_TO_FILE}
-          </button>
-        )}
+      {props.successfulSave?.fileLink && (
         <button
-          className={styles.button2}
-          title={CLICK_HERE_GO_SHAREPOINT_LIBRARY}
-          onClick={redirect}
+          className={`lf-button primary-button ${styles.actionButton}`}
+          title={VIEW_FILE_IN_LASERFICHE}
+          onClick={viewFile}
         >
-          {GO_TO_LIBRARY}
+          {VIEW_FILE_IN_LASERFICHE}
         </button>
-      </div>
+      )}
+      <button className='lf-button sec-button' onClick={props.closeClick}>
+        {CLOSE}
+      </button>
     </>
   );
 }

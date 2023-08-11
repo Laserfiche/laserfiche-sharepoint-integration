@@ -1,7 +1,9 @@
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
+  ProblemDetails,
   TemplateFieldInfo,
+  WFieldType,
   WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
 import {
@@ -12,6 +14,7 @@ import { LfRepositoryBrowserComponent } from '@laserfiche/types-lf-ui-components
 import * as React from 'react';
 import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import styles from './LaserficheAdminConfiguration.module.scss';
 
 export interface ProfileConfiguration {
   ConfigurationName: string;
@@ -40,12 +43,14 @@ export interface MappedFields {
 }
 
 export enum ActionTypes {
-  'COPY'= 'COPY',
+  'COPY' = 'COPY',
   'MOVE_AND_DELETE' = 'MOVE_AND_DELETE',
-  'REPLACE' = 'REPLACE'
+  'REPLACE' = 'REPLACE',
 }
 
-export function ProfileHeader(props: { configurationName: string }) {
+export function ProfileHeader(props: {
+  configurationName: string;
+}): JSX.Element {
   return (
     <h6 className='mb-0'>
       Profile :{' '}
@@ -63,12 +68,14 @@ export function ConfigurationBody(props: {
   profileConfig: ProfileConfiguration;
   handleProfileConfigUpdate: (config: ProfileConfiguration) => void;
   handleTemplateChange: (templateName: string) => void;
-}) {
+}): JSX.Element {
   const [showFolderModal, setShowFolderModal] = useState(false);
 
   const selectedEntryNodePath = props.profileConfig.selectedFolder?.path;
 
-  const onSelectFolder = async (selectedNode: LfRepoTreeNode | undefined) => {
+  const onSelectFolderAsync: (
+    selectedNode: LfRepoTreeNode | undefined
+  ) => Promise<void> = async (selectedNode: LfRepoTreeNode | undefined) => {
     if (!props.repoClient) {
       throw new Error('Repo Client is undefined.');
     }
@@ -82,7 +89,9 @@ export function ConfigurationBody(props: {
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange = (event) => {
+  const handleTemplateChange: (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => void = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = (event.target as HTMLSelectElement).value;
     const templateName = value;
     const profileConfig = { ...props.profileConfig };
@@ -91,27 +100,27 @@ export function ConfigurationBody(props: {
     props.handleTemplateChange(templateName);
   };
 
-  const handleActionTypeChange = (event) => {
+  const handleActionTypeChange: (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => void = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
     profileConfig.Action = actionName as ActionTypes;
     props.handleProfileConfigUpdate(profileConfig);
-  }
+  };
 
-  function CloseFolderModalUp() {
+  function closeFolderModalUp(): void {
     setShowFolderModal(false);
   }
 
-  async function OpenFoldersModal() {
+  function openFolderModal(): void {
     setShowFolderModal(true);
   }
   return (
     <>
       <div className='form-group row'>
-        <DocumentName
-          documentName={props.profileConfig?.DocumentName}
-        />
+        <DocumentName documentName={props.profileConfig?.DocumentName} />
       </div>
       <div className='form-group row'>
         <TemplateSelector
@@ -121,7 +130,7 @@ export function ConfigurationBody(props: {
           onChangeTemplate={handleTemplateChange}
         />
       </div>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <label htmlFor='txt3' className='col-sm-2 col-form-label'>
           Laserfiche Destination
         </label>
@@ -134,20 +143,14 @@ export function ConfigurationBody(props: {
             disabled
             value={props.profileConfig.selectedFolder?.path}
           />
-          <div>
-            <span>Use the Browse button to select a path</span>
-          </div>
         </div>
         <div className='col-sm-2' id='folderModal' style={{ marginTop: '2px' }}>
-          <a
-            href='javascript:;'
-            className='btn btn-primary btn-sm'
-            data-toggle='modal'
-            data-target='#folderModal'
-            onClick={OpenFoldersModal}
+          <button
+            className='lf-button sec-button'
+            onClick={openFolderModal}
           >
             Browse
-          </a>
+          </button>
         </div>
       </div>
       <div className='form-group row'>
@@ -155,14 +158,21 @@ export function ConfigurationBody(props: {
           After import
         </label>
         <div className='col-sm-6'>
-          <select onChange={handleActionTypeChange} defaultValue={props.profileConfig.Action} className='custom-select' id='action'>
+          <select
+            onChange={handleActionTypeChange}
+            defaultValue={props.profileConfig.Action}
+            className='custom-select'
+            id='action'
+          >
             <option value={ActionTypes.COPY}>
               Leave a copy of the file in SharePoint
             </option>
             <option value={ActionTypes.REPLACE}>
               Replace SharePoint file with a link to the document in Laserfiche
             </option>
-            <option value={ActionTypes.MOVE_AND_DELETE}>Delete SharePoint file</option>
+            <option value={ActionTypes.MOVE_AND_DELETE}>
+              Delete SharePoint file
+            </option>
           </select>
         </div>
         <div className='col-sm-2'>
@@ -181,9 +191,9 @@ export function ConfigurationBody(props: {
         {showFolderModal && (
           <RepositoryBrowserModal
             repoClient={props.repoClient}
-            CloseFolderBrowserUp={CloseFolderModalUp}
+            CloseFolderBrowserUp={closeFolderModalUp}
             selectedEntryNodePath={selectedEntryNodePath}
-            SelectFolder={onSelectFolder}
+            SelectFolder={onSelectFolderAsync}
           />
         )}
       </div>
@@ -196,7 +206,7 @@ export function RepositoryBrowserModal(props: {
   SelectFolder: (node: LfRepoTreeNode | undefined) => void;
   selectedEntryNodePath: string;
   repoClient: IRepositoryApiClientExInternal;
-}) {
+}): JSX.Element {
   const [shouldShowOpen, setShouldShowOpen] = useState(false);
   const [shouldShowSelect, setShouldShowSelect] = useState(false);
   const [shouldDisableSelect, setShouldDisableSelect] = useState(false);
@@ -204,7 +214,12 @@ export function RepositoryBrowserModal(props: {
   const [entrySelected, setEntrySelected] = useState<
     LfRepoTreeNode | undefined
   >(undefined);
-  const onEntrySelected = (event: CustomEvent<LfRepoTreeNode[]>) => {
+  const repositoryBrowser: React.RefObject<
+    NgElement & WithProperties<LfRepositoryBrowserComponent>
+  > = React.useRef();
+  const onEntrySelected: (event: CustomEvent<LfRepoTreeNode[]>) => void = (
+    event: CustomEvent<LfRepoTreeNode[]>
+  ) => {
     const treeNodesSelected: LfRepoTreeNode[] = event.detail;
     const selectedNode =
       treeNodesSelected?.length > 0 ? treeNodesSelected[0] : undefined;
@@ -215,10 +230,8 @@ export function RepositoryBrowserModal(props: {
     );
     setShouldDisableSelect(getShouldDisableSelect());
   };
-  const repositoryBrowser: React.RefObject<
-    NgElement & WithProperties<LfRepositoryBrowserComponent>
-  > = React.useRef();
   let lfRepoTreeService: LfRepoTreeNodeService;
+
   React.useEffect(() => {
     if (props.repoClient) {
       lfRepoTreeService = new LfRepoTreeNodeService(props.repoClient);
@@ -226,15 +239,22 @@ export function RepositoryBrowserModal(props: {
         EntryType.Folder,
         EntryType.Shortcut,
       ];
-      initializeTreeAsync();
+      initializeTreeAsync().catch((err: Error | ProblemDetails) => {
+        console.warn(
+          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+        );
+      });
     }
   }, [props.repoClient]);
-  const isNodeSelectable = (node: LfRepoTreeNode) => {
-    if (node?.entryType == EntryType.Folder) {
+
+  const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
+    node: LfRepoTreeNode
+  ) => {
+    if (node?.entryType === EntryType.Folder) {
       return true;
     } else if (
-      node?.entryType == EntryType.Shortcut &&
-      node?.targetType == EntryType.Folder
+      node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.Folder
     ) {
       return true;
     } else {
@@ -242,7 +262,7 @@ export function RepositoryBrowserModal(props: {
     }
   };
 
-  async function initializeTreeAsync() {
+  async function initializeTreeAsync(): Promise<void> {
     if (!props.repoClient) {
       throw new Error('RepoId is undefined');
     }
@@ -279,13 +299,13 @@ export function RepositoryBrowserModal(props: {
     );
   }
 
-  const onSelectFolder = () => {
+  const onSelectFolder: () => void = () => {
     props.SelectFolder(
       repositoryBrowser?.current?.currentFolder as LfRepoTreeNode
     );
   };
 
-  const onOpenNode = async () => {
+  const onOpenNode: () => Promise<void> = async () => {
     await repositoryBrowser?.current?.openSelectedNodesAsync();
     setShouldShowOpen(getShouldShowOpen());
     setShouldShowSelect(getShouldShowSelect());
@@ -357,7 +377,7 @@ export function RepositoryBrowserModal(props: {
   );
 }
 
-export function DocumentName(props: { documentName: string }) {
+export function DocumentName(props: { documentName: string }): JSX.Element {
   return (
     <>
       <label htmlFor='txt1' className='col-sm-2 col-form-label'>
@@ -382,9 +402,11 @@ export function TemplateSelector(props: {
   selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
   onChangeTemplate: (event: ChangeEvent<HTMLSelectElement>) => void;
-}) {
+}): JSX.Element {
   const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
-    <option key={item.id} value={item.displayName}>{item.displayName}</option>
+    <option key={item.id} value={item.displayName}>
+      {item.displayName}
+    </option>
   ));
   return (
     <>
@@ -411,14 +433,14 @@ export function SharePointLaserficheColumnMatching(props: {
   lfFieldsForSelectedTemplate: TemplateFieldInfo[];
   validate: boolean;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
-}) {
+}): JSX.Element {
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
-  const handleSpFieldChange = (
+  const handleSpFieldChange: (
     e: ChangeEvent<HTMLSelectElement>,
     mapping: MappedFields
-  ) => {
+  ) => void = (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => {
     const targetElement = e.target as HTMLSelectElement;
     const newConfig = { ...props.profileConfig };
     const rowsArray = [...newConfig.mappedFields];
@@ -434,10 +456,10 @@ export function SharePointLaserficheColumnMatching(props: {
     newConfig.mappedFields = rowsArray;
     props.handleProfileConfigUpdate(newConfig);
   };
-  const handleLfFieldChange = (
+  const handleLfFieldChange: (
     e: ChangeEvent<HTMLSelectElement>,
     mapping: MappedFields
-  ) => {
+  ) => void = (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => {
     const targetElement = e.target as HTMLSelectElement;
     const newConfig = { ...props.profileConfig };
     const rowsArray = [...newConfig.mappedFields];
@@ -454,20 +476,20 @@ export function SharePointLaserficheColumnMatching(props: {
     props.handleProfileConfigUpdate(newConfig);
   };
 
-  function CloseModalUp() {
+  function closeModalUp(): void {
     setDeleteModal(undefined);
   }
-  const RemoveSpecificMapping = (idx) => {
+  const removeSpecificMapping: (idx: number) => void = (idx: number) => {
     const del = (
       <DeleteModal
         configurationName='the field mapping'
-        onCancel={CloseModalUp}
-        onConfirmDelete={() => DeleteMapping(idx)}
+        onCancel={closeModalUp}
+        onConfirmDelete={() => deleteMapping(idx)}
       />
     );
     setDeleteModal(del);
   };
-  function DeleteMapping(id: number) {
+  function deleteMapping(id: number): void {
     const newConfig = { ...props.profileConfig };
     const rows = [...props.profileConfig.mappedFields];
     rows.splice(id, 1);
@@ -476,12 +498,12 @@ export function SharePointLaserficheColumnMatching(props: {
     setDeleteModal(undefined);
   }
 
-  const AddNewMappingFields = () => {
+  const addNewMappingFields: () => void = () => {
     if (props.profileConfig.selectedTemplateName) {
       const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
         36
       );
-      const item = {
+      const item: MappedFields = {
         id: id,
         spField: undefined,
         lfField: undefined,
@@ -565,13 +587,12 @@ export function SharePointLaserficheColumnMatching(props: {
                 *Required field in Laserfiche
               </span>
             ) : (
-              <a
-                href='javascript:;'
-                className='ml-3'
-                onClick={() => RemoveSpecificMapping(index)}
+              <button
+                className={styles.lfMaterialIconButton}
+                onClick={() => removeSpecificMapping(index)}
               >
-                <span className='material-icons'>delete</span>
-              </a>
+                <span className='material-icons-outlined'> close </span>
+              </button>
             )}
             {errorMessageMapping}
           </td>
@@ -599,7 +620,7 @@ export function SharePointLaserficheColumnMatching(props: {
           </table>
           {fullValidationError}
           <a
-            onClick={AddNewMappingFields}
+            onClick={addNewMappingFields}
             className='btn btn-primary pl-5 pr-5 float-right ml-2'
           >
             Add Field
@@ -625,7 +646,7 @@ export function DeleteModal(props: {
   configurationName: string;
   onConfirmDelete: () => void;
   onCancel: () => void;
-}) {
+}): JSX.Element {
   return (
     <div className='modal-dialog modal-dialog-centered'>
       <div className='modal-content'>
@@ -689,7 +710,7 @@ function getMappingErrorMessage(
         >
           SharePoint field type of {spFieldtype} cannot be mapped with
           Laserfiche field type of {lfFieldtype}
-          <span className='material-icons'>warning</span>Data types mismatch
+          <span className='material-icons-outlined'>warning</span>Data types mismatch
         </div>
       );
     } else {
@@ -699,36 +720,47 @@ function getMappingErrorMessage(
   return undefined;
 }
 
-export function hasFieldTypeMismatch(mapped: MappedFields) {
+export function hasFieldTypeMismatch(mapped: MappedFields): boolean {
   const lfFieldType = mapped.lfField.fieldType;
   const spFieldType = mapped.spField.TypeAsString;
   if (
-    lfFieldType == 'DateTime' ||
-    lfFieldType == 'Date' ||
-    lfFieldType == 'Time'
+    lfFieldType === WFieldType.DateTime ||
+    lfFieldType === WFieldType.Date ||
+    lfFieldType === WFieldType.Time
   ) {
-    if (spFieldType != 'DateTime') {
+    if (spFieldType !== 'DateTime') {
       return true;
     }
-  } else if (lfFieldType == 'LongInteger' || lfFieldType == 'ShortInteger') {
-    if (spFieldType != 'Number') {
+  } else if (
+    lfFieldType === WFieldType.LongInteger ||
+    lfFieldType === WFieldType.ShortInteger
+  ) {
+    if (spFieldType !== 'Number') {
       return true;
     }
-  } else if (lfFieldType == 'Number') {
-    if (spFieldType != 'Number' && spFieldType != 'Currency') {
+  } else if (lfFieldType === WFieldType.Number) {
+    if (spFieldType !== 'Number' && spFieldType !== 'Currency') {
       return true;
     }
-  } else if (lfFieldType == 'List') {
-    if (spFieldType != 'Choice') {
+  } else if (lfFieldType === WFieldType.List) {
+    if (spFieldType !== 'Choice') {
       return true;
     }
   }
   return false;
 }
 
-export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
-  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName);
-  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0 || profileNameContainsSpecialCharacters) {
+export function validateNewConfiguration(
+  profileConfig: ProfileConfiguration
+): boolean {
+  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(
+    profileConfig.ConfigurationName
+  );
+  if (
+    !profileConfig.ConfigurationName ||
+    profileConfig.ConfigurationName.length === 0 ||
+    profileNameContainsSpecialCharacters
+  ) {
     return false;
   }
   if (profileConfig.mappedFields) {
@@ -736,7 +768,7 @@ export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
       if (!mapped.spField || !mapped.lfField) {
         return false;
       }
-      if(hasFieldTypeMismatch(mapped)) {
+      if (hasFieldTypeMismatch(mapped)) {
         return false;
       }
     }

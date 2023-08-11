@@ -1,50 +1,100 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
-.overlay {
-  position: relative;
-  display: block;
-  opacity: 0;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 50%;
-  height: 100%;
-  z-index: 1;
-  background-color: rgb(46, 44, 44);
+.actionButton {
+  margin-right: 10px;
 }
-.maindialog {
-  background-color: white;
-  padding: 20px;
-  transition: all 5s ease-in-out;
-  max-height: fit-content;
-}
-.text {
-  position: relative;
-  font-size: 16px;
-  color: black;
-  //z-index: 4;
-  //text-align: center;
-}
-.button {
-  color: #178080;
-  margin-left: 200px;
-  font-weight: bold;
+
+.wrapper {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: column;
+  max-height: calc(100vh - 50px);
+  min-width: 400px;
 }
-.button1 {
-  //font-weight: bold;
-  color: black;
-  font-size: 15px;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: var(--header-min-height, 50px);
+  color: #606060;
+  background-color: #fafafa;
+  /* default is the standard padding, but expose variables
+       in case contents have additional padding */
+  padding-top: var(--header-padding-top, 13px);
+  padding-bottom: var(--header-padding-bottom, 13px);
+  padding-left: var(--header-padding-left, 20px);
+  padding-right: var(--header-padding-right, 20px);
+
+  /* automatically accommodates for padding */
+  box-sizing: border-box;
+  height: 55px;
+  /* 50px - padding */
+  line-height: 24px;
+  align-items: center;
 }
-.button2 {
-  //font-weight: bold;
-  color: rgb(8, 8, 8);
-  font-size: 15px;
-  margin-right: 16px;
+
+.contentBox {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  box-sizing: border-box;
+  overflow: auto;
+  background-color: #fafafa;
+  min-height: 80px;
+  /* default is the standard padding, but expose variables
+       in case contents have additional padding */
+  padding-top: var(--content-padding-top, 20px);
+  padding-bottom: var(--content-padding-bottom, 20px);
+  padding-left: var(--content-padding-left, 20px);
+  padding-right: var(--content-padding-right, 20px);
+  max-height: calc(100vh - var(--header-min-height) - var(--footer-min-height));
 }
-.href {
-  font-weight: bold;
-  color: rgb(9, 34, 172);
+
+.footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: var(--footer-min-height, 50px);
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  /* default is the standard padding, but expose variables
+       in case contents have additional padding */
+  padding-top: var(--footer-padding-top, 10px);
+  padding-bottom: var(--footer-padding-bottom, 10px);
+  padding-left: var(--footer-padding-left, 20px);
+  padding-right: var(--footer-padding-right, 20px);
+
+  /* automatically accommodates for padding */
+  box-sizing: border-box;
+  height: 55px;
+  /* 50px - padding */
+  line-height: 30px;
+}
+
+.lfCloseButton {
+  cursor: pointer;
+  display: flex;
+  height: 24px;
+  width: 24px;
+  align-items: center;
+  border: none;
+  background: inherit;
+  justify-content: center;
+  color: #646464;
+}
+
+.logoHeader {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialogTitle {
+  padding-left: 10px;
 }
