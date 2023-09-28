@@ -208,43 +208,45 @@ export default function ManageConfigurationsPage(
           </div>
         </main>
       </div>
-      <div
-        className={styles.modal}
-        id='deleteModal'
-        hidden={!deleteModal}
-        data-backdrop='static'
-        data-keyboard='false'
-      >
-        {deleteModal}
-      </div>
-      <div
-        className={styles.modal}
-        id='errorModal'
-        hidden={!error}
-        data-backdrop='static'
-        data-keyboard='false'
-      >
-        <div className='modal-dialog modal-dialog-centered'>
-          <div className={`modal-content ${styles.wrapper}`}>
-            <div className={styles.header}>
-              <div className='modal-title' id='ModalLabel'>
-                Laserfiche
+      {deleteModal !== undefined && (
+        <div
+          className={styles.modal}
+          id='deleteModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {deleteModal}
+        </div>
+      )}
+      {(error!== undefined) && (
+        <div
+          className={styles.modal}
+          id='errorModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          <div className='modal-dialog modal-dialog-centered'>
+            <div className={`modal-content ${styles.wrapper}`}>
+              <div className={styles.header}>
+                <div className='modal-title' id='ModalLabel'>
+                  Laserfiche
+                </div>
               </div>
-            </div>
-            <div className={styles.contentBox}>{error}</div>
-            <div className={styles.footer}>
-              <button
-                type='button'
-                className='lf-button primary-button'
-                data-dismiss='modal'
-                onClick={() => setError(undefined)}
-              >
-                OK
-              </button>
+              <div className={styles.contentBox}>{error}</div>
+              <div className={styles.footer}>
+                <button
+                  type='button'
+                  className='lf-button primary-button'
+                  data-dismiss='modal'
+                  onClick={() => setError(undefined)}
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

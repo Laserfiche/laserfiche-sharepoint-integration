@@ -173,22 +173,21 @@ export function ConfigurationBody(props: {
           </select>
         </div>
       </div>
-      <div
-        className={styles.modal}
-        id='folderModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showFolderModal}
-      >
-        {showFolderModal && (
+      {showFolderModal && (
+        <div
+          className={styles.modal}
+          id='folderModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
           <RepositoryBrowserModal
             repoClient={props.repoClient}
             CloseFolderBrowserUp={closeFolderModalUp}
             selectedEntryNodePath={selectedEntryNodePath}
             SelectFolder={onSelectFolderAsync}
           />
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
@@ -231,7 +230,7 @@ export function RepositoryBrowserModal(props: {
         EntryType.Folder,
         EntryType.Shortcut,
       ];
-      void initializeTreeAsync()
+      void initializeTreeAsync();
     }
   }, [props.repoClient]);
 
@@ -259,7 +258,7 @@ export function RepositoryBrowserModal(props: {
         'entrySelected',
         onEntrySelected
       );
-  
+
       if (lfRepoTreeService) {
         await repositoryBrowser?.current?.initAsync(
           lfRepoTreeService,
@@ -270,8 +269,7 @@ export function RepositoryBrowserModal(props: {
           'Unable to initialize tree, lfRepoTreeService is undefined'
         );
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.error(`Unable to initialize repository browser: ${err}`);
     }
   }
@@ -330,21 +328,20 @@ export function RepositoryBrowserModal(props: {
         </div>
 
         <div className={styles.footer}>
-          <button
-            className={`lf-button primary-button`}
-            onClick={onOpenNode}
-            hidden={!shouldShowOpen}
-          >
-            Open
-          </button>
-          <button
-            className='lf-button primary-button'
-            onClick={onSelectFolder}
-            hidden={!shouldShowSelect}
-            disabled={shouldDisableSelect}
-          >
-            Select
-          </button>
+          {shouldShowOpen && (
+            <button className={`lf-button primary-button`} onClick={onOpenNode}>
+              Open
+            </button>
+          )}
+          {shouldShowSelect && (
+            <button
+              className='lf-button primary-button'
+              onClick={onSelectFolder}
+              disabled={shouldDisableSelect}
+            >
+              Select
+            </button>
+          )}
           <button
             className={`sec-button lf-button ${styles.marginLeftButton}`}
             onClick={props.CloseFolderBrowserUp}
@@ -634,15 +631,16 @@ export function SharePointLaserficheColumnMatching(props: {
       ) : (
         <span>Please select a template above to map fields</span>
       )}
-      <div
-        className={styles.modal}
-        id='deleteModal'
-        hidden={!deleteModal}
-        data-backdrop='static'
-        data-keyboard='false'
-      >
-        {deleteModal}
-      </div>
+      {deleteModal !== undefined && (
+        <div
+          className={styles.modal}
+          id='deleteModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {deleteModal}
+        </div>
+      )}
     </>
   );
 }

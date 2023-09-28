@@ -82,19 +82,19 @@ export default function EditManageConfiguration(
             }
           }
         }
-      }
-      catch (err) {
+      } catch (err) {
         console.error(`Error initializing edit configuration page: ${err}`);
       }
     };
-    void initializeComponentAsync()
+    void initializeComponentAsync();
   }, []);
 
   async function saveEditExistingConfigurationAsync(): Promise<void> {
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
+      const manageConfigurationConfig: IListItem[] =
+        await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] = JSON.parse(
@@ -157,20 +157,22 @@ export default function EditManageConfiguration(
       <ProfileHeader configurationName={profileConfig?.ConfigurationName} />
     </div>
   );
-  return profileConfig ? (
-    <ManageConfiguration
-      header={header}
-      repoClient={props.repoClient}
-      loggedIn={props.loggedIn}
-      profileConfig={profileConfig}
-      loadingContent={true}
-      createNew={false}
-      context={props.context}
-      handleProfileConfigUpdate={handleProfileConfigUpdate}
-      saveConfiguration={saveEditExistingConfigurationAsync}
-      validate={validate}
-    />
-  ) : (
-    <span>Nothing to see</span>
+  return (
+    <>
+      {profileConfig && (
+        <ManageConfiguration
+          header={header}
+          repoClient={props.repoClient}
+          loggedIn={props.loggedIn}
+          profileConfig={profileConfig}
+          loadingContent={true}
+          createNew={false}
+          context={props.context}
+          handleProfileConfigUpdate={handleProfileConfigUpdate}
+          saveConfiguration={saveEditExistingConfigurationAsync}
+          validate={validate}
+        />
+      )}
+    </>
   );
 }

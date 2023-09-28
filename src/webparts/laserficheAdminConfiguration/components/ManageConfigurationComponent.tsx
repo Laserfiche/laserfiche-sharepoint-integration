@@ -233,12 +233,11 @@ export default function ManageConfiguration(
           </div>
         </main>
       </div>
-      <div
+      {showConfirmModal && <div
         className={styles.modal}
         data-backdrop='static'
         data-keyboard='false'
         id='ConfirmModal'
-        hidden={!showConfirmModal}
       >
         <div className='modal-dialog modal-dialog-centered'>
           <div
@@ -259,13 +258,12 @@ export default function ManageConfiguration(
             </div>
           </div>
         </div>
-      </div>
-      <div
+      </div>}
+      {showErrorModal && <div
         className={styles.modal}
         data-backdrop='static'
         data-keyboard='false'
         id='ErrorModal'
-        hidden={!showErrorModal}
       >
         <div className='modal-dialog modal-dialog-centered'>
           <div
@@ -289,7 +287,7 @@ export default function ManageConfiguration(
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

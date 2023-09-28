@@ -706,15 +706,16 @@ export default function ManageMappingsPage(
           </div>
         </div>
       </div>
-      <div
-        className={styles.modal}
-        id='deleteModal'
-        hidden={!deleteModal}
-        data-backdrop='static'
-        data-keyboard='false'
-      >
-        {deleteModal}
-      </div>
+      {deleteModal !== undefined && (
+        <div
+          className={styles.modal}
+          id='deleteModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {deleteModal}
+        </div>
+      )}
     </>
   );
 }

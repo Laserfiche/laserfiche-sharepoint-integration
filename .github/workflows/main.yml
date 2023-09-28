@@ -25,6 +25,13 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Tag commit
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{github.run_number}}
+          commit_sha: ${{ github.sha }}
+          message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
       - name: Install dependencies
         run: npm ci
 

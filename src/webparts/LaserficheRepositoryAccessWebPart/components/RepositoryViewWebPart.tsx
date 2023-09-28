@@ -65,7 +65,8 @@ const fileNameValidation = 'Please provide a valid filename';
 const fileNameWithBacklash =
   'Please provide a valid filename without backslash';
 const folderValidation = 'Please provide a folder name';
-const folderNameValidation = 'Invalid Name, only alphanumeric characters are allowed.';
+const folderNameValidation =
+  'Invalid Name, only alphanumeric characters are allowed.';
 const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {
@@ -260,8 +261,7 @@ function RepositoryBrowserToolbar(props: {
         repoId
       );
       window.open(webClientNodeUrl);
-    }
-    else if (props.parentItem?.id) {
+    } else if (props.parentItem?.id) {
       const webClientNodeUrl = getEntryWebAccessUrl(
         props.parentItem.id,
         props.webClientUrl,
@@ -324,60 +324,65 @@ function RepositoryBrowserToolbar(props: {
           </button>
         </div>
       </div>
-      <div
-        className={styles.modal}
-        id='uploadModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showUploadModal}
-      >
-        {showUploadModal && (
-          <ImportFileModal
+      {showUploadModal && (
+        <div
+          className={styles.modal}
+          id='uploadModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {showUploadModal && (
+            <ImportFileModal
+              repoClient={props.repoClient}
+              loggedIn={props.loggedIn}
+              parentItem={props.parentItem}
+              closeImportModal={() => setShowUploadModal(false)}
+            />
+          )}
+        </div>
+      )}
+      {showCreateModal && (
+        <div
+          className={styles.modal}
+          id='createModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          <CreateFolderModal
             repoClient={props.repoClient}
-            loggedIn={props.loggedIn}
+            closeCreateFolderModal={() => setShowCreateModal(false)}
             parentItem={props.parentItem}
-            closeImportModal={() => setShowUploadModal(false)}
           />
-        )}
-      </div>
-      <div
-        className={styles.modal}
-        id='createModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showCreateModal}
-      >
-        <CreateFolderModal
-          repoClient={props.repoClient}
-          closeCreateFolderModal={() => setShowCreateModal(false)}
-          parentItem={props.parentItem}
-        />
-      </div>
-      <div
-        className={styles.modal}
-        id='AlertModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showAlertModal}
-      >
-        <div className='modal-dialog'>
-          <div
-            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-          >
-            <div className='modal-body'>Please select file/folder to open</div>
-            <div className='modal-footer'>
-              <button
-                type='button'
-                className='lf-button primary-button'
-                data-dismiss='modal'
-                onClick={confirmAlertButton}
-              >
-                OK
-              </button>
+        </div>
+      )}
+      {showAlertModal && (
+        <div
+          className={styles.modal}
+          id='AlertModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          <div className='modal-dialog'>
+            <div
+              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+            >
+              <div className='modal-body'>
+                Please select file/folder to open
+              </div>
+              <div className='modal-footer'>
+                <button
+                  type='button'
+                  className='lf-button primary-button'
+                  data-dismiss='modal'
+                  onClick={confirmAlertButton}
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
