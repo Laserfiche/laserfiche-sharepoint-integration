@@ -12,7 +12,6 @@ lib
 release
 solution
 temp
-*.sppkg
 
 # Coverage directory used by tools like istanbul
 coverage
@@ -31,5 +30,8 @@ obj
 
 # Styles Generated Code
 *.scss.ts
-
+output.css
 .heft/
+
+# locally generated documentation
+jekyll_files/_site/
