@@ -9,11 +9,15 @@
     "url": "https://github.com/Laserfiche/laserfiche-sharepoint-integration"
   },
   "scripts": {
+    "bundle": "gulp bundle --ship",
+    "package-solution": "gulp package-solution --ship",
     "build": "gulp bundle",
+    "package": "gulp package-solution",
     "clean": "gulp clean",
     "test": "gulp test",
     "serve": "gulp serve",
-    "gulp-trust-dev-cert": "gulp trust-dev-cert"
+    "gulp-trust-dev-cert": "gulp trust-dev-cert",
+    "serve-docs": "bundle exec jekyll serve"
   },
   "dependencies": {
     "@laserfiche/lf-repository-api-client": "^1.0.12",
