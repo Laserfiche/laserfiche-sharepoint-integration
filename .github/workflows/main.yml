@@ -12,6 +12,9 @@ on:
 env:
   packagePath: sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
   packagePathUserDocs: UserDocuments
+  majorVersion: 1
+  minorVersion: 0
+  fullVersion: $majorVersion.$minorVersion.${{github.run_number}}
 
 jobs:
   build:
@@ -28,9 +31,12 @@ jobs:
       - name: Tag commit
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{github.run_number}}
+          tag: ${{env.fullVersion}}
           commit_sha: ${{ github.sha }}
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
+
+      - name: replace version
+        run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' ./../config/package-solution.json
 
       - name: Install dependencies
         run: npm ci
