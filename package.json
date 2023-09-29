@@ -1,6 +1,6 @@
 {
   "name": "laserfiche-sharepoint-integration",
-  "version": "1.0.0",
+  "version": "VERSION_TO_UPDATE",
   "private": true,
   "main": "lib/index.js",
   "license": "MIT",
