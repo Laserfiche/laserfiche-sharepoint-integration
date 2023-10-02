@@ -6,8 +6,6 @@ nav_order: 1
 
 # Working with the Laserfiche SharePoint Integration
 
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-
 ## Introduction
 
 Laserfiche SharePoint Integration allows you to do two things:
