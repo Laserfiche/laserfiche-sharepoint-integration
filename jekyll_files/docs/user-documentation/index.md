@@ -7,8 +7,6 @@ has_children: true
 
 # Laserfiche SharePoint Integration User Guide
 
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-
 ## Overview
 Laserfiche SharePoint Integration provides two services:
 
