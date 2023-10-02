@@ -6,7 +6,6 @@ parent: Laserfiche SharePoint Integration User Guide
 ---
 
 # Save a Document to Laserfiche
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
 - Be able to open the documents tab in Laserfiche
 

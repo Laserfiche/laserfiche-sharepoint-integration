@@ -7,8 +7,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 # Adding App to Organization
 
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-
 
 ### Prerequisites
   - Have a SharePoint Online account with administrator privileges for the tenant app catalog.

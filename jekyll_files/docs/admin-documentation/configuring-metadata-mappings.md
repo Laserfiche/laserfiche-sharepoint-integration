@@ -6,8 +6,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ---
 # Configuring Metadata Mappings
 
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-
 ### Prerequisites
 - be a Site Owner of the SharePoint Site for which the integration will be configured
 

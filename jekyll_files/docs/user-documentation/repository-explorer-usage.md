@@ -5,7 +5,6 @@ nav_order: 2
 parent: Laserfiche SharePoint Integration User Guide
 ---
 # View Laserfiche Repository from SharePoint
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 
 ## Usage
 - Navigate to the SharePoint Page containing the Repository Explorer web part. If none exists, consult the Admin Documentation for [How to Add App to SharePoint Site](../admin-documentation/adding-app-to-sp-site).

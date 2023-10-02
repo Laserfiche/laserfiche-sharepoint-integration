@@ -7,7 +7,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 
 # Adding App to SharePoint Site
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
   - Be an owner of a SharePoint site you want to add the integration to.
   - The site must exist in an organization which has the integration installed. (see [Adding App to Organization](./adding-app-organization))
