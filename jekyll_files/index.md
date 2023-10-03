@@ -21,7 +21,3 @@ Laserfiche SharePoint Integration allows you to do two things:
 
 - The [Admin Guides](./docs/admin-documentation) explain how to set up the integration, and may require specialized permission.
 - The [User Guides](./docs/user-documentation) explain how to use a page with an integration already set up to save documents or browse the Laserfiche repository.
-
-## Important Security Notice
-
-JavaScript code running in same domain/origin as your SharePoint tenant has access to the Laserfiche Integration security token. This token must be kept secure to avoid unauthorized access to Laserfiche systems. To this end, ensure that only trusted code is allowed to run in the same domain/origin.
