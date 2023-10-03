@@ -142,18 +142,120 @@ Expected Results:
 
 ### Repository View
 
-Prerequisites
+Prerequisites:
 
-- Repository Explorer web part must exist
+- Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
+
+#### Test login
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/adding-app-to-sp-site) for setting up the Repository Explorer Page.
 
-Expected Results:
+1. Click `Sign in` button
+   - Expected results: You are led through the OAuth flow, you return to repository explorer page, and button says `Sign Out`
 
-1. We should be able to see the new folder without needing to reload anything
-1. We should see an empty set of children and the breadcrumb navigation should appear
-1. We should be able to see the new folder without needing to reload anything. Upon double-clicking, we should see an empty set of children and the breadcrumb navigation should still allow us to move back up to the ancestor folders.
-1. A dialog should pop up allowing you to choose the file. After you've chosen, the file should be immediately visible.
-1. the selected file row should be visibly distinguished from the other non-selected rows. Additionally, clicking on the arrow-in-square should open a new tab to view the file in Laserfiche.
-1. the breadcrumb navigation links should take us to the named locations.
+#### Test Open button
+
+Steps:
+
+1. Refresh repository explorer to the root folder
+1. Click open button
+   - Expected result: Open root folder in Laserfiche in a new tab
+1. Return to repository explorer, double-click on a folder to enter it.
+1. Select (single-click) a folder inside
+1. Click open button
+   - Expected result: Open the selected folder in Laserfiche in a new tab
+1. Select (single-click) a document inside
+1. Click the open button
+   - Expected result: Open the selected document in Laserfiche in a new tab
+
+#### Test import file button
+
+Steps:
+
+1. Navigate to a folder that you have access to create documents in
+1. Have no folder/document selected
+1. Click the import file button
+1. Click import without uploading file
+    - Expected behavior: Error message stating please select a file to upload
+1. Upload test file using browse button
+1. Add no metadata
+1. Click ok
+    - Expected behavior: Dialog closes
+1. Use refresh button to refresh open folder
+    - Expected behavior: File exists in currently opened folder
+1. Back in repository explorer, single-click a folder
+1. Click the import file button
+1. Upload test file using browse button
+1. Add no metadata
+1. Click ok
+    - Expected behavior: Dialog closes
+1. Use refresh button to refresh open folder
+    - Expected behavior: File exists in currently opened folder (not the one selected)
+1. Back in the repository explorer, single-click a file
+1. Click the import file button
+1. Upload test file using browse button
+1. Add no metadata
+1. Click ok
+    - Expected behavior: Dialog closes
+1. Use refresh button to refresh open folder
+    - Expected behavior: File exists in currently opened folder (not the one selected)
+1. Back in repository explorer, click the import file button
+1. Upload test file using browse button
+1. Add template
+1. Make an error in the metadata
+1. Attempt to upload file
+    - Expected behavior: File not uploaded, metadata component shows relevant errors if not already shown
+1. Add valid metadata
+1. Click ok
+    - Expected behavior: Dialog closes
+1. Use refresh button to refresh open folder
+    - Expected behavior: File exists in currently opened folder
+1. Double-click recently imported file
+    - Expected behavior: Metadata specified was successfully set
+1. Back in repository explorer, click the import file button
+1. Upload test file using browse button
+1. Rename file to be same as existing document
+1. Click ok
+    - Expected behavior: Dialog closes
+1. Use refresh button to refresh open folder
+    - Expected behavior: File was uploaded, but has been automatically renamed
+
+#### Test Create folder button
+
+Steps:
+
+1. Navigate folder where you have permissions to create entries
+1. Use create folder button
+1. Create folder with valid name
+    - Expected Results: Dialog closes
+1. Use refresh button
+    - Expected results: New folder exists in currently open folder
+1. Use create folder button
+1. Attempt to create with no name
+    - Expected results: Dialog remains open, error specifies to provide a folder name
+1. Close dialog
+1. Use create folder button
+1. Use name with invalid characters (Ex/ )
+1. Attempt to create folder
+    - Expected results: Dialog remains open, error  specifies to provide a valid folder name
+1. Use create folder button
+1. Use name that already exists in folder
+1. Attempt to create
+    - Expected Results: Dialog remains open, receive error that object already exists
+1. Select (single-click) a folder in the repository explorer
+1. Use create folder button
+1. Create folder with valid, unique name
+    - Expected Results: Dialog closes
+1. Use refresh button
+    - Expected results: New folder exists in currently open folder
+
+#### Test refresh button
+
+Steps:
+
+1. Open specific folder in repository explorer
+1. Open same folder in Web Client in a new tab
+1. Create folder in Web Client in that folder
+1. Return to repository explorer tab
+1. Click refresh button
+    - Expected behavior: Folder that was created in Web Client will now exist in the repository explorer
