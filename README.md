@@ -21,7 +21,7 @@ See .github/workflows/main.yml for Node and NPM version used.
 
 ## Change Log
 
-See CHANGELOG [here](./CHANGELOG.md).
+See CHANGELOG [here](./jekyll_files/CHANGELOG.md).
 
 ## Contribution
 
