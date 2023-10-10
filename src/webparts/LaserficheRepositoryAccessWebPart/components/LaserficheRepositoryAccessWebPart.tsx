@@ -107,6 +107,13 @@ export default function LaserficheRepositoryAccessWebPart(
     void initializeComponentAsync();
   }, []);
 
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    window.open(url, '_blank', 'popup');
+  }
+
   return (
     <React.StrictMode>
       <div style={{ display: 'none' }}>
@@ -120,7 +127,16 @@ export default function LaserficheRepositoryAccessWebPart(
             client_id={clientId}
             authorize_url_host_name={region}
             ref={loginComponent}
+            hidden
           />
+          <button
+            onClick={clickLogin}
+            className={`lf-button login-button ${
+              loggedIn ? 'sec-button' : 'primary-button'
+            }`}
+          >
+            {loggedIn ? 'Sign out' : 'Sign in'}
+          </button>
         </div>
         <RepositoryViewComponent
           webClientUrl={webClientUrl}

@@ -9,7 +9,13 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
-import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../constants';
+import {
+  clientId,
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
+  LF_UI_COMPONENTS_URL,
+  ZONE_JS_URL,
+} from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
@@ -19,7 +25,8 @@ import { getRegion } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
 
-const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN = 'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
+const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
+  'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -66,18 +73,10 @@ export default function LaserficheAdminConfiguration(
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       try {
-        SPComponentLoader.loadCss(
-          LF_INDIGO_PINK_CSS_URL
-        );
-        SPComponentLoader.loadCss(
-          LF_MS_OFFICE_LITE_CSS_URL
-        );
-        await SPComponentLoader.loadScript(
-          ZONE_JS_URL
-        );
-        await SPComponentLoader.loadScript(
-          LF_UI_COMPONENTS_URL
-        );
+        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+        await SPComponentLoader.loadScript(ZONE_JS_URL);
+        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
         const loginCompleted: () => Promise<void> = async () => {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
@@ -85,8 +84,11 @@ export default function LaserficheAdminConfiguration(
         const logoutCompleted: () => Promise<void> = async () => {
           setLoggedIn(false);
         };
-  
-        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
         loginComponent.current.addEventListener(
           'logoutCompleted',
           logoutCompleted
@@ -95,14 +97,20 @@ export default function LaserficheAdminConfiguration(
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         }
-      }
-      catch (err) {
+      } catch (err) {
         console.error(`Error initializing configuration page: ${err}`);
       }
     };
 
     void initializeComponentAsync();
   }, []);
+
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    window.open(url, '_blank', 'popup');
+  }
 
   return (
     <React.StrictMode>
@@ -117,7 +125,16 @@ export default function LaserficheAdminConfiguration(
                   redirect_behavior='Replace'
                   client_id={clientId}
                   ref={loginComponent}
+                  hidden
                 />
+                <button
+                  onClick={clickLogin}
+                  className={`lf-button login-button ${
+                    loggedIn ? 'sec-button' : 'primary-button'
+                  }`}
+                >
+                  {loggedIn ? 'Sign out' : 'Sign in'}
+                </button>
               </div>
               <AdminMainPage
                 context={props.context}
@@ -177,8 +194,13 @@ export default function LaserficheAdminConfiguration(
               </StackItem>
             </>
           )}
-          {!isAdmin() &&
-          <span><b>{YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}</b></span>}
+          {!isAdmin() && (
+            <span>
+              <b>
+                {YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}
+              </b>
+            </span>
+          )}
         </Stack>
       </HashRouter>
     </React.StrictMode>
