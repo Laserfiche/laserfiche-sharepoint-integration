@@ -59,6 +59,10 @@ export default function SendToLaserficheLoginComponent(
   }
   const loginText: JSX.Element | undefined = getLoginText();
 
+  const autoLoginCompleted: () => Promise<void> = async () => {
+    window.close();
+  };
+
   const loginCompleted: () => Promise<void> = async () => {
     setLoggedIn(true);
     if (spFileMetadata) {
@@ -88,14 +92,35 @@ export default function SendToLaserficheLoginComponent(
         SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
         await SPComponentLoader.loadScript(ZONE_JS_URL);
         await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
+
+        if (window.location.href.includes('autologin')) {
+          document.body.style.display = 'none';
+          if (loginComponent.current.state !== LoginState.LoggedIn) {
+            if (!document.referrer.includes('accounts.')) {
+              loginComponent.current.initLoginFlowAsync();
+            } else {
+              window.close();
+            }
+          } else {
+            const loginbutton = loginComponent.current.querySelector(
+              '.login-button'
+            ) as HTMLButtonElement;
+            loginbutton.click();
+          }
+          loginComponent.current.addEventListener(
+            'loginCompleted',
+            autoLoginCompleted
+          );
+        } else {
+          loginComponent.current.addEventListener(
+            'loginCompleted',
+            loginCompleted
+          );
+          loginComponent.current.addEventListener(
+            'logoutCompleted',
+            logoutCompleted
+          );
+        }
 
         const isLoggedIn: boolean =
           loginComponent.current.state === LoginState.LoggedIn;
@@ -191,6 +216,15 @@ export default function SendToLaserficheLoginComponent(
     Navigation.navigate(path, true);
   }
 
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    window.open(url, '_blank', 'popup');
+  }
+
+  let redirectURL =
+    window.location.origin + window.location.pathname + '?autologin';
   return (
     <React.StrictMode>
       <div className={styles.signInHeader}>
@@ -204,12 +238,21 @@ export default function SendToLaserficheLoginComponent(
       <div className={styles.signInLabel}>{loginText}</div>
       <div className={styles.loginButton}>
         <lf-login
-          redirect_uri={window.location.origin + window.location.pathname}
+          redirect_uri={redirectURL}
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}
           ref={loginComponent}
+          hidden
         />
+        <button
+          onClick={clickLogin}
+          className={`lf-button login-button ${
+            loggedIn ? 'sec-button' : 'primary-button'
+          }`}
+        >
+          {loggedIn ? 'Sign out' : 'Sign in'}
+        </button>
         <br />
         {spFileMetadata?.fileUrl && (
           <button className='lf-button sec-button' onClick={redirect}>
