@@ -33,6 +33,9 @@ declare global {
 const CANCEL = 'Cancel';
 const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
   '*Note: This page should only be needed if you are attempting to save a document to Laserfiche.';
+const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
+  'You must be a currently licensed Laserfiche Cloud user to use this web part.';
+const FOR_MORE_INFO_VISIT = 'For more information visit';
 
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
@@ -149,9 +152,17 @@ export default function SendToLaserficheLoginComponent(
               )}
             </p>
           ) : (
-            <p>
-              You are not signed in. You can sign in using the following button.
-            </p>
+            <span>
+              {`${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
+              <a href='https://www.laserfiche.com/products/pricing'>
+                laserfiche.com
+              </a>
+              {`.`}
+              <p>
+                You are not signed in. You can sign in using the following
+                button.
+              </p>
+            </span>
           )}
         </>
       );
