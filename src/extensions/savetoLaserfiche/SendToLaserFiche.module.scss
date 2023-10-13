@@ -11,6 +11,12 @@
   min-width: 400px;
 }
 
+.hideImport.header,
+.hideImport.contentBox,
+.hideImport.footer {
+  display: none;
+}
+
 .header {
   display: flex;
   justify-content: space-between;

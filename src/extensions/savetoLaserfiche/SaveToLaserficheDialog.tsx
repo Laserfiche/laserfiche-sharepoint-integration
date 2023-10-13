@@ -5,11 +5,13 @@ import { ISPDocumentData } from '../../Utils/Types';
 import {
   clientId,
   LF_UI_COMPONENTS_URL,
+  SP_LOCAL_STORAGE_KEY,
   ZONE_JS_URL,
 } from '../../webparts/constants';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,
   SavedToLaserficheSuccessDialogText,
+  useConfirm,
 } from './CommonDialogs';
 import {
   SaveDocumentToLaserfiche,
@@ -20,6 +22,13 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
+import {
+  APIServerException,
+  Entry,
+} from '@laserfiche/lf-repository-api-client';
+import { RepositoryClientExInternal } from '../../repository-client/repository-client';
+import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
+import { PathUtils } from '@laserfiche/lf-js-utils';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -81,10 +90,24 @@ function SaveToLaserficheDialog(props: {
     SavedToLaserficheDocumentData | undefined
   >();
   const [error, setError] = React.useState<JSX.Element | undefined>();
+  const [showSaveTo, setShowSaveTo] = React.useState<boolean>(true);
+  const [getConfirmation, Confirmation] = useConfirm();
 
   const saveToDialogCloseClick: () => Promise<void> = async () => {
     await props.closeClick(success);
   };
+
+  async function tryGetValidRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
+    const repoClientCreator = new RepositoryClientExInternal();
+    const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
+    try {
+      // test accessToken validity
+      await newRepoClient.repositoriesClient.getRepositoryList({});
+    } catch {
+      return undefined;
+    }
+    return newRepoClient;
+  }
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
@@ -92,12 +115,46 @@ function SaveToLaserficheDialog(props: {
         await SPComponentLoader.loadScript(ZONE_JS_URL);
         await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
         if (loginComponent.current?.authorization_credentials) {
-          const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata);
+          const validRepoClient = await tryGetValidRepositoryClientAsync();
+          const saveToLF = new SaveDocumentToLaserfiche(
+            props.spFileMetadata,
+            validRepoClient
+          );
           try {
-            const successSaveToLF =
-              await saveToLF.trySaveDocumentToLaserficheAsync();
-            props.isSuccessfulLoggedIn(true);
-            setSuccess(successSaveToLF);
+            try {
+              const repoId = await validRepoClient.getCurrentRepoId();
+              const entryInfo: Entry =
+                await validRepoClient.entriesClient.getEntry({
+                  repoId,
+                  entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
+                });
+              const name = validRepoClient.entriesClient.getEntryByPath({
+                repoId,
+                fullPath: PathUtils.combinePaths(
+                  entryInfo.fullPath,
+                  props.spFileMetadata.fileName
+                ),
+              });
+              if (name) {
+                setShowSaveTo(false);
+                const status = await getConfirmation(
+                  'An entry with the same name already exists in the specified folder. If you continue, the document will be automatically renamed.'
+                );
+                if (status) {
+                  setShowSaveTo(true);
+                  await continueSavingDocumentAsync(saveToLF);
+                } else {
+                  window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+                  props.isSuccessfulLoggedIn(true);
+                  await props.closeClick();
+                }
+              }
+            } catch (err) {
+              const docDoesNotAlreadyExists = (err as APIServerException).statusCode === 404;
+              if (docDoesNotAlreadyExists) {
+                await continueSavingDocumentAsync(saveToLF);
+              }
+            }
           } catch (err) {
             if (err.status === 401 || err.status === 403) {
               props.isSuccessfulLoggedIn(false);
@@ -131,7 +188,11 @@ function SaveToLaserficheDialog(props: {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
+      <div
+        className={`${styles.header}${
+          showSaveTo ? '' : ` ${styles.hideImport}`
+        }`}
+      >
         <div className={styles.logoHeader}>
           <lf-login
             hidden
@@ -158,20 +219,41 @@ function SaveToLaserficheDialog(props: {
         </button>
       </div>
 
-      <div className={styles.contentBox}>
+      <div
+        className={`${styles.contentBox}${
+          showSaveTo ? '' : ` ${styles.hideImport}`
+        }`}
+      >
         {!success && !error && <LoadingDialog />}
         {success && (
           <SavedToLaserficheSuccessDialogText successfulSave={success} />
         )}
-        {error && <span>{`Error saving:` } {error}</span>}
+        {error && (
+          <span>
+            {`Error saving:`} {error}
+          </span>
+        )}
       </div>
 
-      <div className={styles.footer}>
+      <div
+        className={`${styles.footer}${
+          showSaveTo ? '' : ` ${styles.hideImport}`
+        }`}
+      >
         <SavedToLaserficheSuccessDialogButtons
           successfulSave={success}
           closeClick={saveToDialogCloseClick}
         />
       </div>
+      <Confirmation cancelButtonText='Cancel' />
     </div>
   );
+
+  async function continueSavingDocumentAsync(
+    saveToLF: SaveDocumentToLaserfiche
+  ): Promise<void> {
+    const successSaveToLF = await saveToLF.trySaveDocumentToLaserficheAsync();
+    props.isSuccessfulLoggedIn(true);
+    setSuccess(successSaveToLF);
+  }
 }
