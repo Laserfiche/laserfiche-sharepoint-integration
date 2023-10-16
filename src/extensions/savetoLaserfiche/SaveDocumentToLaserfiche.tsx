@@ -10,7 +10,6 @@ import {
   SetFields,
   APIServerException,
 } from '@laserfiche/lf-repository-api-client';
-import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
 import { getEntryWebAccessUrl } from '../../Utils/Funcs';
 import { ISPDocumentData } from '../../Utils/Types';
@@ -32,44 +31,33 @@ export interface SavedToLaserficheDocumentData {
 }
 
 export class SaveDocumentToLaserfiche {
-  constructor(private spFileMetadata: ISPDocumentData) {}
+  constructor(
+    private spFileMetadata: ISPDocumentData,
+    private validRepoClient: IRepositoryApiClientExInternal
+  ) {}
 
-  async trySaveDocumentToLaserficheAsync(): Promise<
-    SavedToLaserficheDocumentData
-  > {
+  async trySaveDocumentToLaserficheAsync(): Promise<SavedToLaserficheDocumentData> {
     const loginComponent: NgElement & WithProperties<LfLoginComponent> =
       document.querySelector('lf-login');
     const accessToken = loginComponent?.authorization_credentials?.accessToken;
     if (accessToken) {
-      const validRepoClient = await this.tryGetValidRepositoryClientAsync();
       const webClientUrl = loginComponent?.account_endpoints.webClientUrl;
 
-      if (validRepoClient && this.spFileMetadata) {
+      if (this.validRepoClient && this.spFileMetadata) {
         const spFileData = await this.GetFileData();
         const result = await this.saveFileToLaserficheAsync(
           spFileData,
-          validRepoClient,
           webClientUrl
         );
         return result;
       } else {
-        throw Error('You are not signed in or there was an issue retrieving data from SharePoint. Please try again.')
+        throw Error(
+          'You are not signed in or there was an issue retrieving data from SharePoint. Please try again.'
+        );
       }
     } else {
       // user is not logged in
     }
-  }
-
-  async tryGetValidRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
-    const repoClientCreator = new RepositoryClientExInternal();
-    const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
-    try {
-      // test accessToken validity
-      await newRepoClient.repositoriesClient.getRepositoryList({});
-    } catch {
-      return undefined;
-    }
-    return newRepoClient;
   }
 
   async GetFileData(): Promise<Blob> {
@@ -99,22 +87,19 @@ export class SaveDocumentToLaserfiche {
 
   async saveFileToLaserficheAsync(
     spFileData: Blob,
-    repoClient: IRepositoryApiClientExInternal,
     webClientUrl: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
-    if (spFileData && repoClient) {
+    if (spFileData && this.validRepoClient) {
       const laserficheProfileName = this.spFileMetadata.lfProfile;
       let result: SavedToLaserficheDocumentData | undefined;
       if (laserficheProfileName) {
         result = await this.sendToLaserficheWithMappingAsync(
           spFileData,
-          repoClient,
           webClientUrl
         );
       } else {
         result = await this.sendToLaserficheNoMappingAsync(
           spFileData,
-          repoClient,
           webClientUrl
         );
       }
@@ -125,7 +110,6 @@ export class SaveDocumentToLaserfiche {
 
   async sendToLaserficheWithMappingAsync(
     fileData: Blob,
-    repoClient: IRepositoryApiClientExInternal,
     webClientUrl: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
     let request: PostEntryWithEdocMetadataRequest;
@@ -145,7 +129,7 @@ export class SaveDocumentToLaserfiche {
       this.spFileMetadata.documentName.includes('FileName');
 
     const parentEntryId = Number(this.spFileMetadata.entryId);
-    const repoId = await repoClient.getCurrentRepoId();
+    const repoId = await this.validRepoClient.getCurrentRepoId();
 
     let fileName: string | undefined;
     let fileNameInEdoc: string | undefined;
@@ -185,7 +169,7 @@ export class SaveDocumentToLaserfiche {
 
     try {
       const entryCreateResult: CreateEntryResult =
-        await repoClient.entriesClient.importDocument(entryRequest);
+        await this.validRepoClient.entriesClient.importDocument(entryRequest);
       const entryId = entryCreateResult.operations.entryCreate.entryId ?? 1;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
@@ -211,15 +195,10 @@ export class SaveDocumentToLaserfiche {
         pathBack: path,
         metadataSaved: true,
         fileName,
-        action: this.spFileMetadata.action
+        action: this.spFileMetadata.action,
       };
 
-      await this.tryUpdateFileNameAsync(
-        repoClient,
-        repoId,
-        entryCreateResult,
-        fileInfo
-      );
+      await this.tryUpdateFileNameAsync(repoId, entryCreateResult, fileInfo);
       return fileInfo;
     } catch (error) {
       const conflict409 =
@@ -260,10 +239,10 @@ export class SaveDocumentToLaserfiche {
           metadataSaved: false,
           failedMetadata,
           fileName,
-          action: undefined
+          action: undefined,
         };
 
-        await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
+        await this.tryUpdateFileNameAsync(repoId, error, fileInfo);
         return fileInfo;
       } else {
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -302,7 +281,6 @@ export class SaveDocumentToLaserfiche {
 
   async sendToLaserficheNoMappingAsync(
     fileData: Blob,
-    repoClient: IRepositoryApiClientExInternal,
     webClientUrl: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
     const fileNameWithExt = this.spFileMetadata.fileName;
@@ -314,7 +292,7 @@ export class SaveDocumentToLaserfiche {
     const parentEntryId = 1;
 
     try {
-      const repoId = await repoClient.getCurrentRepoId();
+      const repoId = await this.validRepoClient.getCurrentRepoId();
       const electronicDocument: FileParameter = {
         fileName: fileNameWithExt,
         data: fileData,
@@ -330,7 +308,7 @@ export class SaveDocumentToLaserfiche {
       };
 
       const entryCreateResult: CreateEntryResult =
-        await repoClient.entriesClient.importDocument(entryRequest);
+        await this.validRepoClient.entriesClient.importDocument(entryRequest);
       const entryId = entryCreateResult.operations.entryCreate.entryId;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
@@ -348,14 +326,9 @@ export class SaveDocumentToLaserfiche {
         pathBack: path,
         metadataSaved: true,
         fileName: fileNameWithExt,
-        action: this.spFileMetadata.action
+        action: this.spFileMetadata.action,
       };
-      await this.tryUpdateFileNameAsync(
-        repoClient,
-        repoId,
-        entryCreateResult,
-        fileInfo
-      );
+      await this.tryUpdateFileNameAsync(repoId, entryCreateResult, fileInfo);
       return fileInfo;
     } catch (error) {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -364,16 +337,16 @@ export class SaveDocumentToLaserfiche {
   }
 
   private async tryUpdateFileNameAsync(
-    repoClient: IRepositoryApiClientExInternal,
     repoId: string,
     entryCreateResult: CreateEntryResult,
     fileInfo: SavedToLaserficheDocumentData
   ): Promise<void> {
     try {
-      const entryInfo: Entry = await repoClient.entriesClient.getEntry({
-        repoId,
-        entryId: entryCreateResult.operations.entryCreate.entryId,
-      });
+      const entryInfo: Entry =
+        await this.validRepoClient.entriesClient.getEntry({
+          repoId,
+          entryId: entryCreateResult.operations.entryCreate.entryId,
+        });
 
       fileInfo.fileName = entryInfo.name;
     } catch {
@@ -385,7 +358,9 @@ export class SaveDocumentToLaserfiche {
     const response = await this.deleteFileAsync();
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     if (!response.ok) {
-      throw Error(`An error occurred while deleting file: ${response.statusText}`);
+      throw Error(
+        `An error occurred while deleting file: ${response.statusText}`
+      );
     }
   }
 
