@@ -9,6 +9,7 @@ import {
   PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
+  APIServerException,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
@@ -26,6 +27,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { ChangeEvent } from 'react';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import styles from './LaserficheRepositoryAccess.module.scss';
+import { useConfirm } from './../../../extensions/savetoLaserfiche/CommonDialogs';
 require('./../../../Assets/CSS/commonStyles.css');
 
 const cols: ColumnDef[] = [
@@ -45,7 +47,7 @@ const cols: ColumnDef[] = [
   },
   {
     id: 'pageCount',
-    displayName: 'Page',
+    displayName: 'Pages',
     defaultWidth: '100px',
     resizable: true,
     sortable: true,
@@ -65,8 +67,7 @@ const fileNameValidation = 'Please provide a valid filename';
 const fileNameWithBacklash =
   'Please provide a valid filename without backslash';
 const folderValidation = 'Please provide a folder name';
-const folderNameValidation =
-  'Invalid Name, only alphanumeric characters are allowed.';
+const folderBackslashNameValidation = 'Entry names cannot contain backslash';
 const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {
@@ -407,6 +408,9 @@ function ImportFileModal(props: {
     React.useState<boolean>(false);
   const [error, setError] = React.useState<string | undefined>(undefined);
 
+  const [showImport, setShowImport] = React.useState<boolean>(true);
+  const [getConfirmation, Confirmation] = useConfirm();
+
   const onDialogOpened: () => void = () => {
     setAdhocDialogOpened(true);
   };
@@ -461,73 +465,104 @@ function ImportFileModal(props: {
       const extension = PathUtils.getCleanedExtension(fileData.name);
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBacklash = fileName.includes('\\');
+      try {
+        const name = await props.repoClient.entriesClient.getEntryByPath({
+          repoId,
+          fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
+        });
+        if (name) {
+          setShowImport(false);
+          const status = await getConfirmation(
+            'An entry with the same name already exists in the specified folder. If you continue, the document will be automatically renamed.'
+          );
+          setShowImport(true);
+          if (status) {
+            // continue
+          } else {
+            setFileUploadPercentage(0);
+            return;
+          }
+        }
+      } catch (err) {
+        if ((err as APIServerException).statusCode === 404) {
+          // doesn't exist, good to go
+        }
+      }
       if (fileContainsBacklash) {
         setFileUploadPercentage(0);
         setImportFileValidationMessage(fileNameWithBacklash);
         return;
       }
-      const fieldValidation = fieldContainer.current.forceValidation();
-      if (fieldValidation) {
-        const fieldValues = fieldContainer.current.getFieldValues();
-        const formattedFieldValues:
-          | {
-              [key: string]: FieldToUpdate;
-            }
-          | undefined = {};
-
-        for (const key in fieldValues) {
-          const value = fieldValues[key];
-          formattedFieldValues[key] = new FieldToUpdate({
-            ...value,
-            values: value.values.map((val) => new ValueToUpdate(val)),
-          });
-        }
-
-        const templateValue = getTemplateName();
-        let templateName;
-        if (templateValue) {
-          templateName = templateValue;
-        }
-
-        setFileUploadPercentage(80);
-        const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-          new PostEntryWithEdocMetadataRequest({
-            template: templateName,
-            metadata: new PutFieldValsRequest({
-              fields: formattedFieldValues,
-            }),
-          });
-        const fileNameWithExt = fileName + extension;
-        const fileextensionperiod = extension;
-        const fileNameNoPeriod = fileName;
-        const parentEntryId = props.parentItem.id;
-
-        const file: FileParameter = {
-          data: renamedFile,
-          fileName: fileNameWithExt,
-        };
-        const requestParameters = {
-          repoId,
-          parentEntryId: Number.parseInt(parentEntryId, 10),
-          electronicDocument: file,
-          autoRename: true,
-          fileName: fileNameNoPeriod,
-          request: fieldsmetadata,
-          extension: fileextensionperiod,
-        };
-
-        await props.repoClient.entriesClient.importDocument(requestParameters);
-        setFileUploadPercentage(100);
-        props.closeImportModal();
-      } else {
-        fieldContainer.current.forceValidation();
-      }
+      await continueImportAsync(extension, renamedFile, repoId);
     } catch (err) {
       setFileUploadPercentage(0);
       setError(err.message);
       console.error(error);
     }
   };
+
+  async function continueImportAsync(
+    extension: string,
+    renamedFile: File,
+    repoId: string
+  ): Promise<void> {
+    const fieldValidation = fieldContainer.current.forceValidation();
+    if (fieldValidation) {
+      const fieldValues = fieldContainer.current.getFieldValues();
+      const formattedFieldValues:
+        | {
+            [key: string]: FieldToUpdate;
+          }
+        | undefined = {};
+
+      for (const key in fieldValues) {
+        const value = fieldValues[key];
+        formattedFieldValues[key] = new FieldToUpdate({
+          ...value,
+          values: value.values.map((val) => new ValueToUpdate(val)),
+        });
+      }
+
+      const templateValue = getTemplateName();
+      let templateName;
+      if (templateValue) {
+        templateName = templateValue;
+      }
+
+      setFileUploadPercentage(80);
+      const fieldsmetadata: PostEntryWithEdocMetadataRequest =
+        new PostEntryWithEdocMetadataRequest({
+          template: templateName,
+          metadata: new PutFieldValsRequest({
+            fields: formattedFieldValues,
+          }),
+        });
+      const fileNameWithExt = fileName + extension;
+      const fileextensionperiod = extension;
+      const fileNameNoPeriod = fileName;
+      const parentEntryId = props.parentItem.id;
+
+      const file: FileParameter = {
+        data: renamedFile,
+        fileName: fileNameWithExt,
+      };
+      const requestParameters = {
+        repoId,
+        parentEntryId: Number.parseInt(parentEntryId, 10),
+        electronicDocument: file,
+        autoRename: true,
+        fileName: fileNameNoPeriod,
+        request: fieldsmetadata,
+        extension: fileextensionperiod,
+      };
+
+      await props.repoClient.entriesClient.importDocument(requestParameters);
+      setFileUploadPercentage(100);
+      props.closeImportModal();
+    } else {
+      fieldContainer.current.forceValidation();
+    }
+  }
 
   function getTemplateName(): string {
     const templateValue = fieldContainer.current.getTemplateValue();
@@ -570,7 +605,7 @@ function ImportFileModal(props: {
   return (
     <div className='modal-dialog modal-dialog-scrollable modal-lg'>
       <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
-        <div className={`modal-header ${styles.header}`}>
+        <div hidden={!showImport} className={`modal-header ${styles.header}`}>
           <div className='modal-title' id='ModalLabel'>
             Upload File to Laserfiche
           </div>
@@ -593,7 +628,7 @@ function ImportFileModal(props: {
             </div>
           </div>
         </div>
-        <div className={`modal-body ${styles.contentBox}`}>
+        <div hidden={!showImport} className={`modal-body ${styles.contentBox}`}>
           {!error && (
             <>
               <div className='input-group mb-3'>
@@ -643,7 +678,7 @@ function ImportFileModal(props: {
             >{`Error uploading: ${error}`}</span>
           )}
         </div>
-        <div className={`modal-footer ${styles.footer}`}>
+        <div hidden={!showImport} className={`modal-footer ${styles.footer}`}>
           <button
             type='button'
             className='lf-button primary-button'
@@ -660,6 +695,7 @@ function ImportFileModal(props: {
             Cancel
           </button>
         </div>
+        <Confirmation cancelButtonText='Go back' />
       </div>
     </div>
   );
@@ -684,8 +720,8 @@ function CreateFolderModal(props: {
 
   const createNewFolderAsync: () => Promise<void> = async () => {
     if (folderName) {
-      if (/[^ A-Za-z0-9]/.test(folderName)) {
-        setCreateFolderNameValidationMessage(folderNameValidation);
+      if (/^[\\\\]*$/.test(folderName)) {
+        setCreateFolderNameValidationMessage(folderBackslashNameValidation);
       } else {
         setCreateFolderNameValidationMessage(undefined);
 

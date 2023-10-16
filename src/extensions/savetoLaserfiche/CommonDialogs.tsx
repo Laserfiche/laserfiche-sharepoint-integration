@@ -133,3 +133,79 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
     </>
   );
 }
+
+const createPromise: () => Promise<boolean>[] = () => {
+  let resolver;
+  return [
+    new Promise<boolean>((resolve, reject) => {
+      resolver = resolve;
+    }),
+    resolver,
+  ];
+};
+
+export const useConfirm: () => [
+  (text: string) => Promise<unknown>,
+  (props: { cancelButtonText: string }) => JSX.Element
+] = () => {
+  const [open, setOpen] = React.useState(false);
+  const [resolver, setResolver] = React.useState({ resolve: null });
+  const [label, setLabel] = React.useState('');
+
+  const getConfirmation: (text: string) => Promise<boolean> = async (text: string) => {
+    setLabel(text);
+    setOpen(true);
+    const [promise, resolve] = await createPromise();
+    setResolver({ resolve: resolve });
+    return promise;
+  };
+
+  const onClick: (status: boolean) => Promise<void> = async (status: boolean) => {
+    setOpen(false);
+    resolver.resolve(status);
+  };
+
+  const Confirmation: (props: {
+    cancelButtonText: string;
+  }) => JSX.Element = (props: { cancelButtonText: string }) => (
+    <>
+      {open && (
+        <>
+          <div className={`modal-header ${styles.header}`}>
+            <div className='modal-title' id='ModalLabel'>
+              <div className={styles.logoHeader}>
+                <img
+                  src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
+                  width='30'
+                  height='30'
+                />
+                <span className={styles.paddingLeft}>
+                  Document already exists
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className={`modal-body ${styles.contentBox}`}>
+            <span>{label}</span>
+          </div>
+          <div className={`modal-footer ${styles.footer}`}>
+            <button
+              className={`lf-button primary-button ${styles.actionButton}`}
+              onClick={() => onClick(true)}
+            >
+              Continue
+            </button>
+            <button
+              className='lf-button sec-button'
+              onClick={() => onClick(false)}
+            >
+              {props.cancelButtonText}
+            </button>
+          </div>
+        </>
+      )}
+    </>
+  );
+
+  return [getConfirmation, Confirmation];
+};
