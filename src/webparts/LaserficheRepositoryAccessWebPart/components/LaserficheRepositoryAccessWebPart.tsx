@@ -38,6 +38,12 @@ declare global {
   }
 }
 
+const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
+  'You must be a currently licensed Laserfiche Cloud user to use this web part.';
+const FOR_MORE_INFO_VISIT = 'For more information visit';
+const ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY =
+  "Once signed in you'll be able to view your Laserfiche repository.";
+
 export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
@@ -184,6 +190,15 @@ export default function LaserficheRepositoryAccessWebPart(
           repoClient={repoClient}
           loggedIn={loggedIn}
         />
+        {!loggedIn && (
+          <span>
+            {`${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
+            <a href='https://www.laserfiche.com/products/pricing'>
+              laserfiche.com
+            </a>
+            {`. ${ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY}`}
+          </span>
+        )}
       </div>
     </React.StrictMode>
   );
