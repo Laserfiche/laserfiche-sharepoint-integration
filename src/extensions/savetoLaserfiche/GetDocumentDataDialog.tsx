@@ -416,32 +416,13 @@ function GetDocumentDialogData(props: {
         // automatically trims length to match constraint
         spDocFieldValue = spDocFieldValue.slice(0, lfField.length);
       }
-    } else if (lfField.fieldType === WFieldType.ShortInteger) {
-      const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9]/g, '');
-      const valueAsNumber = Number.parseInt(extractOnlyNumbers, 10);
-      if (valueAsNumber > 64999 || valueAsNumber < 0) {
-        // TODO invalid field -- should it truncate???
-        spDocFieldValue = '';
-      } else {
-        spDocFieldValue = extractOnlyNumbers;
-      }
-    } else if (lfField.fieldType === WFieldType.LongInteger) {
-      const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9]/g, '');
-      const valueAsNumber = Number.parseInt(extractOnlyNumbers, 10);
-      if (valueAsNumber > 3999999999 || valueAsNumber < 0) {
-        // TODO invalid field -- should it truncate???
-        spDocFieldValue = '';
-      } else {
-        spDocFieldValue = extractOnlyNumbers;
-      }
-    } else if (lfField.fieldType === WFieldType.Number) {
-      const valueRemoveNonNumbers = spDocFieldValue.replace(/[^0-9.]/g, '');
-      if (!isNaN(Number.parseFloat(valueRemoveNonNumbers))) {
-        spDocFieldValue = valueRemoveNonNumbers;
-      } else {
-        // TODO invalid field -- should it truncate???
-        spDocFieldValue = '';
-      }
+    } else if (
+      lfField.fieldType === WFieldType.ShortInteger ||
+      lfField.fieldType === WFieldType.LongInteger ||
+      lfField.fieldType === WFieldType.Number
+    ) {
+      const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9.]/g, '');
+      spDocFieldValue = extractOnlyNumbers;
     }
     return spDocFieldValue;
   }

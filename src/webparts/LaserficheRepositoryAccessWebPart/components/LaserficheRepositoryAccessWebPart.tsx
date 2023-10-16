@@ -1,7 +1,10 @@
 import * as React from 'react';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import {
+  AbortedLoginError,
+  LfLoginComponent,
+} from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
@@ -107,6 +110,29 @@ export default function LaserficheRepositoryAccessWebPart(
     void initializeComponentAsync();
   }, []);
 
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    const loginWindow = window.open(url, 'loginWindow', 'popup');
+    loginWindow.resizeTo(800, 600);
+    window.addEventListener('message', (event) => {
+      if (event.origin === window.origin) {
+        if (event.data === 'loginWindowSuccess') {
+          loginWindow.close();
+        } else if (event.data) {
+          const parsedError: AbortedLoginError = event.data;
+          if (parsedError.ErrorMessage && parsedError.ErrorType) {
+            loginWindow.close();
+            window.alert(
+              `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+            );
+          }
+        }
+      }
+    });
+  }
+
   return (
     <React.StrictMode>
       <div style={{ display: 'none' }}>
@@ -120,7 +146,16 @@ export default function LaserficheRepositoryAccessWebPart(
             client_id={clientId}
             authorize_url_host_name={region}
             ref={loginComponent}
+            hidden
           />
+          <button
+            onClick={clickLogin}
+            className={`lf-button login-button ${
+              loggedIn ? 'sec-button' : 'primary-button'
+            }`}
+          >
+            {loggedIn ? 'Sign out' : 'Sign in'}
+          </button>
         </div>
         <RepositoryViewComponent
           webClientUrl={webClientUrl}

@@ -13,6 +13,7 @@ import { LfRepositoryBrowserComponent } from '@laserfiche/types-lf-ui-components
 import * as React from 'react';
 import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import { getCorrespondingTypeFieldName } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 
 export interface ProfileConfiguration {
@@ -499,7 +500,7 @@ export function SharePointLaserficheColumnMatching(props: {
   const laserficheFields = props.lfFieldsForSelectedTemplate?.map((items) => {
     return (
       <option key={items.id} value={items.id}>
-        {items.name} ({items.fieldType})
+        {items.name} ({getCorrespondingTypeFieldName(items.fieldType)})
       </option>
     );
   });
@@ -532,7 +533,7 @@ export function SharePointLaserficheColumnMatching(props: {
       ?.map((items) => {
         return (
           <option key={items.id} value={items.id}>
-            {items.name} ({items.fieldType})
+            {items.name} ({getCorrespondingTypeFieldName(items.fieldType)})
           </option>
         );
       });
@@ -698,7 +699,7 @@ function getMappingErrorMessage(
 ): JSX.Element | undefined {
   if (mappedField.lfField && mappedField.spField) {
     const spFieldtype = mappedField.spField.TypeAsString;
-    const lfFieldtype = mappedField.lfField.fieldType;
+    const lfFieldTypeDisplayName = getCorrespondingTypeFieldName(mappedField.lfField.fieldType);
     const hasMismatch = hasFieldTypeMismatch(mappedField);
 
     if (hasMismatch) {
@@ -710,7 +711,7 @@ function getMappingErrorMessage(
             display: 'flex',
             alignItems: 'center',
           }}
-          title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${lfFieldtype}`}
+          title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${getCorrespondingTypeFieldName}}`}
         >
           <span
             className='material-icons-outlined'
@@ -721,7 +722,7 @@ function getMappingErrorMessage(
             warning
           </span>
           Data types mismatch. SharePoint field type of {spFieldtype} cannot be
-          mapped with Laserfiche field type of {lfFieldtype}
+          mapped with Laserfiche field type of {lfFieldTypeDisplayName}
         </div>
       );
     } else {
