@@ -31,7 +31,7 @@
         "default": "Laserfiche Sharepoint Online Integration provides common Repository management capabilities for Laserfiche Cloud users right within SharePoint."
       },
       "longDescription": {
-        "default": "Laserfiche Sharepoint Online Integration allows you to browse your Laserfiche repository, view documents, and save documents from SharePoint to Laserfiche with configurable metadata mappings."
+        "default": "Laserfiche Sharepoint Online Integration provides webparts which allows licensed Laserfiche Cloud users to browse their Laserfiche repository, view documents, and save documents from SharePoint to Laserfiche with configurable metadata mappings. You must add the app to each site you wish to use the integration on. If you are encountering issues with the integration, visit support.laserfiche.com to get help."
       },
       "categories": ["Content management", "Collaboration", "Productivity"],
       "screenshotPaths": [
