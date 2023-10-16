@@ -9,17 +9,29 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
-import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../constants';
+import {
+  clientId,
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
+  LF_UI_COMPONENTS_URL,
+  LOGIN_WINDOW_SUCCESS,
+  ZONE_JS_URL,
+} from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import {
+  AbortedLoginError,
+  LfLoginComponent,
+} from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { getRegion } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
+import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 
-const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN = 'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
+const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
+  'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -30,6 +42,9 @@ export default function LaserficheAdminConfiguration(
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
+  >(undefined);
+  const [messageErrorModal, setMessageErrorModal] = useState<
+    JSX.Element | undefined
   >(undefined);
 
   const region = getRegion();
@@ -66,18 +81,10 @@ export default function LaserficheAdminConfiguration(
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       try {
-        SPComponentLoader.loadCss(
-          LF_INDIGO_PINK_CSS_URL
-        );
-        SPComponentLoader.loadCss(
-          LF_MS_OFFICE_LITE_CSS_URL
-        );
-        await SPComponentLoader.loadScript(
-          ZONE_JS_URL
-        );
-        await SPComponentLoader.loadScript(
-          LF_UI_COMPONENTS_URL
-        );
+        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+        await SPComponentLoader.loadScript(ZONE_JS_URL);
+        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
         const loginCompleted: () => Promise<void> = async () => {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
@@ -85,8 +92,11 @@ export default function LaserficheAdminConfiguration(
         const logoutCompleted: () => Promise<void> = async () => {
           setLoggedIn(false);
         };
-  
-        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
         loginComponent.current.addEventListener(
           'logoutCompleted',
           logoutCompleted
@@ -95,14 +105,43 @@ export default function LaserficheAdminConfiguration(
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         }
-      }
-      catch (err) {
+      } catch (err) {
         console.error(`Error initializing configuration page: ${err}`);
       }
     };
 
     void initializeComponentAsync();
   }, []);
+
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    const loginWindow = window.open(url, 'loginWindow', 'popup');
+    loginWindow.resizeTo(800, 600);
+    window.addEventListener('message', (event) => {
+      if (event.origin === window.origin) {
+        if (event.data === LOGIN_WINDOW_SUCCESS) {
+          loginWindow.close();
+        } else if (event.data) {
+          const parsedError: AbortedLoginError = event.data;
+          if (parsedError.ErrorMessage && parsedError.ErrorType) {
+            loginWindow.close();
+            const mes = (
+              <MessageDialog
+                title='Sign In Failed'
+                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+                clickOkay={() => {
+                  setMessageErrorModal(undefined);
+                }}
+              />
+            );
+            setMessageErrorModal(mes);
+          }
+        }
+      }
+    });
+  }
 
   return (
     <React.StrictMode>
@@ -117,7 +156,16 @@ export default function LaserficheAdminConfiguration(
                   redirect_behavior='Replace'
                   client_id={clientId}
                   ref={loginComponent}
+                  hidden
                 />
+                <button
+                  onClick={clickLogin}
+                  className={`lf-button login-button ${
+                    loggedIn ? 'sec-button' : 'primary-button'
+                  }`}
+                >
+                  {loggedIn ? 'Sign out' : 'Sign in'}
+                </button>
               </div>
               <AdminMainPage
                 context={props.context}
@@ -177,8 +225,23 @@ export default function LaserficheAdminConfiguration(
               </StackItem>
             </>
           )}
-          {!isAdmin() &&
-          <span><b>{YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}</b></span>}
+          {!isAdmin() && (
+            <span>
+              <b>
+                {YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}
+              </b>
+            </span>
+          )}
+          {messageErrorModal !== undefined && (
+            <div
+              className={styles.modal}
+              id='messageErrorModal'
+              data-backdrop='static'
+              data-keyboard='false'
+            >
+              {messageErrorModal}
+            </div>
+          )}
         </Stack>
       </HashRouter>
     </React.StrictMode>

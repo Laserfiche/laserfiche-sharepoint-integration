@@ -1,4 +1,5 @@
 import { UrlUtils } from '@laserfiche/lf-js-utils';
+import { WFieldType } from '@laserfiche/lf-repository-api-client';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import { SPDEVMODE_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
@@ -45,4 +46,22 @@ export function getRegion(): string {
   const spDevModeTrue = spDevMode && spDevMode.toLocaleLowerCase() === 'true';
   const region = spDevModeTrue ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
   return region;
+}
+
+export function getCorrespondingTypeFieldName(fieldType: WFieldType): string {
+  switch (fieldType) {
+    case WFieldType.Date:
+    case WFieldType.List:
+    case WFieldType.Time:
+    case WFieldType.Number:
+      return fieldType;
+    case WFieldType.DateTime:
+      return 'Date/Time';
+    case WFieldType.String:
+      return 'Text';
+    case WFieldType.ShortInteger:
+      return 'Integer';
+    case WFieldType.LongInteger:
+      return 'Long Integer';
+  }
 }
