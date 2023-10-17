@@ -9,7 +9,6 @@ import {
   PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
-  APIServerException,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
@@ -388,7 +387,8 @@ function RepositoryBrowserToolbar(props: {
   );
 }
 
-const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME = 'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
+const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME =
+  'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
 function ImportFileModal(props: {
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
@@ -467,10 +467,11 @@ function ImportFileModal(props: {
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBacklash = fileName.includes('\\');
       try {
-        const entryWithPathExists = await props.repoClient.entriesClient.getEntryByPath({
-          repoId,
-          fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
-        });
+        const entryWithPathExists =
+          await props.repoClient.entriesClient.getEntryByPath({
+            repoId,
+            fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
+          });
         if (entryWithPathExists) {
           setShowImport(false);
           const confirmUpload = await getConfirmation(
@@ -485,10 +486,10 @@ function ImportFileModal(props: {
           }
         }
       } catch (err) {
-        if ((err as APIServerException).statusCode === 404) {
+        const docDoesNotAlreadyExists = err.status === 404;
+        if (docDoesNotAlreadyExists) {
           // doesn't exist, good to go
-        }
-        else {
+        } else {
           throw err;
         }
       }

@@ -22,10 +22,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
-import {
-  APIServerException,
-  Entry,
-} from '@laserfiche/lf-repository-api-client';
+import { Entry } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
 import { PathUtils } from '@laserfiche/lf-js-utils';
@@ -76,7 +73,8 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
   }
 }
 
-const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME = 'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
+const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME =
+  'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
 function SaveToLaserficheDialog(props: {
   isSuccessfulLoggedIn: (success: boolean) => void;
   closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;
@@ -112,9 +110,9 @@ function SaveToLaserficheDialog(props: {
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
+      await SPComponentLoader.loadScript(ZONE_JS_URL);
+      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
-        await SPComponentLoader.loadScript(ZONE_JS_URL);
-        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
         if (loginComponent.current?.authorization_credentials) {
           const validRepoClient = await tryGetValidRepositoryClientAsync();
           const saveToLF = new SaveDocumentToLaserfiche(
@@ -129,13 +127,14 @@ function SaveToLaserficheDialog(props: {
                   repoId,
                   entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
                 });
-              const entryWithPathExists = validRepoClient.entriesClient.getEntryByPath({
-                repoId,
-                fullPath: PathUtils.combinePaths(
-                  entryInfo.fullPath,
-                  props.spFileMetadata.fileName
-                ),
-              });
+              const entryWithPathExists =
+                await validRepoClient.entriesClient.getEntryByPath({
+                  repoId,
+                  fullPath: PathUtils.combinePaths(
+                    entryInfo.fullPath,
+                    PathUtils.removeFileExtension(props.spFileMetadata.fileName)
+                  ),
+                });
               if (entryWithPathExists) {
                 setShowSaveTo(false);
                 const confirmSave = await getConfirmation(
@@ -151,11 +150,10 @@ function SaveToLaserficheDialog(props: {
                 }
               }
             } catch (err) {
-              const docDoesNotAlreadyExists = (err as APIServerException).statusCode === 404;
+              const docDoesNotAlreadyExists = err.status === 404;
               if (docDoesNotAlreadyExists) {
                 await continueSavingDocumentAsync(saveToLF);
-              }
-              else {
+              } else {
                 throw err;
               }
             }

@@ -136,16 +136,16 @@ export default function SendToLaserficheLoginComponent(
     };
 
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
-      try {
-        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompletedInPopup
-        );
-        await SPComponentLoader.loadScript(ZONE_JS_URL);
-        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
+      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+      loginComponent.current.addEventListener(
+        'logoutCompleted',
+        logoutCompletedInPopup
+      );
+      await SPComponentLoader.loadScript(ZONE_JS_URL);
+      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
+      try {
         if (window.location.href.includes('autologin')) {
           document.body.style.display = 'none';
           await handleLoginOrLogoutInPopupAsync();

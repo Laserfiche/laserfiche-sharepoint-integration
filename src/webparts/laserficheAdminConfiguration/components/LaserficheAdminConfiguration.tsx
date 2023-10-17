@@ -80,11 +80,11 @@ export default function LaserficheAdminConfiguration(
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
+      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+      await SPComponentLoader.loadScript(ZONE_JS_URL);
+      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
-        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-        await SPComponentLoader.loadScript(ZONE_JS_URL);
-        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
         const loginCompleted: () => Promise<void> = async () => {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
