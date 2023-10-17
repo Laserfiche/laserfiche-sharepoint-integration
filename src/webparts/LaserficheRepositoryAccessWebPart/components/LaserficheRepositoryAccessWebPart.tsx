@@ -22,7 +22,7 @@ require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
-import { getRegion } from '../../../Utils/Funcs';
+import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import styles from './LaserficheRepositoryAccess.module.scss';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 
@@ -44,6 +44,7 @@ const FOR_MORE_INFO_VISIT = 'For more information visit';
 const ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY =
   "Once signed in you'll be able to view your Laserfiche repository.";
 
+const needLaserficheSignInPage = `Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
@@ -121,10 +122,49 @@ export default function LaserficheRepositoryAccessWebPart(
     void initializeComponentAsync();
   }, []);
 
-  function clickLogin(): void {
+  async function pageConfigurationCheck(): Promise<boolean> {
+    try {
+      const res = await fetch(
+        `${getSPListURL(props.context, 'Site Pages')}/items`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const sitePages = await res.json();
+      for (let o = 0; o < sitePages.value.length; o++) {
+        const pageName = sitePages.value[o].Title;
+        if (pageName === 'LaserficheSignIn') {
+          return true;
+        }
+      }
+    } catch (error) {
+      // TODO
+    }
+    return false;
+  }
+
+  async function clickLogin(): Promise<void> {
     const url =
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
+    const hasSignIn = await pageConfigurationCheck();
+    if (!hasSignIn) {
+      const mes = (
+        <MessageDialog
+          title='Sign In Failed'
+          message={needLaserficheSignInPage}
+          clickOkay={() => {
+            setMessageErrorModal(undefined);
+          }}
+        />
+      );
+      setMessageErrorModal(mes);
+      return;
+    }
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     window.addEventListener('message', (event) => {

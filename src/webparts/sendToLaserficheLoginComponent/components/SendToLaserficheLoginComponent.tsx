@@ -19,7 +19,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
-import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
+import { getEntryWebAccessUrl, getRegion, getSPListURL } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 declare global {
@@ -39,6 +39,7 @@ const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';
 const FOR_MORE_INFO_VISIT = 'For more information visit';
 
+const needLaserficheSignInPage = `Sign in failed. Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ): JSX.Element {
@@ -305,10 +306,49 @@ export default function SendToLaserficheLoginComponent(
     Navigation.navigate(path, true);
   }
 
-  function clickLogin(): void {
+  async function pageConfigurationCheck(): Promise<boolean> {
+    try {
+      const res = await fetch(
+        `${getSPListURL(props.context, 'Site Pages')}/items`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const sitePages = await res.json();
+      for (let o = 0; o < sitePages.value.length; o++) {
+        const pageName = sitePages.value[o].Title;
+        if (pageName === 'LaserficheSignIn') {
+          return true;
+        }
+      }
+    } catch (error) {
+      // TODO
+    }
+    return false;
+  }
+
+  async function clickLogin(): Promise<void> {
     const url =
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
+    const hasSignIn = await pageConfigurationCheck();
+    if (!hasSignIn) {
+      const mes = (
+        <MessageDialog
+          title='Sign In Failed'
+          message={needLaserficheSignInPage}
+          clickOkay={() => {
+            setMessageErrorModal(undefined);
+          }}
+        />
+      );
+      setMessageErrorModal(mes);
+      return;
+    }
 
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
