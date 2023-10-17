@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'Open Sans';
+  src: local('Open Sans'), local('OpenSans'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans.woff) format('woff'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+}
+
 .lfAdhocMinHeight {
   height: 450px;
 }
@@ -125,7 +130,6 @@
 .browserTitle {
   margin-left: 10px;
   font-size: 16px;
-  font-family: 'Open Sans';
   font-weight: 600;
   color: #333333;
 }

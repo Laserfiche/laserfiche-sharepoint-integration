@@ -1,5 +1,10 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+@font-face {
+  font-family: 'Open Sans';
+  src: local('Open Sans'), local('OpenSans'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans.woff) format('woff'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+}
+
 .lfMaterialIconButton {
   cursor: pointer;
   display: flex;
@@ -154,7 +159,6 @@ lf-repository-browser {
 
 .profileTitle {
   color: #333333;
-  font-style: 'Open Sans';
   font-size: 16px;
   font-weight: 600;
 }
