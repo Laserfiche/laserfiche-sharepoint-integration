@@ -285,7 +285,7 @@ Prerequisites:
 Steps:
 
 1. Click `Sign in` button
-   - Expected results: You are led through the OAuth flow, you return to repository explorer page, and button says `Sign Out`
+   - Expected results: You are led through the OAuth flow via a popup window, you return to repository explorer page, and button says `Sign Out`.
 
 #### Test Open button
 
