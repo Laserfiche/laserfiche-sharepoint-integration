@@ -21,7 +21,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
    <a href="../assets/images/clientIdRegistered.png"><img src="../assets/images/clientIdRegistered.png"></a>
 1. One way or another, an app with that client ID should now exist. Open the app and switch from the general tab to the authentication tab.
    <a href="../assets/images/redirectUri.png"><img src="../assets/images/redirectUri.png"></a>
-1. Copy the URLs from your three SharePoint Pages with the Laserfiche web part and add them in the developer console as new redirect URIs. Each URI should end in `.aspx`
+1. Copy the URLs from your SharePoint page with the Laserfiche sign in web part, and append the suffix `?autologin` and add it in the developer console as a new redirect URI. The URI should end in `.aspx?autologin`
    <a href="../assets/images/urlExample.png"><img src="../assets/images/urlExample.png"></a>
 1. You should now be able to sign in on each of the components.
 
