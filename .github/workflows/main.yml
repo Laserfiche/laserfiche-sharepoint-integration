@@ -34,10 +34,10 @@ jobs:
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
       - name: replace config/package-solution.json version
-        run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' config/package-solution.json
+        run: sed -i 's/"1.0.0.0"/"${{env.fullVersion}}"/g' config/package-solution.json
 
       - name: replace package.json version
-        run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' package.json
+        run: sed -i 's/"1.0.0.0"/"${{env.fullVersion}}"/g' package.json
 
       - name: Install dependencies
         run: npm ci

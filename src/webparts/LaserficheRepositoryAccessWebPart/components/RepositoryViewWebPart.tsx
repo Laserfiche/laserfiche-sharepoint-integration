@@ -465,7 +465,7 @@ function ImportFileModal(props: {
       }
       const extension = PathUtils.getCleanedExtension(fileData.name);
       const renamedFile = new File([fileData], fileName + extension);
-      const fileContainsBacklash = fileName.includes('\\');
+      const fileContainsBackslash = fileName.includes('\\');
       try {
         const entryWithPathExists =
           await props.repoClient.entriesClient.getEntryByPath({
@@ -493,7 +493,7 @@ function ImportFileModal(props: {
           throw err;
         }
       }
-      if (fileContainsBacklash) {
+      if (fileContainsBackslash) {
         setFileUploadPercentage(0);
         setImportFileValidationMessage(fileNameWithBacklash);
         return;
@@ -725,7 +725,8 @@ function CreateFolderModal(props: {
 
   const createNewFolderAsync: () => Promise<void> = async () => {
     if (folderName) {
-      if (/^[\\\\]*$/.test(folderName)) {
+      const fileContainsBackslash = folderName.includes('\\');
+      if (fileContainsBackslash) {
         setCreateFolderNameValidationMessage(folderBackslashNameValidation);
       } else {
         setCreateFolderNameValidationMessage(undefined);
