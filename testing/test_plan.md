@@ -156,7 +156,7 @@ Expected Results:
 
 #### Test metadata configuration
 Steps:
-1. Create a Profile named `number metadata` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
+1. Create a Profile named `number metadata` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required short integer field in Laserfiche, and map the SharePoint Column `Actual Work` to the required short integer field.
 1. Save the Profile.
 
 Expected Results:
@@ -198,6 +198,12 @@ Steps:
 Expected Results:
   - The file should save in the destination folder you configured in the Default Profile.
 
+#### Test Saving already saved document
+Prerequisites:
+  - execute the `Test Default Profile` test
+Steps:
+  - Save the same document to Laserfiche as in the Test Default Profile Test
+Expected Results: You should get a warning that an entry with the same name already exists, and that Laserfiche will rename the new documents. If you continue, and open the file in Laserfiche, the document should be renamed.
 #### Test No Default Profile Save
 Steps:
 1. Remove all SharePoint Content Type -> Laserfiche Profile Mappings
@@ -220,7 +226,7 @@ Expected Results:
 #### Test metadata constraint failed case
 Steps:
 1. Add SharePoint Column "Actual Work" to SharePoint Library
-1. Add value for "Actual Work" for a specific document to be a very large number
+1. Add value for "Actual Work" for a specific document to be a number of 65,000.
 1. Set the Default mapping to `number metadata`, and save.
 1. Attempt to save the specific document to Laserfiche
   
@@ -285,7 +291,7 @@ Prerequisites:
 Steps:
 
 1. Click `Sign in` button
-   - Expected results: You are led through the OAuth flow, you return to repository explorer page, and button says `Sign Out`
+   - Expected results: You are led through the OAuth flow via a popup window, you return to repository explorer page, and button says `Sign Out`.
 
 #### Test Open button
 
@@ -368,9 +374,14 @@ Test delete after save action
     - Expected results: Dialog remains open, error specifies to provide a folder name
 1. Close dialog
 1. Use create folder button
-1. Use name with invalid characters (e.g. `~!@#$%^&*()` )
+1. Use name with the invalid character `\`.
 1. Attempt to create folder
     - Expected results: Dialog remains open, error  specifies to provide a valid folder name
+1. Use create folder button.
+1. Use name with alphanumeric and with some of the valid special characters `!@#$%^&*()`.
+1. Attempt to create folder.
+1. Use refresh button
+    - Expected results: New folder exists in currently open folder with special characters in the name.
 1. Use create folder button
 1. Use name that already exists in folder
 1. Attempt to create
