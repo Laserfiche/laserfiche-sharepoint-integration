@@ -15,7 +15,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 1. Open the [Developer Console](https://developer.laserfiche.com/developer-console.html).
    <a href="../assets/images/createAppFromManifest.png"><img src="../assets/images/createAppFromManifest.png"></a>
-1. Attempt to Create a New App from Manifest, and upload the manifest provided [here](../assets/manifest.json).
+1. Attempt to Create a New App from Manifest, and upload the manifest provided [here](../assets/LaserficheSharePointIntegrationAppManifest.json).
    <a href="../assets/images/createApplication.png"><img src="../assets/images/createApplication.png"></a>
 1. If the attempt fails because an app with that client ID already exists, find the app with that client id by opening [this url](https://app.laserfiche.com/devconsole/apps/8ee987ea-a0b1-4ca2-85c4-a79b335cd214/config) in a new tab.
    <a href="../assets/images/clientIdRegistered.png"><img src="../assets/images/clientIdRegistered.png"></a>
