@@ -10,7 +10,7 @@ import {
 import { PathUtils } from '@laserfiche/lf-js-utils';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 import { getSPListURL } from '../../Utils/Funcs';
-import { SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
+import { LASERFICHE_SIGNIN_PAGE_NAME, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -21,10 +21,6 @@ export interface ISendToLfCommandSetProperties {
   // This is an example; replace with your own properties
   sampleTextOne: string;
   sampleTextTwo: string;
-}
-
-enum SpWebPartNames {
-  'LaserficheSignIn' = 'LaserficheSignIn',
 }
 
 const LOG_SOURCE = 'SendToLfCommandSet';
@@ -112,7 +108,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
-        if (pageName === SpWebPartNames.LaserficheSignIn) {
+        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
           this.hasSignInPage = true;
         }
       }

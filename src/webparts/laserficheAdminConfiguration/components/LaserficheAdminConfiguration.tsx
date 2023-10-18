@@ -11,6 +11,7 @@ import EditManageConfiguration from './EditManageConfiguration/EditManageConfigu
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
 import {
   clientId,
+  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -25,7 +26,7 @@ import {
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { getRegion } from '../../../Utils/Funcs';
+import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
@@ -33,6 +34,7 @@ import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialog
 const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
 
+const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
@@ -113,10 +115,50 @@ export default function LaserficheAdminConfiguration(
     void initializeComponentAsync();
   }, []);
 
-  function clickLogin(): void {
+  async function pageConfigurationCheck(): Promise<boolean> {
+    try {
+      const res = await fetch(
+        `${getSPListURL(props.context, 'Site Pages')}/items`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const sitePages = await res.json();
+      for (let o = 0; o < sitePages.value.length; o++) {
+        const pageName = sitePages.value[o].Title;
+        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
+          return true;
+        }
+      }
+    } catch (error) {
+      console.warn(`Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`)
+      return false;
+    }
+    return false;
+  }
+
+  async function clickLogin(): Promise<void> {
     const url =
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
+    const hasSignIn = await pageConfigurationCheck();
+    if (!hasSignIn) {
+      const mes = (
+        <MessageDialog
+          title='Sign In Failed'
+          message={needLaserficheSignInPage}
+          clickOkay={() => {
+            setMessageErrorModal(undefined);
+          }}
+        />
+      );
+      setMessageErrorModal(mes);
+      return;
+    }
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     window.addEventListener('message', (event) => {

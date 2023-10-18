@@ -3,7 +3,7 @@
   "solution": {
     "name": "Laserfiche Sharepoint Online Integration",
     "id": "9d9d4fa7-bbf4-489a-acd5-0e1709d40e8b",
-    "version": "VERSION_TO_UPDATE",
+    "version": "1.0.0.0",
     "includeClientSideAssets": true,
     "title": "Laserfiche SharePoint Online Integration",
     "iconPath": "assets/laserfiche-logo-96.png",
@@ -20,7 +20,7 @@
         "title": "Save to Laserfiche",
         "description": "Allows user to save SharePoint documents to their Laserfiche repository, with admin-configured metadata mappings.",
         "id": "9c2b7b96-fb6e-4c42-9676-9d434992110f",
-        "version": "VERSION_TO_UPDATE",
+        "version": "1.0.0.0",
         "assets": {
           "elementManifests": ["elements.xml"]
         }
