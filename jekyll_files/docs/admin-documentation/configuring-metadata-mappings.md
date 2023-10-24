@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Configuring Metadata Mappings
-nav_order: 4
+nav_order: 3
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
 
@@ -27,7 +27,7 @@ In the "Profiles" tab of the Admin Configuration web part, click on the “Add P
 ### Define the Profile in the Profile Editor
 
 - Name: this is the identifier used to associate SharePoint content types with this profile in the Profile Mapping tab.
-- Laserfiche Template: If a profile is assigned a template, then all files saved to Laserfiche through that profile will be assigned that template in Laserfiche. [Learn more about templates](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html).
+- Laserfiche Template: If a profile is assigned a template, then all files saved to Laserfiche through that profile will be assigned that template in Laserfiche. [Learn more about templates](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html){:target="_blank"}.
 - Laserfiche Destination: This option specifies the path to the folder in the Laserfiche Repository where the files associated with this profile will be saved.
 - After Import: This option specifies what to do with the SharePoint file after exporting it to Laserfiche.
   <a href="../assets/images/profileEditor.png"><img src="../assets/images/profileEditor.png"></a>
