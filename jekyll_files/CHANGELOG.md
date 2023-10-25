@@ -5,7 +5,7 @@ nav_order: 4
 ---
 # Laserfiche SharePoint Online Integration Changelog
 
-## 1.0.0.280
+## 1.0.0.360
 
 ### Features
 
@@ -20,4 +20,6 @@ nav_order: 4
     - **Workaround:** To edit the configuration, click the "Sign In" button.
 - **487980:** If configured Laserfiche template is deleted, profile configuration page does not show a good error.
     - **Workaround:** Delete the profile or reconfigure the metadata of the profile.
+- **490833:** Content Type can't be determined unless column is shown
+    - **Workaround:** Display the `Content Type` column in the Documents tab of the site.
 

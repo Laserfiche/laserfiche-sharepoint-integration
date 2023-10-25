@@ -4,20 +4,17 @@ title: Overview
 nav_order: 1
 ---
 
-# Working with the Laserfiche SharePoint Integration
+# Working with the Laserfiche SharePoint Online Integration
 
 ## Introduction
 
-Laserfiche SharePoint Integration allows you to do two things:
+The Laserfiche SharePoint Online Integration adds the following functionality to your SharePoint Online site:
 
-- <b>Browse Laserfiche repository:</b> Sites in SharePoint can use the integration to add a web part which provides a view into the
-  Laserfiche cloud repository and to open documents in Laserfiche Web Client. The Repository Explorer web part supports this functionality.
+- <b>Laserfiche Repository Explorer:</b> Browse a Laserfiche Cloud repository directly from a SharePoint site, and open documents in the web client directly from that site.
 
-- <b>Save documents to Laserfiche:</b>
-  The integration enables users to export files and metadata directly from SharePoint to Laserfiche. The Laserfiche Sign In and Admin
-  Configuration web parts support this functionality.
+- <b>Save documents to Laserfiche:</b> Send documents from a SharePoint document library to a Laserfiche Cloud repository. You can customize how different types of SharePoint documents will be handled by Laserfiche.
 
 ## Guides
 
-- The [Admin Guides](./docs/admin-documentation) explain how to set up the integration, and may require specialized permission.
-- The [User Guides](./docs/user-documentation) explain how to use a page with an integration already set up to save documents or browse the Laserfiche repository.
+- See the [Administration Guide](./docs/admin-documentation) for details on adding the integration to your SharePoint site.
+- See The [User Guide](./docs/user-documentation) for details on saving documents to Laserfiche or browsing the Laserfiche Cloud repository.

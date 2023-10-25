@@ -2,7 +2,7 @@
 layout: default
 title: View Laserfiche Repository from SharePoint
 nav_order: 2
-parent: Laserfiche SharePoint Integration User Guide
+parent: Laserfiche SharePoint Online Integration User Guide
 ---
 
 # View Laserfiche Repository from SharePoint

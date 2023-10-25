@@ -1,8 +1,8 @@
 ---
 layout: default
 title: Adding App to SharePoint Site
-nav_order: 2
-parent: Laserfiche SharePoint Integration Administration Guide
+nav_order: 1
+parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
 
 # Adding App to SharePoint Site
@@ -10,20 +10,15 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ### Prerequisites
 
 - Be an owner of a SharePoint site you want to add the integration to.
-- The site must exist in an organization which has the integration installed. (see [Adding App to Organization](./adding-app-organization))
 
 ### Steps
 
-1. Go to the SharePoint site that you would like to install the integration on. If you do not have a SharePoint site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8) on how to create one.
-1. Navigate to the app catalog by clicking on the "Site contents" item in the
-   navigation bar.
-   <a href="../assets/images/sharePointSiteContents.png"><img src="../assets/images/sharePointSiteContents.png"></a>
-1. Open the "New" Dropdown menu by clicking on the "+" icon.
-   <a href="../assets/images/NewDropDown.png"><img src="../assets/images/NewDropDown.png"></a>
-1. Add the App named “Laserfiche SharePoint Online Integration”.
+1. Go to the SharePoint site that you would like to install the integration on. If you do not have a SharePoint site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8){:target="_blank"} on how to create one.
+1. Open the SharePoint Store and add the app named “Laserfiche SharePoint Online Integration”. For instructions on how to add an app, reference [Microsoft's Documentation](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog?redirectSourcePath=%252farticle%252fuse-the-app-catalog-to-make-custom-business-apps-available-for-your-sharepoint-online-environment-0b6ab336-8b83-423f-a06b-bcc52861cba0#add-custom-apps){:target="_blank"}.
    <a href="../assets/images/addTheApp.png"><img src="../assets/images/addTheApp.png"></a>
 1. Navigate to your SharePoint site. If successfully installed, the app will be listed under the “Site contents” tab.
    <a href="../assets/images/appInstalled.png"><img src="../assets/images/appInstalled.png"></a>
+**Note:** You can also [sideload the app](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog?redirectSourcePath=%252farticle%252fuse-the-app-catalog-to-make-custom-business-apps-available-for-your-sharepoint-online-environment-0b6ab336-8b83-423f-a06b-bcc52861cba0#add-custom-apps){:target="_blank"} by uploading  [this solution file](../assets/LaserficheSharePointOnlineIntegration.sppkg).
 
 ### The Laserfiche Sign In Page
 
