@@ -9,5 +9,20 @@
     "**/lib-amd": true,
     "src/**/*.scss.ts": true
   },
-  "typescript.tsdk": ".\\node_modules\\typescript\\lib"
+  "typescript.tsdk": ".\\node_modules\\typescript\\lib",
+  "powerHeader.commentMode": "line",
+  "powerHeader.autoInsert.enable": true,
+  "powerHeader.autoInsert.allow": "all",
+  "powerHeader.template": "Copyright (c) <author>.\\nLicensed under the <licenseType> License. See LICENSE.md in the project root for license information.",
+  "powerHeader.variables": ["<author>='Laserfiche'", "<licenseType>='MIT'"],
+  "[html]": {
+    "powerHeader.commentMode": "block"
+  },
+  "[css]": {
+    "powerHeader.commentMode": "block"
+  },
+  "[markdown]": {
+    "powerHeader.commentMode": "block"
+  },
+  "powerHeader.autoInsert.languages": ["plaintext", "Log", "json"]
 }
