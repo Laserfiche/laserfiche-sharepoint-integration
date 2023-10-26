@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import * as React from 'react';
 require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../Assets/CSS/bootstrap.min.css');
