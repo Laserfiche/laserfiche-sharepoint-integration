@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import { IPostEntryWithEdocMetadataRequest } from '@laserfiche/lf-repository-api-client';
 import { ActionTypes } from '../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 

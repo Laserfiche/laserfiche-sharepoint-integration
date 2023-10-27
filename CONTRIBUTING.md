@@ -1,3 +1,6 @@
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE.md in the project root for license information.-->
+
 # Contributing to laserfiche-sharepoint-integration
 
 We encourage and appreciate feedback and contribution from the community!

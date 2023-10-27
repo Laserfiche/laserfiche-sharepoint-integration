@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import { UrlUtils } from '@laserfiche/lf-js-utils';
 import { WFieldType } from '@laserfiche/lf-repository-api-client';
 import { BaseComponentContext } from '@microsoft/sp-component-base';

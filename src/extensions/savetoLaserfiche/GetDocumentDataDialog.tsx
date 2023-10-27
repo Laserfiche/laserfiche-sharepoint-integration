@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import { BaseDialog } from '@microsoft/sp-dialog';
 import styles from './SendToLaserFiche.module.scss';
 import * as ReactDOM from 'react-dom';
