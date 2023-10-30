@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';

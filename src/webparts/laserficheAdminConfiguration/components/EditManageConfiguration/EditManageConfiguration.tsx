@@ -1,3 +1,6 @@
+// Copyright (c) Laserfiche.
+// Licensed under the MIT License. See LICENSE.md in the project root for license information.
+
 import * as React from 'react';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
