@@ -1,18 +1,19 @@
 <!--Copyright (c) Laserfiche.
 Licensed under the MIT License. See LICENSE in the project root for license information.-->
-
 ---
 layout: default
-title: Laserfiche SharePoint Integration Administration Guide
+title: Laserfiche SharePoint Online Integration Administration Guide
 nav_order: 2
 has_children: true
 ---
 
-# Laserfiche SharePoint Integration Administration Guide
+# Laserfiche SharePoint Online Integration Administration Guide
 
-The following guides detail how to set up the Laserfiche/SharePoint integration. Unlike the user guides, the admin guides
-may require you to hold certain privileges, such as the ability to edit a page on a SharePoint site. Each guide contains important
-information to help you set up the integration. If you are setting up for the first time, we recommend starting at the top.
+The following guides detail how to add the Laserfiche SharePoint Online integration. By default, you must be a tenant administrator to install the integration. Installing the integration involves the following steps:
+1. Adding the integration to your SharePoint organization.
+1. Adding the integration to a SharePoint site.
+1. Configuring authentication between the integration and your Laserfiche Cloud account.
+1. Mapping SharePoint columns and content types to Laserfiche. 
 
 ## Important Security Notice
 
