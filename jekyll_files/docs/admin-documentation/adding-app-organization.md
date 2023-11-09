@@ -1,12 +1,11 @@
-<!--Copyright (c) Laserfiche.
-Licensed under the MIT License. See LICENSE in the project root for license information.-->
-
 ---
 layout: default
 title: Adding App to Organization
 nav_order: 1
 parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
 # Adding App to Organization
 

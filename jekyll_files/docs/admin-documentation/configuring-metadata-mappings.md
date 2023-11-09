@@ -1,12 +1,11 @@
-<!--Copyright (c) Laserfiche.
-Licensed under the MIT License. See LICENSE in the project root for license information.-->
-
 ---
 layout: default
 title: Configuring Metadata Mappings
 nav_order: 4
 parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
 # Configuring Metadata Mappings
 

@@ -1,12 +1,11 @@
-<!--Copyright (c) Laserfiche.
-Licensed under the MIT License. See LICENSE in the project root for license information.-->
 ---
 layout: default
 title: Laserfiche SharePoint Online Integration Administration Guide
 nav_order: 2
 has_children: true
 ---
-
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE in the project root for license information.-->
 # Laserfiche SharePoint Online Integration Administration Guide
 
 The following guides detail how to add the Laserfiche SharePoint Online integration. By default, you must be a tenant administrator to install the integration. Installing the integration involves the following steps:
