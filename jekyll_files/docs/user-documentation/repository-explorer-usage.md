@@ -2,8 +2,10 @@
 layout: default
 title: View Laserfiche Repository from SharePoint
 nav_order: 2
-parent: Laserfiche SharePoint Integration User Guide
+parent: Laserfiche SharePoint Online Integration User Guide
 ---
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE in the project root for license information.-->
 
 # View Laserfiche Repository from SharePoint
 
