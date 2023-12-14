@@ -40,4 +40,4 @@ Follow the same steps as above, but title the page whatever you wish and add the
 
 ### Next Steps
 
-Before you can log in and use the web pages you just created, you will need to [Register them in the Laserfiche Developer Console](../admin-documentation/register-app-in-laserfiche). After you register your Apps, you should be able to log in and use the web parts. For Documentation on how to use the integration, reference the [User Documentation](../user-documentation/).
+Before you can log in and use the web pages you just created, you will need to [Register the integration in the Laserfiche Developer Console](../admin-documentation/register-app-in-laserfiche). After you register your Apps, you should be able to log in and use the web parts. For Documentation on how to use the integration, reference the [User Documentation](../user-documentation/).
