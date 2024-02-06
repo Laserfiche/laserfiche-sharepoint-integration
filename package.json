@@ -20,8 +20,8 @@
     "serve-docs": "bundle exec jekyll serve"
   },
   "dependencies": {
-    "@laserfiche/lf-repository-api-client": "^1.0.12",
-    "@laserfiche/lf-ui-components-services": "^15.0.0",
+    "@laserfiche/lf-repository-api-client": "^1.1.4",
+    "@laserfiche/lf-ui-components-services": "^15.0.1",
     "bootstrap": "^5.1.3",
     "office-ui-fabric-react": "7.199.1",
     "react": "17.0.1",
