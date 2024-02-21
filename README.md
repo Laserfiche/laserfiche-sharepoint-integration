@@ -82,7 +82,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
         - More details [here](https://bundler.io/guides/rubygems_tls_ssl_troubleshooting_guide.html#updating-ca-certificates).
       
       - Dependency issues:
-        1.  <tag id="fetch_error"> If you see errors like`'fetch_http': bad response Forbidden 403 (https://index.rubygems.org/gems/google-protobuf-3.25.3-x64-mingw-ucrt.gem?_sm_nck=1)` when run `gem install jekyll`, install the dependencies from local .gem files.
+        1.  <tag id="fetch_error">Install the dependencies from local .gem files if you see errors like`'fetch_http': bad response Forbidden 403 (https://index.rubygems.org/gems/google-protobuf-3.25.3-x64-mingw-ucrt.gem?_sm_nck=1)` when run `gem install jekyll`.
             1. Find the dependency needed in your local drive or go to https://index.rubygems.org/gems and download the package file.
             1. Run `gem install --local <path_to_gem/filename.gem>`.
 
