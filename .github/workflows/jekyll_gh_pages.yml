@@ -41,7 +41,7 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Move LaserficheSharePointIntegrationAppManifest.json
-        run: cp ./UserDocuments/LaserficheSharePointIntegrationAppManifest.json ./jekyll_files/docs/assets/LaserficheSharePointIntegrationAppManifest.json
+        run: cp ./UserDocuments/LaserficheSharePointIntegrationAppManifest.json ./jekyll_files/docs/register-app-in-laserfiche/assets/LaserficheSharePointIntegrationAppManifest.json
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1

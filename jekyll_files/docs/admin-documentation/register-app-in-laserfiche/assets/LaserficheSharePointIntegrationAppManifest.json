@@ -1,0 +1,14 @@
+{
+	"clientId": "8ee987ea-a0b1-4ca2-85c4-a79b335cd214",
+	"name": "Laserfiche SharePoint Online Integration",
+	"description": "View your Laserfiche repository and send SharePoint documents to Laserfiche from directly within SharePoint.",
+	"type": "SPA",
+	"expiresInMinutes": 60,
+	"scopes": [
+		"repository.Write",
+		"repository.Read"
+	],
+	"privacyPolicyUrl": "https://www.laserfiche.com/legal/privacy/",
+	"documentationUrl": "https://laserfiche.github.io/laserfiche-sharepoint-integration/",
+	"termsOfServiceUrl": "https://www.laserfiche.com/legal/terms-of-use/"
+}
