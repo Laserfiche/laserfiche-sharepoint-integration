@@ -86,7 +86,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
             1. Find the dependency needed in your local drive or go to https://index.rubygems.org/gems and download the package file.
             1. Run `gem install --local <path_to_gem/filename.gem>`.
 
-1. Navigate to directory `<project_directory_path>/jekyll_files`.
+1. Navigate to directory `<project_path>/jekyll_files`.
 1. Run `bundle install` to install all the dependencies needed to serve.
     - Troubleshoot:
       - If you see error `Gem::RemoteFetcher::FetchError bad response Forbidden 403`, stay under directory `/jekyll_files` and follow [the steps](#fetch_error) in the dependency issues in step 1 to install the dependency from a local .gem file.
