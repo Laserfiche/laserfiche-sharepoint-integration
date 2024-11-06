@@ -134,6 +134,7 @@ export default function RepositoryViewComponent(props: {
         EntryType.Folder,
         EntryType.Shortcut,
         EntryType.Document,
+        EntryType.RecordSeries
       ];
       repoBrowser?.addEventListener('entrySelected', onEntrySelected);
       repoBrowser?.addEventListener('entryDblClicked', onEntryOpened);
@@ -168,14 +169,17 @@ export default function RepositoryViewComponent(props: {
   ) => {
     if (
       node?.entryType === EntryType.Folder ||
-      node?.entryType === EntryType.Document
+      node?.entryType === EntryType.Document ||
+      node?.entryType === EntryType.RecordSeries
     ) {
       return true;
     } else if (
       (node?.entryType === EntryType.Shortcut &&
         node?.targetType === EntryType.Folder) ||
       (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.Document)
+        node?.targetType === EntryType.Document) ||
+        (node?.entryType === EntryType.Shortcut &&
+          node?.targetType === EntryType.RecordSeries)
     ) {
       return true;
     } else {
