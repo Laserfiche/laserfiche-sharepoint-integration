@@ -134,6 +134,7 @@ export default function RepositoryViewComponent(props: {
         EntryType.Folder,
         EntryType.Shortcut,
         EntryType.Document,
+        EntryType.RecordSeries
       ];
       repoBrowser?.addEventListener('entrySelected', onEntrySelected);
       repoBrowser?.addEventListener('entryDblClicked', onEntryOpened);
@@ -168,14 +169,17 @@ export default function RepositoryViewComponent(props: {
   ) => {
     if (
       node?.entryType === EntryType.Folder ||
-      node?.entryType === EntryType.Document
+      node?.entryType === EntryType.Document ||
+      node?.entryType === EntryType.RecordSeries
     ) {
       return true;
     } else if (
       (node?.entryType === EntryType.Shortcut &&
         node?.targetType === EntryType.Folder) ||
       (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.Document)
+        node?.targetType === EntryType.Document) ||
+        (node?.entryType === EntryType.Shortcut &&
+          node?.targetType === EntryType.RecordSeries)
     ) {
       return true;
     } else {
@@ -514,7 +518,7 @@ function ImportFileModal(props: {
     renamedFile: File,
     repoId: string
   ): Promise<void> {
-    const fieldValidation = fieldContainer.current.forceValidation();
+    const fieldValidation = fieldContainer.current?.forceValidation();
     if (fieldValidation) {
       const fieldValues = fieldContainer.current.getFieldValues();
       const formattedFieldValues:
@@ -568,7 +572,7 @@ function ImportFileModal(props: {
       setFileUploadPercentage(100);
       props.closeImportModal();
     } else {
-      fieldContainer.current.forceValidation();
+      fieldContainer.current?.forceValidation();
     }
   }
 
@@ -691,7 +695,7 @@ function ImportFileModal(props: {
             type='button'
             className='lf-button primary-button'
             disabled={fileUploadPercentage > 0}
-            onClick={importFileToRepositoryAsync}
+            onClick={error ? closeImportFileModal : importFileToRepositoryAsync}
           >
             OK
           </button>
