@@ -242,13 +242,11 @@ export function RepositoryBrowserModal(props: {
   const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
     node: LfRepoTreeNode
   ) => {
-    if (node?.entryType === EntryType.Folder || node?.entryType === EntryType.RecordSeries) {
+    if (node?.entryType === EntryType.Folder) {
       return true;
     } else if (
      (node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Folder) ||
-      (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.RecordSeries)
+      node?.targetType === EntryType.Folder)
     ) {
       return true;
     } else {
