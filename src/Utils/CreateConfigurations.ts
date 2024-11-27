@@ -46,7 +46,8 @@ export class CreateConfigurations {
     formDigestValue: string
   ): Promise<string> {
     try {
-      const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
+      const url: string =
+        context.pageContext.web.absoluteUrl + '/_api/web/lists';
       const listDefinition = {
         Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
         Description: 'My description',
@@ -60,13 +61,14 @@ export class CreateConfigurations {
         SPHttpClient.configurations.v1,
         spHttpClientOptions
       );
-      const adminConfigList = await responses.json();
-      const listTitle = adminConfigList.Title;
+      const adminConfigList: { Title: string } = await responses.json();
+      const listTitle: string = adminConfigList.Title;
       await this.createColumnsAsync(context, listTitle, formDigestValue);
       return listTitle;
-    }
-    catch (err) {
-      console.error(`Error when creating LaserficheAdminConfiguration List: ${err}`);
+    } catch (err) {
+      console.error(
+        `Error when creating LaserficheAdminConfiguration List: ${err}`
+      );
     }
   }
 
@@ -107,7 +109,7 @@ export class CreateConfigurations {
   ): Promise<string> {
     const membersGroupName = `${context.pageContext.web.title} Members`;
 
-    const res = await fetch(
+    const res: Response = await fetch(
       context.pageContext.web.absoluteUrl +
         "/_api/web/sitegroups/getbyname('" +
         membersGroupName +
@@ -238,18 +240,18 @@ export class CreateConfigurations {
     formDigestValue: string
   ): Promise<void> {
     const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
-      await fetch(siteUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          __metadata: { type: 'SP.Field' },
-          Title: 'JsonValue',
-          FieldTypeKind: 3,
-        }),
-        headers: {
-          accept: 'application/json;odata=verbose',
-          'content-type': 'application/json;odata=verbose',
-          'X-RequestDigest': formDigestValue,
-        },
-      });
+    await fetch(siteUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        __metadata: { type: 'SP.Field' },
+        Title: 'JsonValue',
+        FieldTypeKind: 3,
+      }),
+      headers: {
+        accept: 'application/json;odata=verbose',
+        'content-type': 'application/json;odata=verbose',
+        'X-RequestDigest': formDigestValue,
+      },
+    });
   }
 }

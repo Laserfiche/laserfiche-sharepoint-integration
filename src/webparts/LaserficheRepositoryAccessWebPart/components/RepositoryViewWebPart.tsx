@@ -436,7 +436,7 @@ function ImportFileModal(props: {
         lfFieldsService = new LfFieldsService(props.repoClient);
         await fieldContainer.current.initAsync(lfFieldsService);
       } catch (err) {
-        console.error(error);
+        console.error(err);
       }
     };
     if (props.repoClient) {
