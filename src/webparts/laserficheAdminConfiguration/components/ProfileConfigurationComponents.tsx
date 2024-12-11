@@ -233,6 +233,7 @@ export function RepositoryBrowserModal(props: {
       lfRepoTreeService.viewableEntryTypes = [
         EntryType.Folder,
         EntryType.Shortcut,
+        EntryType.RecordSeries
       ];
       void initializeTreeAsync();
     }
@@ -244,8 +245,8 @@ export function RepositoryBrowserModal(props: {
     if (node?.entryType === EntryType.Folder) {
       return true;
     } else if (
-      node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Folder
+     (node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.Folder)
     ) {
       return true;
     } else {

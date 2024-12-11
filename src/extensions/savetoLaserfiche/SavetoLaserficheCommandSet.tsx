@@ -115,7 +115,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           this.hasSignInPage = true;
         }
       }
-    } catch (error) {
+    } catch {
       // TODO
     }
   }
