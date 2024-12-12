@@ -76,8 +76,8 @@ export class RepositoryClientExInternal {
         {}
       );
       const repo = repos[0];
-      if (repo.repoId && repo.repoName) {
-        return { repoId: repo.repoId, repoName: repo.repoName };
+      if (repo.repoId) {
+        return { repoId: repo.repoId, repoName: repo.repoName ?? repo.repoId };
       } else {
         throw new Error('Current repoId undefined.');
       }
