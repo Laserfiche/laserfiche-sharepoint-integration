@@ -134,6 +134,7 @@ export default function RepositoryViewComponent(props: {
         EntryType.Folder,
         EntryType.Shortcut,
         EntryType.Document,
+        EntryType.RecordSeries
       ];
       repoBrowser?.addEventListener('entrySelected', onEntrySelected);
       repoBrowser?.addEventListener('entryDblClicked', onEntryOpened);
@@ -168,14 +169,17 @@ export default function RepositoryViewComponent(props: {
   ) => {
     if (
       node?.entryType === EntryType.Folder ||
-      node?.entryType === EntryType.Document
+      node?.entryType === EntryType.Document ||
+      node?.entryType === EntryType.RecordSeries
     ) {
       return true;
     } else if (
       (node?.entryType === EntryType.Shortcut &&
         node?.targetType === EntryType.Folder) ||
       (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.Document)
+        node?.targetType === EntryType.Document) ||
+        (node?.entryType === EntryType.Shortcut &&
+          node?.targetType === EntryType.RecordSeries)
     ) {
       return true;
     } else {
@@ -233,6 +237,8 @@ export default function RepositoryViewComponent(props: {
   );
 }
 
+const CANNOT_IMPORT_INTO_RECORD_SERIES = 'Cannot import into a Record Series';
+const UPLOAD_FILE_TO_LASERFICHE = 'Upload file to Laserfiche';
 function RepositoryBrowserToolbar(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
@@ -297,7 +303,8 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Upload file to Laserfiche'
+            title={props?.parentItem?.entryType === EntryType.RecordSeries ? CANNOT_IMPORT_INTO_RECORD_SERIES : UPLOAD_FILE_TO_LASERFICHE}
+            disabled={props?.parentItem?.entryType === EntryType.RecordSeries}
             onClick={openImportFileModal}
           >
             <img
@@ -432,7 +439,7 @@ function ImportFileModal(props: {
         lfFieldsService = new LfFieldsService(props.repoClient);
         await fieldContainer.current.initAsync(lfFieldsService);
       } catch (err) {
-        console.error(error);
+        console.error(err);
       }
     };
     if (props.repoClient) {
@@ -514,7 +521,7 @@ function ImportFileModal(props: {
     renamedFile: File,
     repoId: string
   ): Promise<void> {
-    const fieldValidation = fieldContainer.current.forceValidation();
+    const fieldValidation = fieldContainer.current?.forceValidation();
     if (fieldValidation) {
       const fieldValues = fieldContainer.current.getFieldValues();
       const formattedFieldValues:
@@ -568,7 +575,7 @@ function ImportFileModal(props: {
       setFileUploadPercentage(100);
       props.closeImportModal();
     } else {
-      fieldContainer.current.forceValidation();
+      fieldContainer.current?.forceValidation();
     }
   }
 
@@ -691,7 +698,7 @@ function ImportFileModal(props: {
             type='button'
             className='lf-button primary-button'
             disabled={fileUploadPercentage > 0}
-            onClick={importFileToRepositoryAsync}
+            onClick={error ? closeImportFileModal : importFileToRepositoryAsync}
           >
             OK
           </button>
