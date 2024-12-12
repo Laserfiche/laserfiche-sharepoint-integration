@@ -237,6 +237,8 @@ export default function RepositoryViewComponent(props: {
   );
 }
 
+const CANNOT_IMPORT_INTO_RECORD_SERIES = 'Cannot import into a Record Series';
+const UPLOAD_FILE_TO_LASERFICHE = 'Upload file to Laserfiche';
 function RepositoryBrowserToolbar(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
@@ -301,7 +303,8 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Upload file to Laserfiche'
+            title={props?.parentItem?.entryType === EntryType.RecordSeries ? CANNOT_IMPORT_INTO_RECORD_SERIES : UPLOAD_FILE_TO_LASERFICHE}
+            disabled={props?.parentItem?.entryType === EntryType.RecordSeries}
             onClick={openImportFileModal}
           >
             <img
