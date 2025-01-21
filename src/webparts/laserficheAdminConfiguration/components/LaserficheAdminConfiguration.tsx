@@ -40,12 +40,12 @@ const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
 
 const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 
-interface PropfileConfigContextProps {
-  saveDisabled: any;
-  setSaveDisabled: any;
+interface ProfileConfigContextProps {
+  saveDisabled: boolean;
+  setSaveDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export const ProfileConfigContext = React.createContext<
-  PropfileConfigContextProps | undefined
+  ProfileConfigContextProps | undefined
 >(undefined);
 
 const ProfileConfigStateProvider = (props: React.PropsWithChildren<{}>) => {

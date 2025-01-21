@@ -17,7 +17,6 @@ import {
   ProfileConfiguration,
 } from '../ProfileConfigurationComponents';
 import styles from './../LaserficheAdminConfiguration.module.scss';
-import { PLEASE_SIGNIN_TO_MANAGE_CONFIGURATIONS } from '../../../strings';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
