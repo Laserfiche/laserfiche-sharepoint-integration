@@ -18,9 +18,10 @@ import {
   SPProfileConfigurationData,
 } from './ProfileConfigurationComponents';
 import styles from './LaserficheAdminConfiguration.module.scss';
+import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 
 export default function ManageConfiguration(
-  props: IManageConfigurationProps
+  props: React.PropsWithChildren<IManageConfigurationProps>
 ): JSX.Element {
   const [availableLfTemplates, setAvailableLfTemplates] = useState<
     WTemplateInfo[] | undefined
@@ -32,7 +33,7 @@ export default function ManageConfiguration(
   >(undefined);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState<string | undefined>();
-  const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
+  const [templateWarning, setTemplateWarning] = useState<boolean>(false);
 
   async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
     const repoId = await props.repoClient.getCurrentRepoId();
@@ -74,20 +75,30 @@ export default function ManageConfiguration(
         templates.sort();
         setAvailableLfTemplates(templates);
         if (props.profileConfig.selectedTemplateName) {
-          const templateFields: TemplateFieldInfo[] =
-            await getLaserficheFieldsAsync(
-              props.profileConfig.selectedTemplateName
+          const selectedTemplateExists = templates.find(
+            (r) => r.name === props.profileConfig.selectedTemplateName
+          );
+          if (selectedTemplateExists) {
+            const templateFields: TemplateFieldInfo[] =
+              await getLaserficheFieldsAsync(
+                props.profileConfig.selectedTemplateName
+              );
+            setLfFieldsForSelectedTemplate(templateFields);
+          } else {
+            setTemplateWarning(true);
+            templates.push(
+              new WTemplateInfo({
+                displayName: props.profileConfig.selectedTemplateName,
+              })
             );
-          setLfFieldsForSelectedTemplate(templateFields);
+          }
         }
         const spColumns: SPProfileConfigurationData[] =
           await getAllSharePointSiteColumnsAsync();
         spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(spColumns);
       } catch (err) {
-        console.error(
-          `Error initializing configuration component: ${err}`
-        );
+        console.error(`Error initializing configuration component: ${err}`);
       }
     };
     if (props.repoClient) {
@@ -118,6 +129,9 @@ export default function ManageConfiguration(
     templateName: string
   ) => {
     const templateFields = await getLaserficheFieldsAsync(templateName);
+    setTemplateWarning(false);
+    const validTemplates = availableLfTemplates.filter((r) => r.id);
+    setAvailableLfTemplates(validTemplates);
     if (templateFields) {
       const array = [];
       for (let index = 0; index < templateFields.length; index++) {
@@ -158,13 +172,17 @@ export default function ManageConfiguration(
 
   async function saveConfigurationAsync(): Promise<void> {
     try {
-      await props.saveConfiguration();
-      setShowConfirmModal(true);
+      const success = await props.saveConfiguration();
+      if (success) {
+        setShowConfirmModal(true);
+      }
     } catch (err) {
       setShowErrorModal(err.message);
     }
   }
 
+  const { setSaveDisabled, saveDisabled } =
+    React.useContext(ProfileConfigContext);
   function hasError(hasError: boolean): void {
     if (hasError) {
       setSaveDisabled(true);
@@ -189,8 +207,9 @@ export default function ManageConfiguration(
                 {props.header}
               </div>
               <div className='card-body'>
-                {props.extraConfiguration}
+                {props.children}
                 <ConfigurationBody
+                  templateWarning={templateWarning}
                   availableLfTemplates={availableLfTemplates}
                   repoClient={props.repoClient}
                   loggedIn={props.loggedIn}
@@ -236,61 +255,65 @@ export default function ManageConfiguration(
           </div>
         </main>
       </div>
-      {showConfirmModal && <div
-        className={styles.modal}
-        data-backdrop='static'
-        data-keyboard='false'
-        id='ConfirmModal'
-      >
-        <div className='modal-dialog modal-dialog-centered'>
-          <div
-            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-          >
-            <div className='modal-body'>
-              {props.createNew ? 'Profile Added' : 'Profile Updated'}
-            </div>
-            <div className='modal-footer'>
-              <button
-                type='button'
-                className='lf-button primary-button'
-                data-dismiss='modal'
-                onClick={onClickConfirmButton}
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>}
-      {showErrorModal && <div
-        className={styles.modal}
-        data-backdrop='static'
-        data-keyboard='false'
-        id='ErrorModal'
-      >
-        <div className='modal-dialog modal-dialog-centered'>
-          <div
-            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-          >
-            <div className={`modal-header ${styles.header}`}>
-              Error {props.createNew ? 'Saving' : 'Updating'} Profile
-            </div>
-            <div className={`modal-body ${styles.contentBox}`}>
-              {showErrorModal}
-            </div>
-            <div className={`modal-footer ${styles.footer}`}>
-              <button
-                type='button'
-                className='lf-button primary-button'
-                data-dismiss='modal'
-                onClick={onClickErrorButton}
-              >
-                OK
-              </button>
+      {showConfirmModal && (
+        <div
+          className={styles.modal}
+          data-backdrop='static'
+          data-keyboard='false'
+          id='ConfirmModal'
+        >
+          <div className='modal-dialog modal-dialog-centered'>
+            <div
+              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+            >
+              <div className='modal-body'>
+                {props.createNew ? 'Profile Added' : 'Profile Updated'}
+              </div>
+              <div className='modal-footer'>
+                <button
+                  type='button'
+                  className='lf-button primary-button'
+                  data-dismiss='modal'
+                  onClick={onClickConfirmButton}
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>}
+      )}
+      {showErrorModal && (
+        <div
+          className={styles.modal}
+          data-backdrop='static'
+          data-keyboard='false'
+          id='ErrorModal'
+        >
+          <div className='modal-dialog modal-dialog-centered'>
+            <div
+              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+            >
+              <div className={`modal-header ${styles.header}`}>
+                Error {props.createNew ? 'Saving' : 'Updating'} Profile
+              </div>
+              <div className={`modal-body ${styles.contentBox}`}>
+                {showErrorModal}
+              </div>
+              <div className={`modal-footer ${styles.footer}`}>
+                <button
+                  type='button'
+                  className='lf-button primary-button'
+                  data-dismiss='modal'
+                  onClick={onClickErrorButton}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

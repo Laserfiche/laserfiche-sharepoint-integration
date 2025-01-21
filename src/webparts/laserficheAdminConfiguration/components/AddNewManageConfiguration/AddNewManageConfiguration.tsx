@@ -19,6 +19,8 @@ import {
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
+import { ProfileConfigContext } from '../LaserficheAdminConfiguration';
+import { PROFILE_NAME } from '../../../strings';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -49,14 +51,21 @@ const initialConfig: ProfileConfiguration = {
 export default function AddNewManageConfiguration(
   props: IAddNewManageConfigurationProps
 ): JSX.Element {
+  const {setSaveDisabled} = React.useContext(ProfileConfigContext);
   const [profileConfig, setProfileConfig] = useState(initialConfig);
   const [validate, setValidate] = useState(false);
   const [configNameError, setConfigNameError] = useState(undefined);
+
   const handleProfileConfigUpdate: (
     profileConfig: ProfileConfiguration
   ) => void = (profileConfig: ProfileConfiguration) => {
     setValidate(false);
     setProfileConfig(profileConfig);
+    const validate = validateNewConfiguration(profileConfig);
+    if (!validate) {
+      setValidate(true);
+      setSaveDisabled(true);
+    }
   };
   function handleProfileConfigNameChange(e: React.ChangeEvent): void {
     const newName = (e.target as HTMLInputElement).value;
@@ -64,6 +73,14 @@ export default function AddNewManageConfiguration(
     profileConfiguration.ConfigurationName = newName;
     setValidate(false);
     setProfileConfig(profileConfiguration);
+    const validate = validateNewConfiguration(profileConfiguration);
+    if (!validate) {
+      setValidate(true);
+      setSaveDisabled(true);
+    }
+    else {
+      setSaveDisabled(false);
+    }
   }
 
   async function saveSPConfigurationsAsync(
@@ -98,12 +115,14 @@ export default function AddNewManageConfiguration(
     }
   }
 
-  async function saveNewManageConfigurationAsync(): Promise<void> {
+  async function saveNewManageConfigurationAsync(): Promise<boolean> {
     setValidate(true);
     setConfigNameError(undefined);
+    setSaveDisabled(false);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
+      const manageConfigurationConfig: IListItem[] =
+        await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] =
@@ -119,16 +138,20 @@ export default function AddNewManageConfiguration(
             configWithCurrentName.Id,
             allConfigurations
           );
+          return true;
         } else {
+          setSaveDisabled(true);
           setConfigNameError(
             <span>
               Profile with this name already exists, please provide different
               name
             </span>
           );
+          return false;
         }
       } else {
         await saveNewPageConfigurationAsync();
+        return true;
       }
     } else {
       throw Error('Invalid configuration. Please review any errors.');
@@ -186,16 +209,20 @@ export default function AddNewManageConfiguration(
   let configNameValidation: JSX.Element | undefined;
   if (validate) {
     if (configNameError) {
+      setSaveDisabled(true);
       configNameValidation = configNameError;
     } else if (
       !profileConfig.ConfigurationName ||
       profileConfig.ConfigurationName.length === 0
     ) {
+      setSaveDisabled(true);
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );
     } else if (/[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
       // TODO can we allow special characters
+
+      setSaveDisabled(true);
       configNameValidation = (
         <span>Invalid Name, only alphanumeric or space are allowed.</span>
       );
@@ -207,11 +234,12 @@ export default function AddNewManageConfiguration(
       <h6 className='mb-0'>Add New Profile</h6>
     </div>
   );
+
   const extraConfiguration = (
     <>
       <div className={`${styles.formGroupRow} form-group row`}>
         <label htmlFor='txt0' className='col-sm-3 col-form-label'>
-          Profile Name <span style={{ color: 'red' }}>*</span>
+          {PROFILE_NAME} <span style={{ color: 'red' }}>*</span>
         </label>
         <div className='col-sm-6'>
           <input
@@ -233,18 +261,19 @@ export default function AddNewManageConfiguration(
     </>
   );
   return (
-    <ManageConfiguration
-      header={header}
-      extraConfiguration={extraConfiguration}
-      repoClient={props.repoClient}
-      loggedIn={props.loggedIn}
-      profileConfig={profileConfig}
-      loadingContent={true}
-      createNew={true}
-      context={props.context}
-      handleProfileConfigUpdate={handleProfileConfigUpdate}
-      saveConfiguration={saveNewManageConfigurationAsync}
-      validate={validate}
-    />
+      <ManageConfiguration
+        header={header}
+        repoClient={props.repoClient}
+        loggedIn={props.loggedIn}
+        profileConfig={profileConfig}
+        loadingContent={true}
+        createNew={true}
+        context={props.context}
+        handleProfileConfigUpdate={handleProfileConfigUpdate}
+        saveConfiguration={saveNewManageConfigurationAsync}
+        validate={validate}
+      >
+        {extraConfiguration}
+      </ManageConfiguration>
   );
 }
