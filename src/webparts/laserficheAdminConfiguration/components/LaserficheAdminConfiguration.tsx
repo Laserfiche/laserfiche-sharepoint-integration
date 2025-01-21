@@ -48,7 +48,7 @@ export const ProfileConfigContext = React.createContext<
   ProfileConfigContextProps | undefined
 >(undefined);
 
-const ProfileConfigStateProvider = (props: React.PropsWithChildren<{}>) => {
+const ProfileConfigStateProvider = (props: React.PropsWithChildren<{}>): JSX.Element => {
   const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
 
   const contextValue = {
