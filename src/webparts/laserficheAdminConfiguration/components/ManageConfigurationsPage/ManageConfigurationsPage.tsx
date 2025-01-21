@@ -183,19 +183,19 @@ export default function ManageConfigurationsPage(
         <main className='bg-white shadow-sm'>
           <div className='card rounded-0'>
             <div className='card-header d-flex justify-content-between pt-1 pb-1'>
-              <NavLink
-                to='/AddNewManageConfiguration'
-                style={{
-                  marginRight: '18px',
-                  fontWeight: '500',
-                  fontSize: '15px',
-                  color: '#0079d6',
-                }}
-              >
-                <button className='lf-button primary-button'>
-                  {ADD_PROFILE}
-                </button>
-              </NavLink>
+                <NavLink
+                  to='/AddNewManageConfiguration'
+                  style={{
+                    marginRight: '18px',
+                    fontWeight: '500',
+                    fontSize: '15px',
+                    color: '#0079d6',
+                  }}
+                >
+                  <button className='lf-button primary-button'>
+                    {ADD_PROFILE}
+                  </button>
+                </NavLink>
             </div>
             <div className='card-body'>
               <table className='table table-bordered table-striped table-hover'>
@@ -221,7 +221,7 @@ export default function ManageConfigurationsPage(
           {deleteModal}
         </div>
       )}
-      {(error!== undefined) && (
+      {error !== undefined && (
         <div
           className={styles.modal}
           id='errorModal'

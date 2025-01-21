@@ -7,7 +7,6 @@ import { ProfileConfiguration } from "./ProfileConfigurationComponents";
 
 export interface IManageConfigurationProps {
   header?: JSX.Element;
-  extraConfiguration?: JSX.Element;
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
   profileConfig: ProfileConfiguration;
@@ -16,5 +15,5 @@ export interface IManageConfigurationProps {
   context: WebPartContext;
   validate: boolean;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
-  saveConfiguration: () => Promise<void>;
+  saveConfiguration: () => Promise<boolean>;
 }
