@@ -190,3 +190,14 @@ lf-repository-browser {
   display: flex;
   align-items: center;
 }
+
+.templateWarning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.templateWarningMessage {
+  padding-left: 10px;
+}

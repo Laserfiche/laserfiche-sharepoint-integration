@@ -18,6 +18,7 @@ import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { getCorrespondingTypeFieldName } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
+import { TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED } from '../../strings';
 
 export interface ProfileConfiguration {
   ConfigurationName: string;
@@ -69,6 +70,7 @@ export function ConfigurationBody(props: {
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
   profileConfig: ProfileConfiguration;
+  templateWarning: boolean;
   handleProfileConfigUpdate: (config: ProfileConfiguration) => void;
   handleTemplateChange: (templateName: string) => void;
 }): JSX.Element {
@@ -131,6 +133,7 @@ export function ConfigurationBody(props: {
           availableLfTemplates={props.availableLfTemplates}
           selectedTemplateName={props.profileConfig?.selectedTemplateName}
           repoClient={props.repoClient}
+          templateWarning={props.templateWarning}
           onChangeTemplate={handleTemplateChange}
         />
       </div>
@@ -233,7 +236,7 @@ export function RepositoryBrowserModal(props: {
       lfRepoTreeService.viewableEntryTypes = [
         EntryType.Folder,
         EntryType.Shortcut,
-        EntryType.RecordSeries
+        EntryType.RecordSeries,
       ];
       void initializeTreeAsync();
     }
@@ -245,8 +248,8 @@ export function RepositoryBrowserModal(props: {
     if (node?.entryType === EntryType.Folder) {
       return true;
     } else if (
-     (node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Folder)
+      node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.Folder
     ) {
       return true;
     } else {
@@ -383,6 +386,7 @@ export function TemplateSelector(props: {
   availableLfTemplates: WTemplateInfo[];
   selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
+  templateWarning: boolean;
   onChangeTemplate: (event: ChangeEvent<HTMLSelectElement>) => void;
 }): JSX.Element {
   const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
@@ -406,6 +410,16 @@ export function TemplateSelector(props: {
           {laserficheTemplateOptions}
         </select>
       </div>
+      {props.templateWarning && <div className={styles.templateWarning}>
+          <span
+            className='material-icons-outlined'
+            style={{
+              color: '#c59803',
+            }}
+          >
+            warning
+          </span>
+          <span className={styles.templateWarningMessage}>{TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED}</span></div>}
     </>
   );
 }
@@ -703,7 +717,9 @@ function getMappingErrorMessage(
 ): JSX.Element | undefined {
   if (mappedField.lfField && mappedField.spField) {
     const spFieldtype = mappedField.spField.TypeAsString;
-    const lfFieldTypeDisplayName = getCorrespondingTypeFieldName(mappedField.lfField.fieldType);
+    const lfFieldTypeDisplayName = getCorrespondingTypeFieldName(
+      mappedField.lfField.fieldType
+    );
     const hasMismatch = hasFieldTypeMismatch(mappedField);
 
     if (hasMismatch) {
