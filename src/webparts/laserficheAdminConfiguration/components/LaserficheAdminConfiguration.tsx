@@ -33,7 +33,6 @@ import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
-import { PLEASE_SIGNIN_TO_MANAGE_CONFIGURATIONS } from '../../strings';
 
 const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
