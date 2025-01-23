@@ -24,9 +24,7 @@ export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
     CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch(
       (err: Error) => {
-        console.warn(
-          `Error: ${err.message}`
-        );
+        console.warn(`Error: ${err.message}`);
       }
     );
   }, []);
