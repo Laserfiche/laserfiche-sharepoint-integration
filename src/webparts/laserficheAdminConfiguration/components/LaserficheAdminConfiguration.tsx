@@ -38,6 +38,39 @@ const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
 
 const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+
+const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
+  'You must be a currently licensed Laserfiche Cloud user and SharePoint site administrator in order to manage profile configurations and mappings.';
+
+const PLEASE_LOGIN_TO_LASERFICHE =
+  'Please login to Laserfiche in order to use this web part.';
+const FOR_MORE_INFO_VISIT = 'For more information visit';
+
+interface ProfileConfigContextProps {
+  saveDisabled: boolean;
+  setSaveDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export const ProfileConfigContext = React.createContext<
+  ProfileConfigContextProps | undefined
+>(undefined);
+
+const ProfileConfigStateProvider = (
+  props: React.PropsWithChildren<{}>
+): JSX.Element => {
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
+
+  const contextValue = {
+    saveDisabled,
+    setSaveDisabled,
+  };
+
+  return (
+    <ProfileConfigContext.Provider value={contextValue}>
+      {props.children}
+    </ProfileConfigContext.Provider>
+  );
+};
+
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
@@ -138,7 +171,10 @@ export default function LaserficheAdminConfiguration(
         }
       }
     } catch (error) {
-      console.warn(`Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`, error);
+      console.warn(
+        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
+        error
+      );
       return false;
     }
     return false;
@@ -225,47 +261,55 @@ export default function LaserficheAdminConfiguration(
                     path='/HomePage'
                   />
                   <Route exact={true} component={() => <HomePage />} path='/' />
-                  <Route
-                    exact={true}
-                    component={() => (
-                      <ManageConfigurationsPage context={props.context} />
-                    )}
-                    path='/ManageConfigurationsPage'
-                  />
-                  <Route
-                    exact={true}
-                    component={() => (
-                      <ManageMappingsPage
-                        context={props.context}
-                        isLoggedIn={loggedIn}
-                        repoClient={repoClient}
+                  {loggedIn && (
+                    <>
+                      <Route
+                        exact={true}
+                        component={() => (
+                          <ManageConfigurationsPage context={props.context} />
+                        )}
+                        path='/ManageConfigurationsPage'
                       />
-                    )}
-                    path='/ManageMappingsPage'
-                  />
-                  <Route
-                    exact={true}
-                    component={() => (
-                      <AddNewManageConfiguration
-                        context={props.context}
-                        loggedIn={loggedIn}
-                        repoClient={repoClient}
+                      <Route
+                        exact={true}
+                        component={() => (
+                          <ManageMappingsPage
+                            context={props.context}
+                            isLoggedIn={loggedIn}
+                            repoClient={repoClient}
+                          />
+                        )}
+                        path='/ManageMappingsPage'
                       />
-                    )}
-                    path='/AddNewManageConfiguration'
-                  />
-                  <Route
-                    exact={true}
-                    render={(properties) => (
-                      <EditManageConfiguration
-                        {...properties}
-                        context={props.context}
-                        loggedIn={loggedIn}
-                        repoClient={repoClient}
+                      <Route
+                        exact={true}
+                        component={() => (
+                          <ProfileConfigStateProvider>
+                            <AddNewManageConfiguration
+                              context={props.context}
+                              loggedIn={loggedIn}
+                              repoClient={repoClient}
+                            />
+                          </ProfileConfigStateProvider>
+                        )}
+                        path='/AddNewManageConfiguration'
                       />
-                    )}
-                    path='/EditManageConfiguration/:name'
-                  />
+                      <Route
+                        exact={true}
+                        render={(properties) => (
+                          <ProfileConfigStateProvider>
+                            <EditManageConfiguration
+                              {...properties}
+                              context={props.context}
+                              loggedIn={loggedIn}
+                              repoClient={repoClient}
+                            />
+                          </ProfileConfigStateProvider>
+                        )}
+                        path='/EditManageConfiguration/:name'
+                      />
+                    </>
+                  )}
                 </Switch>
               </StackItem>
             </>
@@ -275,6 +319,16 @@ export default function LaserficheAdminConfiguration(
               <b>
                 {YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}
               </b>
+            </span>
+          )}
+          {!loggedIn && (
+            <span>
+              {`${PLEASE_LOGIN_TO_LASERFICHE}`}
+              {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
+              <a href='https://www.laserfiche.com/products/pricing'>
+                laserfiche.com
+              </a>
+              .
             </span>
           )}
           {messageErrorModal !== undefined && (
