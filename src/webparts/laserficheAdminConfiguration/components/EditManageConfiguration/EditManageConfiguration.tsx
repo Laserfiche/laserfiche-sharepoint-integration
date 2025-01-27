@@ -93,7 +93,7 @@ export default function EditManageConfiguration(
     void initializeComponentAsync();
   }, []);
 
-  async function saveEditExistingConfigurationAsync(): Promise<void> {
+  async function saveEditExistingConfigurationAsync(): Promise<boolean> {
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
@@ -115,8 +115,11 @@ export default function EditManageConfiguration(
             configWithCurrentName.Id,
             configsToSave
           );
+          return true;
         } else {
-          // error this config should exist
+          throw Error(
+            'Invalid configuration. This configuration no longer exists'
+          );
         }
       }
     } else {
