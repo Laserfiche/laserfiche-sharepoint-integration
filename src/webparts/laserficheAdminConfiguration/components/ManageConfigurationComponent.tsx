@@ -19,6 +19,7 @@ import {
 } from './ProfileConfigurationComponents';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
+import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../strings';
 
 export default function ManageConfiguration(
   props: React.PropsWithChildren<IManageConfigurationProps>
@@ -223,7 +224,7 @@ export default function ManageConfiguration(
                 />
               </div>
               <h6 className='card-header border-top'>
-                Mappings from SharePoint Column to Laserfiche Field Values
+                {MANAGE_CONFIGURATIONS_PAGE_TITLE}
               </h6>
               <div className='card-body'>
                 <SharePointLaserficheColumnMatching

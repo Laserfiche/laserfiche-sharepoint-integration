@@ -8,8 +8,8 @@ import AddNewManageConfiguration from './AddNewManageConfiguration';
 import mockWebPartContext from '../../../../__mocks__/@microsoft/sp-webpart-base';
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
 import { BrowserRouter } from 'react-router-dom';
+import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../../strings';
 
-const MANAGE_CONFIGURATIONS_PAGE_TITLE = "Mappings from SharePoint Column to Laserfiche Field Values";
 test('renders title of page', () => {
   render(
     <BrowserRouter>
