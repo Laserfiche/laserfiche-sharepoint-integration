@@ -152,7 +152,8 @@ function SaveToLaserficheDialog(props: {
                   await props.closeClick();
                 }
               }
-            } catch (err) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (err: any) {
               const docDoesNotAlreadyExists = err.status === 404;
               if (docDoesNotAlreadyExists) {
                 await continueSavingDocumentAsync(saveToLF);
@@ -160,7 +161,8 @@ function SaveToLaserficheDialog(props: {
                 throw err;
               }
             }
-          } catch (err) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (err: any) {
             if (err.status === 401 || err.status === 403) {
               props.isSuccessfulLoggedIn(false);
               await props.closeClick();
@@ -183,7 +185,8 @@ function SaveToLaserficheDialog(props: {
           props.isSuccessfulLoggedIn(false);
           await props.closeClick();
         }
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(`Error initializing dialog: ${err}`);
       }
     };

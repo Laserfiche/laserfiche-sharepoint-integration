@@ -6,6 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react",
+    "esModuleInterop": true,
     "declaration": true,
     "sourceMap": true,
     "experimentalDecorators": true,
@@ -13,10 +14,11 @@
     "outDir": "lib",
     "inlineSources": false,
     "strictNullChecks": false,
+    "strict": true,
     "noUnusedLocals": false,
     "noImplicitAny": true,
     "typeRoots": ["./node_modules/@types", "./node_modules/@microsoft"],
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "jest"],
     "lib": ["es6", "dom", "es2015.collection", "es2015.promise"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]

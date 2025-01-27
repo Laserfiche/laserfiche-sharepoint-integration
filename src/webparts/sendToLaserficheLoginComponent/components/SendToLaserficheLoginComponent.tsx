@@ -157,7 +157,8 @@ export default function SendToLaserficheLoginComponent(
         } else {
           await handleLoginOrLogoutInMainWindowAsync();
         }
-      } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(`Unable to initialize sign-in page: ${err}`);
       }
     };

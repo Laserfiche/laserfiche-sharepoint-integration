@@ -203,7 +203,8 @@ export class SaveDocumentToLaserfiche {
 
       await this.tryUpdateFileNameAsync(repoId, entryCreateResult, fileInfo);
       return fileInfo;
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       const conflict409 =
         error.problemDetails.extensions.createEntryResult.operations?.setFields
           ?.exceptions[0].statusCode === 409;

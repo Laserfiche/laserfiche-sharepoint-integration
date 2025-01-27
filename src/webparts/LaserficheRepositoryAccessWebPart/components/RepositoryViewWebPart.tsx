@@ -90,19 +90,17 @@ export default function RepositoryViewComponent(props: {
   >(undefined);
 
   React.useEffect(() => {
-    const onEntrySelected: (
-      event: CustomEvent<LfRepoTreeNode[] | undefined>
-    ) => void = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
-      const selectedNode = event.detail ? event.detail[0] : undefined;
+    const onEntrySelected: EventListener = (event: Event) => {
+      const customEvent = event as CustomEvent<LfRepoTreeNode[] | undefined>;
+      const selectedNode = customEvent.detail ? customEvent.detail[0] : undefined;
       setSelectedItem(selectedNode);
     };
 
-    const onEntryOpened: (
-      event: CustomEvent<LfRepoTreeNode[] | undefined>
-    ) => Promise<void> = async (
-      event: CustomEvent<LfRepoTreeNode[] | undefined>
+    const onEntryOpened: EventListener = async (
+      event: Event
     ) => {
-      const openedNode = event.detail ? event.detail[0] : undefined;
+      const customEvent = event as CustomEvent<LfRepoTreeNode[] | undefined>;
+      const openedNode = customEvent.detail ? customEvent.detail[0] : undefined;
       const entryType =
         openedNode.entryType === EntryType.Shortcut
           ? openedNode.targetType
@@ -150,7 +148,8 @@ export default function RepositoryViewComponent(props: {
           setParentItem(repoBrowser?.currentFolder as LfRepoTreeNode);
           repoBrowser?.setColumnsToDisplay(cols);
           await repoBrowser?.refreshAsync();
-        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
           console.error(err);
         }
       } else {
@@ -438,7 +437,8 @@ function ImportFileModal(props: {
 
         lfFieldsService = new LfFieldsService(props.repoClient);
         await fieldContainer.current.initAsync(lfFieldsService);
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(err);
       }
     };
@@ -495,7 +495,8 @@ function ImportFileModal(props: {
             return;
           }
         }
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         const docDoesNotAlreadyExists = err.status === 404;
         if (docDoesNotAlreadyExists) {
           // doesn't exist, good to go
@@ -509,7 +510,8 @@ function ImportFileModal(props: {
         return;
       }
       await continueImportAsync(extension, renamedFile, repoId);
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setFileUploadPercentage(0);
       setError(err.message);
       console.error(error);

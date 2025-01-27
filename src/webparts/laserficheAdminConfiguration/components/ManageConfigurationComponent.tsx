@@ -19,6 +19,7 @@ import {
 } from './ProfileConfigurationComponents';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
+import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../strings';
 
 export default function ManageConfiguration(
   props: React.PropsWithChildren<IManageConfigurationProps>
@@ -97,8 +98,11 @@ export default function ManageConfiguration(
           await getAllSharePointSiteColumnsAsync();
         spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(spColumns);
-      } catch (err) {
-        console.error(`Error initializing configuration component: ${err}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        console.error(
+          `Error initializing configuration component: ${err}`
+        );
       }
     };
     if (props.repoClient) {
@@ -176,7 +180,8 @@ export default function ManageConfiguration(
       if (success) {
         setShowConfirmModal(true);
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setShowErrorModal(err.message);
     }
   }
@@ -219,7 +224,7 @@ export default function ManageConfiguration(
                 />
               </div>
               <h6 className='card-header border-top'>
-                Mappings from SharePoint Column to Laserfiche Field Values
+                {MANAGE_CONFIGURATIONS_PAGE_TITLE}
               </h6>
               <div className='card-body'>
                 <SharePointLaserficheColumnMatching
