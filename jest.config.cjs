@@ -18,4 +18,5 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest', // Add this line to transform all JavaScript and TypeScript files
   },
+  testMatch: ['<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'], // Add this line to specify the test match pattern
 };

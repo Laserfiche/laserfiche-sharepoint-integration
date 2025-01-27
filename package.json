@@ -14,7 +14,7 @@
     "build": "gulp bundle",
     "package": "gulp package-solution",
     "clean": "gulp clean",
-    "test": "gulp test",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "serve": "gulp serve",
     "gulp-trust-dev-cert": "gulp trust-dev-cert",
     "serve-docs": "bundle exec jekyll serve"

@@ -9,19 +9,22 @@ import mockWebPartContext from '../../../../__mocks__/@microsoft/sp-webpart-base
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
 import { BrowserRouter } from 'react-router-dom';
 import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../../strings';
+import { ProfileConfigContext } from '../LaserficheAdminConfiguration';
 
 test('renders title of page', () => {
   render(
     <BrowserRouter>
-      <AddNewManageConfiguration
-        context={mockWebPartContext}
-        repoClient={new RepositoryClientExInternal().repoClient}
-        loggedIn={true}
-      />
+      <ProfileConfigContext.Provider
+        value={{ setSaveDisabled: jest.fn(), saveDisabled: false }}
+      >
+        <AddNewManageConfiguration
+          context={mockWebPartContext}
+          repoClient={new RepositoryClientExInternal().repoClient}
+          loggedIn={true}
+        />
+      </ProfileConfigContext.Provider>
     </BrowserRouter>
   );
-  const linkElement = screen.getByText(
-    MANAGE_CONFIGURATIONS_PAGE_TITLE
-  );
+  const linkElement = screen.getByText(MANAGE_CONFIGURATIONS_PAGE_TITLE);
   expect(linkElement).toBeInTheDocument();
 });
