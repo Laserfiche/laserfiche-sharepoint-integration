@@ -110,7 +110,8 @@ export default function LaserficheAdminConfiguration(
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         }
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(`Error initializing configuration page: ${err}`);
       }
     };

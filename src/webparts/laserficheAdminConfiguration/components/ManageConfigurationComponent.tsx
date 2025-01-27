@@ -84,7 +84,8 @@ export default function ManageConfiguration(
           await getAllSharePointSiteColumnsAsync();
         spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(spColumns);
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(
           `Error initializing configuration component: ${err}`
         );
@@ -160,7 +161,8 @@ export default function ManageConfiguration(
     try {
       await props.saveConfiguration();
       setShowConfirmModal(true);
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setShowErrorModal(err.message);
     }
   }

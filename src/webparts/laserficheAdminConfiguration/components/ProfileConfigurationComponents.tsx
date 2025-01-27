@@ -212,10 +212,11 @@ export function RepositoryBrowserModal(props: {
   const repositoryBrowser: React.RefObject<
     NgElement & WithProperties<LfRepositoryBrowserComponent>
   > = React.useRef();
-  const onEntrySelected: (event: CustomEvent<LfRepoTreeNode[]>) => void = (
-    event: CustomEvent<LfRepoTreeNode[]>
+  const onEntrySelected: EventListener = (
+    event: Event
   ) => {
-    const treeNodesSelected: LfRepoTreeNode[] = event.detail;
+    const customEvent = event as CustomEvent<LfRepoTreeNode[]>;
+    const treeNodesSelected: LfRepoTreeNode[] = customEvent.detail;
     const selectedNode =
       treeNodesSelected?.length > 0 ? treeNodesSelected[0] : undefined;
     setEntrySelected(selectedNode);
@@ -274,7 +275,8 @@ export function RepositoryBrowserModal(props: {
           'Unable to initialize tree, lfRepoTreeService is undefined'
         );
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error(`Unable to initialize repository browser: ${err}`);
     }
   }

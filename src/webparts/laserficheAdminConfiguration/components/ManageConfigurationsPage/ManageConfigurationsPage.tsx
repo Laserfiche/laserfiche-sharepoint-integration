@@ -41,7 +41,8 @@ export default function ManageConfigurationsPage(
         if (configurations?.configs.length > 0) {
           setConfigRows(configRows.concat(...configurations.configs));
         }
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         console.error(`Error: ${err.message}`);
       }
     };
@@ -95,7 +96,8 @@ export default function ManageConfigurationsPage(
       rows.splice(id, 1);
       await deleteMappingAsync(deleteRows, id);
       setDeleteModal(undefined);
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setError(`Error when removing configuration: ${err.message}`);
       console.error(err);
     }
