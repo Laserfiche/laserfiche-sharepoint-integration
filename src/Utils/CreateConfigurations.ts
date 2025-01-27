@@ -65,7 +65,8 @@ export class CreateConfigurations {
       const listTitle: string = adminConfigList.Title;
       await this.createColumnsAsync(context, listTitle, formDigestValue);
       return listTitle;
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error(
         `Error when creating LaserficheAdminConfiguration List: ${err}`
       );

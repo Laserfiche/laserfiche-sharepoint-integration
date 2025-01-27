@@ -154,7 +154,8 @@ function GetDocumentDialogData(props: {
 
         props.showSaveToDialog(docData);
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setError(<div>{`Error saving: ${err.message}`}</div>);
       console.error(err);
     }

@@ -59,7 +59,8 @@ export default function ManageMappingsPage(
       if (results?.mappings.length > 0) {
         setMappingRows(mappingRows.concat(results.mappings));
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error(`Error getting mappings: ${err.message}`);
     }
   }
@@ -230,7 +231,8 @@ export default function ManageMappingsPage(
           setMappingRows(rows);
         }
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setValidationMessage(`Error creating mapping: ${err.message}`);
     }
   }
@@ -428,7 +430,8 @@ export default function ManageMappingsPage(
           }
         }
       }
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setValidationMessage(`Error deleting mapping: ${err.message}`);
     }
   }
@@ -538,7 +541,8 @@ export default function ManageMappingsPage(
         setMappingRows(results.mappings);
       }
       setValidationMessage(undefined);
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       setValidationMessage(err.message);
     }
   };
