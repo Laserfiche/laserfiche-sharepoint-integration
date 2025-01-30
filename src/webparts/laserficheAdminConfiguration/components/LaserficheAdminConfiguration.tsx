@@ -13,38 +13,21 @@ import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
 import {
-  clientId,
-  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
-  LOGIN_WINDOW_SUCCESS,
   ZONE_JS_URL,
 } from '../../constants';
-import { NgElement, WithProperties } from '@angular/elements';
-import {
-  AbortedLoginError,
-  LfLoginComponent,
-} from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
-import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
-
-const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
-  'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
-
-const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
-
-const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
-  'You must be a currently licensed Laserfiche Cloud user and SharePoint site administrator in order to manage profile configurations and mappings.';
-
-const PLEASE_LOGIN_TO_LASERFICHE =
-  'Please login to Laserfiche in order to use this web part.';
-const FOR_MORE_INFO_VISIT = 'For more information visit';
+import {
+  LoggedOutMessageWrapper,
+  LoginComponent,
+  NoAdminRightsMessage,
+} from './AdminConfigurationUtilComponents';
 
 interface ProfileConfigContextProps {
   saveDisabled: boolean;
@@ -74,9 +57,6 @@ const ProfileConfigStateProvider = (
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
-  const loginComponent: React.RefObject<
-    NgElement & WithProperties<LfLoginComponent>
-  > = React.createRef();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
@@ -85,26 +65,12 @@ export default function LaserficheAdminConfiguration(
     JSX.Element | undefined
   >(undefined);
 
-  const region = getRegion();
-
-  const redirectPage = window.location.origin + window.location.pathname;
-
   function isAdmin(): boolean {
     const permission = new SPPermission(
       props.context.pageContext.web.permissions.value
     );
     const isFullControl = permission.hasPermission(SPPermission.manageWeb);
     return isFullControl;
-  }
-
-  async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
-    const accessToken =
-      loginComponent?.current?.authorization_credentials?.accessToken;
-    if (accessToken) {
-      await ensureRepoClientInitializedAsync();
-    } else {
-      // user is not logged in
-    }
   }
 
   async function ensureRepoClientInitializedAsync(): Promise<void> {
@@ -122,108 +88,10 @@ export default function LaserficheAdminConfiguration(
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
       await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
-      try {
-        const loginCompleted: () => Promise<void> = async () => {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          setLoggedIn(true);
-        };
-        const logoutCompleted: () => Promise<void> = async () => {
-          setLoggedIn(false);
-        };
-
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
-        if (loginComponent.current.authorization_credentials) {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          setLoggedIn(true);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.error(`Error initializing configuration page: ${err}`);
-      }
     };
 
     void initializeComponentAsync();
   }, []);
-
-  async function pageConfigurationCheck(): Promise<boolean> {
-    try {
-      const res = await fetch(
-        `${getSPListURL(props.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      const sitePages = await res.json();
-      for (let o = 0; o < sitePages.value.length; o++) {
-        const pageName = sitePages.value[o].Title;
-        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
-          return true;
-        }
-      }
-    } catch (error) {
-      console.warn(
-        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
-        error
-      );
-      return false;
-    }
-    return false;
-  }
-
-  async function clickLogin(): Promise<void> {
-    const url =
-      props.context.pageContext.web.absoluteUrl +
-      '/SitePages/LaserficheSignIn.aspx?autologin';
-    const hasSignIn = await pageConfigurationCheck();
-    if (!hasSignIn) {
-      const mes = (
-        <MessageDialog
-          title='Sign In Failed'
-          message={needLaserficheSignInPage}
-          clickOkay={() => {
-            setMessageErrorModal(undefined);
-          }}
-        />
-      );
-      setMessageErrorModal(mes);
-      return;
-    }
-    const loginWindow = window.open(url, 'loginWindow', 'popup');
-    loginWindow.resizeTo(800, 600);
-    window.addEventListener('message', (event) => {
-      if (event.origin === window.origin) {
-        if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindow.close();
-        } else if (event.data) {
-          const parsedError: AbortedLoginError = event.data;
-          if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindow.close();
-            const mes = (
-              <MessageDialog
-                title='Sign In Failed'
-                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-                clickOkay={() => {
-                  setMessageErrorModal(undefined);
-                }}
-              />
-            );
-            setMessageErrorModal(mes);
-          }
-        }
-      }
-    });
-  }
 
   return (
     <React.StrictMode>
@@ -231,107 +99,88 @@ export default function LaserficheAdminConfiguration(
         <Stack>
           {isAdmin() && (
             <>
-              <div className={styles.loginButton}>
-                <lf-login
-                  redirect_uri={redirectPage}
-                  authorize_url_host_name={region}
-                  redirect_behavior='Replace'
-                  client_id={clientId}
-                  ref={loginComponent}
-                  hidden
-                />
-                <button
-                  onClick={clickLogin}
-                  className={`lf-button login-button ${
-                    loggedIn ? 'sec-button' : 'primary-button'
-                  }`}
-                >
-                  {loggedIn ? 'Sign out' : 'Sign in'}
-                </button>
-              </div>
+              <LoginComponent
+                loggedIn={loggedIn}
+                setLoggedIn={setLoggedIn}
+                setMessageErrorModal={setMessageErrorModal}
+                ensureRepoClientInitializedAsync={
+                  ensureRepoClientInitializedAsync
+                }
+                context={props.context}
+              />
               <AdminMainPage
                 context={props.context}
                 loggedIn={loggedIn}
                 repoClient={repoClient}
               />
-              <StackItem>
-                <Switch>
-                  <Route
-                    exact={true}
-                    component={() => <HomePage />}
-                    path='/HomePage'
-                  />
-                  <Route exact={true} component={() => <HomePage />} path='/' />
-                  {loggedIn && (
-                    <>
-                      <Route
-                        exact={true}
-                        component={() => (
-                          <ManageConfigurationsPage context={props.context} />
-                        )}
-                        path='/ManageConfigurationsPage'
-                      />
-                      <Route
-                        exact={true}
-                        component={() => (
-                          <ManageMappingsPage
-                            context={props.context}
-                            isLoggedIn={loggedIn}
-                            repoClient={repoClient}
-                          />
-                        )}
-                        path='/ManageMappingsPage'
-                      />
-                      <Route
-                        exact={true}
-                        component={() => (
-                          <ProfileConfigStateProvider>
-                            <AddNewManageConfiguration
-                              context={props.context}
-                              loggedIn={loggedIn}
-                              repoClient={repoClient}
-                            />
-                          </ProfileConfigStateProvider>
-                        )}
-                        path='/AddNewManageConfiguration'
-                      />
-                      <Route
-                        exact={true}
-                        render={(properties) => (
-                          <ProfileConfigStateProvider>
-                            <EditManageConfiguration
-                              {...properties}
-                              context={props.context}
-                              loggedIn={loggedIn}
-                              repoClient={repoClient}
-                            />
-                          </ProfileConfigStateProvider>
-                        )}
-                        path='/EditManageConfiguration/:name'
-                      />
-                    </>
-                  )}
-                </Switch>
-              </StackItem>
             </>
           )}
-          {!isAdmin() && (
-            <span>
-              <b>
-                {YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}
-              </b>
-            </span>
-          )}
-          {!loggedIn && (
-            <span>
-              {`${PLEASE_LOGIN_TO_LASERFICHE}`}
-              {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-              <a href='https://www.laserfiche.com/products/pricing'>
-                laserfiche.com
-              </a>
-              .
-            </span>
-          )}
+          <StackItem>
+            <Switch>
+              <Route
+                exact={true}
+                component={() => <HomePage />}
+                path='/HomePage'
+              />
+              <Route exact={true} component={() => <HomePage />} path='/' />
+
+              <Route
+                component={() => (
+                  <>
+                    <LoggedOutMessageWrapper loggedIn={loggedIn}>
+                      <ManageConfigurationsPage context={props.context} />
+                    </LoggedOutMessageWrapper>
+                  </>
+                )}
+                path='/ManageConfigurationsPage'
+              />
+              <Route
+                exact={true}
+                component={() => (
+                  <LoggedOutMessageWrapper loggedIn={loggedIn}>
+                    <ManageMappingsPage
+                      context={props.context}
+                      isLoggedIn={loggedIn}
+                      repoClient={repoClient}
+                    />
+                  </LoggedOutMessageWrapper>
+                )}
+                path='/ManageMappingsPage'
+              />
+              <Route
+                exact={true}
+                component={() => (
+                  <ProfileConfigStateProvider>
+                    <LoggedOutMessageWrapper loggedIn={loggedIn}>
+                      <AddNewManageConfiguration
+                        context={props.context}
+                        loggedIn={loggedIn}
+                        repoClient={repoClient}
+                      />
+                    </LoggedOutMessageWrapper>
+                  </ProfileConfigStateProvider>
+                )}
+                path='/AddNewManageConfiguration'
+              />
+              <Route
+                exact={true}
+                render={(properties) => (
+                  <ProfileConfigStateProvider>
+                    <LoggedOutMessageWrapper loggedIn={loggedIn}>
+                      <EditManageConfiguration
+                        {...properties}
+                        context={props.context}
+                        loggedIn={loggedIn}
+                        repoClient={repoClient}
+                      />
+                    </LoggedOutMessageWrapper>
+                  </ProfileConfigStateProvider>
+                )}
+                path='/EditManageConfiguration/:name'
+              />
+            </Switch>
+          </StackItem>
+          {!isAdmin() && <NoAdminRightsMessage />}
           {messageErrorModal !== undefined && (
             <div
               className={styles.modal}

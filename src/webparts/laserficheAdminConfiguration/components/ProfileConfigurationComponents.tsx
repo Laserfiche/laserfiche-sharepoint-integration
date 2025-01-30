@@ -18,7 +18,23 @@ import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { getCorrespondingTypeFieldName } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
-import { TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED } from '../../strings';
+import {
+  ADD_FIELD,
+  CANCEL,
+  DELETE_CONFIRMATION,
+  DOCUMENT_NAME,
+  LASERFICHE_FIELD,
+  LASERFICHE_TEMPLATE,
+  NONE,
+  OK,
+  OPEN,
+  PLEASE_ENSURE_ALL_FIELDS_ARE_CORRECTLY_MAPPED,
+  PLEASE_SELECT_A_TEMPLATE_ABOVE_TO_MAP_FIELDS,
+  SELECT,
+  SELECT_FOLDER,
+  SHAREPOINT_COLUMN,
+  TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED,
+} from '../../strings';
 
 export interface ProfileConfiguration {
   ConfigurationName: string;
@@ -199,6 +215,21 @@ export function ConfigurationBody(props: {
   );
 }
 
+export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
+  node: LfRepoTreeNode
+) => {
+  if (node?.entryType === EntryType.Folder) {
+    return true;
+  } else if (
+    node?.entryType === EntryType.Shortcut &&
+    node?.targetType === EntryType.Folder
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 export function RepositoryBrowserModal(props: {
   CloseFolderBrowserUp: () => void;
   SelectFolder: (node: LfRepoTreeNode | undefined) => void;
@@ -215,9 +246,7 @@ export function RepositoryBrowserModal(props: {
   const repositoryBrowser: React.RefObject<
     NgElement & WithProperties<LfRepositoryBrowserComponent>
   > = React.useRef();
-  const onEntrySelected: EventListener = (
-    event: Event
-  ) => {
+  const onEntrySelected: EventListener = (event: Event) => {
     const customEvent = event as CustomEvent<LfRepoTreeNode[]>;
     const treeNodesSelected: LfRepoTreeNode[] = customEvent.detail;
     const selectedNode =
@@ -229,36 +258,22 @@ export function RepositoryBrowserModal(props: {
     );
     setShouldDisableSelect(getShouldDisableSelect());
   };
-  let lfRepoTreeService: LfRepoTreeNodeService;
 
   React.useEffect(() => {
     if (props.repoClient) {
-      lfRepoTreeService = new LfRepoTreeNodeService(props.repoClient);
-      lfRepoTreeService.viewableEntryTypes = [
+      const treeService = new LfRepoTreeNodeService(props.repoClient);
+      treeService.viewableEntryTypes = [
         EntryType.Folder,
         EntryType.Shortcut,
         EntryType.RecordSeries,
       ];
-      void initializeTreeAsync();
+      void initializeTreeAsync(treeService);
     }
   }, [props.repoClient]);
 
-  const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
-    node: LfRepoTreeNode
-  ) => {
-    if (node?.entryType === EntryType.Folder) {
-      return true;
-    } else if (
-      node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Folder
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  async function initializeTreeAsync(): Promise<void> {
+  async function initializeTreeAsync(
+    lfRepoTreeService: LfRepoTreeNodeService
+  ): Promise<void> {
     try {
       if (!props.repoClient) {
         throw new Error('RepoId is undefined');
@@ -317,7 +332,7 @@ export function RepositoryBrowserModal(props: {
       <div className={`${styles.wrapper}`}>
         <div className={styles.header}>
           <div className={styles.logoHeader}>
-            <div>Select folder</div>
+            <div>{SELECT_FOLDER}</div>
           </div>
 
           <button
@@ -340,7 +355,7 @@ export function RepositoryBrowserModal(props: {
         <div className={styles.footer}>
           {shouldShowOpen && (
             <button className={`lf-button primary-button`} onClick={onOpenNode}>
-              Open
+              {OPEN}
             </button>
           )}
           {shouldShowSelect && (
@@ -349,14 +364,14 @@ export function RepositoryBrowserModal(props: {
               onClick={onSelectFolder}
               disabled={shouldDisableSelect}
             >
-              Select
+              {SELECT}
             </button>
           )}
           <button
             className={`sec-button lf-button ${styles.marginLeftButton}`}
             onClick={props.CloseFolderBrowserUp}
           >
-            Cancel
+            {CANCEL}
           </button>
         </div>
       </div>
@@ -368,7 +383,7 @@ export function DocumentName(props: { documentName: string }): JSX.Element {
   return (
     <>
       <label htmlFor='txt1' className='col-sm-3 col-form-label'>
-        Document Name
+        {DOCUMENT_NAME}
       </label>
       <div className='col-sm-6'>
         <input
@@ -399,7 +414,7 @@ export function TemplateSelector(props: {
   return (
     <>
       <label htmlFor='dwl2' className='col-sm-3 col-form-label'>
-        Laserfiche Template
+        {LASERFICHE_TEMPLATE}
       </label>
       <div className='col-sm-6'>
         <select
@@ -408,11 +423,12 @@ export function TemplateSelector(props: {
           onChange={(e) => props.onChangeTemplate(e)}
           value={props.selectedTemplateName}
         >
-          <option value=''>None</option>
+          <option value=''>{NONE}</option>
           {laserficheTemplateOptions}
         </select>
       </div>
-      {props.templateWarning && <div className={styles.templateWarning}>
+      {props.templateWarning && (
+        <div className={styles.templateWarning}>
           <span
             className='material-icons-outlined'
             style={{
@@ -421,7 +437,11 @@ export function TemplateSelector(props: {
           >
             warning
           </span>
-          <span className={styles.templateWarningMessage}>{TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED}</span></div>}
+          <span className={styles.templateWarningMessage}>
+            {TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED}
+          </span>
+        </div>
+      )}
     </>
   );
 }
@@ -533,7 +553,7 @@ export function SharePointLaserficheColumnMatching(props: {
       props.profileConfig.selectedTemplateName
     ) {
       fullValidationError = (
-        <span>Please ensure all fields are correctly mapped</span>
+        <span>{PLEASE_ENSURE_ALL_FIELDS_ARE_CORRECTLY_MAPPED}</span>
       );
     }
   }
@@ -634,8 +654,8 @@ export function SharePointLaserficheColumnMatching(props: {
         <>
           <div>
             <div className={styles.rowDiv}>
-              <span className={styles.dataCellWidth}>SharePoint Column</span>
-              <span className={styles.dataCellWidth}>Laserfiche Field</span>
+              <span className={styles.dataCellWidth}>{SHAREPOINT_COLUMN}</span>
+              <span className={styles.dataCellWidth}>{LASERFICHE_FIELD}</span>
             </div>
             <div id='tableEditBodyId'>{mappedList}</div>
           </div>
@@ -645,12 +665,12 @@ export function SharePointLaserficheColumnMatching(props: {
               onClick={addNewMappingFields}
               className='lf-button primary-button'
             >
-              Add Field
+              {ADD_FIELD}
             </button>
           </div>
         </>
       ) : (
-        <span>Please select a template above to map fields</span>
+        <span>{PLEASE_SELECT_A_TEMPLATE_ABOVE_TO_MAP_FIELDS}</span>
       )}
       {deleteModal !== undefined && (
         <div
@@ -676,7 +696,7 @@ export function DeleteModal(props: {
       <div className={`modal-content ${styles.wrapper}`}>
         <div className={styles.header}>
           <h5 className='modal-title' id='ModalLabel'>
-            Delete Confirmation
+            {DELETE_CONFIRMATION}
           </h5>
           <button
             type='button'
@@ -699,7 +719,7 @@ export function DeleteModal(props: {
             data-dismiss='modal'
             onClick={props.onConfirmDelete}
           >
-            OK
+            {OK}
           </button>
           <button
             type='button'
@@ -707,7 +727,7 @@ export function DeleteModal(props: {
             data-dismiss='modal'
             onClick={props.onCancel}
           >
-            Cancel
+            {CANCEL}
           </button>
         </div>
       </div>
