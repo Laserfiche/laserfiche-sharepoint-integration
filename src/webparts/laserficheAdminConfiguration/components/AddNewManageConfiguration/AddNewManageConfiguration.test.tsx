@@ -16,7 +16,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { SPHttpClient } from '@microsoft/sp-http-base';
 import { SPWeb, PageContext, SPPermission } from '@microsoft/sp-page-context';
 
-class SaveDisabledState implements ProfileConfigContextProps {
+class SaveDisabledStateMock implements ProfileConfigContextProps {
   private _saveDisabled: boolean = false;
 
   get saveDisabled(): boolean {
@@ -49,7 +49,9 @@ describe('AddNewManageConfiguration', () => {
       } as PageContext,
     } as WebPartContext;
   });
+
   test('renders title of page', () => {
+    // Arrange/Act
     render(
       <BrowserRouter>
         <ProfileConfigContext.Provider
@@ -63,11 +65,14 @@ describe('AddNewManageConfiguration', () => {
         </ProfileConfigContext.Provider>
       </BrowserRouter>
     );
+
+    // Assert
     const linkElement = screen.getByText(MANAGE_CONFIGURATIONS_PAGE_TITLE);
     expect(linkElement).toBeInTheDocument();
   });
 
   test('savebutton is disabled if profile already exists in savedProfileConfigurations', async () => {
+    // Arrange
     const mockProfileConfig = {
       ConfigurationName: 'ExistingProfile',
       // other properties
@@ -85,9 +90,10 @@ describe('AddNewManageConfiguration', () => {
         .mockResolvedValue({ value: mockManageConfigurationConfig }),
     });
 
+    // Act
     render(
       <BrowserRouter>
-        <ProfileConfigContext.Provider value={new SaveDisabledState()}>
+        <ProfileConfigContext.Provider value={new SaveDisabledStateMock()}>
           <AddNewManageConfiguration
             context={mockWebPartContext}
             repoClient={new RepositoryClientExInternal().repoClient}
@@ -101,9 +107,9 @@ describe('AddNewManageConfiguration', () => {
       target: { value: 'ExistingProfile' },
     });
 
-    // Simulate form submission
     fireEvent.click(screen.getByText(/Save/i));
 
+    // Assert
     await waitFor(() => {
       expect(
         screen.getByText(
@@ -115,6 +121,7 @@ describe('AddNewManageConfiguration', () => {
   });
 
   test('savebutton is enabled on render', async () => {
+    // Arrange
     const mockProfileConfig = {
       ConfigurationName: 'ExistingProfile',
       // other properties
@@ -132,9 +139,10 @@ describe('AddNewManageConfiguration', () => {
         .mockResolvedValue({ value: mockManageConfigurationConfig }),
     });
 
+    // Act
     render(
       <BrowserRouter>
-        <ProfileConfigContext.Provider value={new SaveDisabledState()}>
+        <ProfileConfigContext.Provider value={new SaveDisabledStateMock()}>
           <AddNewManageConfiguration
             context={mockWebPartContext}
             repoClient={new RepositoryClientExInternal().repoClient}
@@ -144,6 +152,7 @@ describe('AddNewManageConfiguration', () => {
       </BrowserRouter>
     );
 
+    // Assert
     expect(screen.getByTestId('saveButton')).toBeEnabled();
   });
 });

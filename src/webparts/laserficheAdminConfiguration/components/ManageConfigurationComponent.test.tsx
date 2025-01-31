@@ -1,19 +1,6 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import { render, waitFor, screen } from '@testing-library/react';
-import ManageConfigurationComponent from './ManageConfigurationComponent';
-import { ProfileConfiguration } from './ProfileConfigurationComponents';
-import * as React from 'react';
-import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import {
-  TemplateDefinitionsClient,
-} from '@laserfiche/lf-repository-api-client';
-import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
-import { ProfileConfigContext } from './LaserficheAdminConfiguration';
-import { HashRouter } from 'react-router-dom';
-import { TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED } from '../../strings';
-
 jest.mock('@laserfiche/lf-repository-api-client', () => ({
   WTemplateInfo: jest.fn().mockImplementation(({ name, displayName }) => ({
     name,
@@ -27,14 +14,28 @@ jest.mock('@laserfiche/lf-repository-api-client', () => ({
   },
 }));
 
+import { render, waitFor, screen } from '@testing-library/react';
+import ManageConfigurationComponent from './ManageConfigurationComponent';
+import { ProfileConfiguration } from './ProfileConfigurationComponents';
+import * as React from 'react';
+import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import {
+  TemplateDefinitionsClient,
+} from '@laserfiche/lf-repository-api-client';
+import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
+import { ProfileConfigContext } from './LaserficheAdminConfiguration';
+import { HashRouter } from 'react-router-dom';
+import { TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED } from '../../strings';
+
 describe('ManageConfigurationComponent', () => {
   test('template warning appears if selected template name no longer exists in list of templates and save button is still enabled', async () => {
+    // Arrange
     const mockProfileConfig: ProfileConfiguration = {
       selectedTemplateName: 'NonExistentTemplate',
       // other properties
     } as ProfileConfiguration;
 
-    let repoClient = {
+    const repoClient = {
       getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
         getTemplateDefinitionsForEach: jest
@@ -60,6 +61,7 @@ describe('ManageConfigurationComponent', () => {
       json: jest.fn().mockResolvedValue({ value: [] }),
     });
 
+    // Act
     render(
       <HashRouter>
         <ProfileConfigContext.Provider
@@ -80,6 +82,7 @@ describe('ManageConfigurationComponent', () => {
       </HashRouter>
     );
 
+    // Assert
     await waitFor(() => {
       expect(
         screen.getByText(TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED)
@@ -90,12 +93,13 @@ describe('ManageConfigurationComponent', () => {
   });
 
   test('save button is enabled if selected template exists in template list', async () => {
+    // Arrange
     const mockProfileConfig: ProfileConfiguration = {
       selectedTemplateName: 'Template1',
       // other properties
     } as ProfileConfiguration;
 
-    let repoClient = {
+    const repoClient = {
       getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
         getTemplateDefinitionsForEach: jest
@@ -121,6 +125,7 @@ describe('ManageConfigurationComponent', () => {
       json: jest.fn().mockResolvedValue({ value: [] }),
     });
 
+    // Act
     render(
       <HashRouter>
         <ProfileConfigContext.Provider
@@ -141,6 +146,7 @@ describe('ManageConfigurationComponent', () => {
       </HashRouter>
     );
 
+    // Assert
     await waitFor(() => {
       const templateNotValidElement = screen.queryByText(
         TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED
