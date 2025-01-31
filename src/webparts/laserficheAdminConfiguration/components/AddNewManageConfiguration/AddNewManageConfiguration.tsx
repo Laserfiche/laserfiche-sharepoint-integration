@@ -20,7 +20,7 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from '../LaserficheAdminConfiguration';
-import { PROFILE_NAME } from '../../../strings';
+import { PROFILE_NAME, PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME } from '../../../strings';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -67,6 +67,7 @@ export default function AddNewManageConfiguration(
       setSaveDisabled(true);
     }
   };
+
   function handleProfileConfigNameChange(e: React.ChangeEvent): void {
     const newName = (e.target as HTMLInputElement).value;
     const profileConfiguration = { ...profileConfig };
@@ -143,8 +144,7 @@ export default function AddNewManageConfiguration(
           setSaveDisabled(true);
           setConfigNameError(
             <span>
-              Profile with this name already exists, please provide different
-              name
+              {PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME}
             </span>
           );
           return false;
@@ -238,7 +238,7 @@ export default function AddNewManageConfiguration(
   const extraConfiguration = (
     <>
       <div className={`${styles.formGroupRow} form-group row`}>
-        <label htmlFor='txt0' className='col-sm-3 col-form-label'>
+        <label htmlFor='configurationName' className='col-sm-3 col-form-label'>
           {PROFILE_NAME} <span style={{ color: 'red' }}>*</span>
         </label>
         <div className='col-sm-6'>
