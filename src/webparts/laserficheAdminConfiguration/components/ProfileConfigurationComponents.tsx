@@ -407,7 +407,7 @@ export function TemplateSelector(props: {
   onChangeTemplate: (event: ChangeEvent<HTMLSelectElement>) => void;
 }): JSX.Element {
   const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
-    <option key={item.id} value={item.displayName}>
+    <option key={`${item.id}${item.displayName}`} value={item.displayName}>
       {item.displayName}
     </option>
   ));

@@ -252,6 +252,7 @@ export default function ManageConfiguration(
                   className={`${styles.marginLeftButton} lf-button primary-button`}
                   onClick={saveConfigurationAsync}
                   disabled={saveDisabled}
+                  data-testid="saveButton"
                 >
                   Save
                 </button>

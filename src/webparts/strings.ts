@@ -74,3 +74,4 @@ export const FOLDER_NAME = 'Folder Name';
 
 export const SUBMIT = 'Submit';
 export const CLOSE = 'Close';
+export const PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME = 'Profile with this name already exists, please provide different name';

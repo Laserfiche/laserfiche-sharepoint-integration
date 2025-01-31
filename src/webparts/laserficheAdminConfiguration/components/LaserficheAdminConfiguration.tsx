@@ -29,7 +29,7 @@ import {
   NoAdminRightsMessage,
 } from './AdminConfigurationUtilComponents';
 
-interface ProfileConfigContextProps {
+export interface ProfileConfigContextProps {
   saveDisabled: boolean;
   setSaveDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
