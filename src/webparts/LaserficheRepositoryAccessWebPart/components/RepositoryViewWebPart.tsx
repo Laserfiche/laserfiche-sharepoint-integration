@@ -30,6 +30,22 @@ import { ChangeEvent } from 'react';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import styles from './LaserficheRepositoryAccess.module.scss';
 import { useConfirm } from './../../../extensions/savetoLaserfiche/CommonDialogs';
+import {
+  CANCEL,
+  CANNOT_IMPORT_INTO_RECORD_SERIES,
+  CLOSE,
+  CREATE_FOLDER,
+  ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME,
+  FOLDER_NAME,
+  LASERFICHE_REPOSITORY_EXPLORER,
+  NAME,
+  OK,
+  PLEASE_SELECT_FILE_FOLDER_TO_OPEN,
+  SUBMIT,
+  UPLOAD_FILE_TO_LASERFICHE,
+  UPLOAD_FILE_TO_LASERFICHE_TITLE,
+  UPLOADING,
+} from '../../strings';
 require('./../../../Assets/CSS/commonStyles.css');
 
 const cols: ColumnDef[] = [
@@ -72,6 +88,29 @@ const folderValidation = 'Please provide a folder name';
 const folderBackslashNameValidation = 'Entry names cannot contain backslash';
 const folderExists = 'Object already exists';
 
+export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
+  node: LfRepoTreeNode
+) => {
+  if (
+    node?.entryType === EntryType.Folder ||
+    node?.entryType === EntryType.Document ||
+    node?.entryType === EntryType.RecordSeries
+  ) {
+    return true;
+  } else if (
+    (node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.Folder) ||
+    (node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.Document) ||
+    (node?.entryType === EntryType.Shortcut &&
+      node?.targetType === EntryType.RecordSeries)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 export default function RepositoryViewComponent(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
@@ -92,37 +131,16 @@ export default function RepositoryViewComponent(props: {
   React.useEffect(() => {
     const onEntrySelected: EventListener = (event: Event) => {
       const customEvent = event as CustomEvent<LfRepoTreeNode[] | undefined>;
-      const selectedNode = customEvent.detail ? customEvent.detail[0] : undefined;
+      const selectedNode = customEvent.detail
+        ? customEvent.detail[0]
+        : undefined;
       setSelectedItem(selectedNode);
     };
 
-    const onEntryOpened: EventListener = async (
-      event: Event
-    ) => {
+    const onEntryOpened: EventListener = async (event: Event) => {
       const customEvent = event as CustomEvent<LfRepoTreeNode[] | undefined>;
       const openedNode = customEvent.detail ? customEvent.detail[0] : undefined;
-      const entryType =
-        openedNode.entryType === EntryType.Shortcut
-          ? openedNode.targetType
-          : openedNode.entryType;
-      if (
-        entryType === EntryType.Folder ||
-        entryType === EntryType.RecordSeries
-      ) {
-        setParentItem(openedNode);
-      } else {
-        const repoId = await props.repoClient.getCurrentRepoId();
-
-        if (openedNode?.id) {
-          const webClientNodeUrl = getEntryWebAccessUrl(
-            openedNode.id,
-            props.webClientUrl,
-            openedNode.isContainer,
-            repoId
-          );
-          window.open(webClientNodeUrl);
-        }
-      }
+      await openNode(openedNode, setParentItem, props);
     };
 
     const initializeTreeAsync: () => Promise<void> = async () => {
@@ -132,7 +150,7 @@ export default function RepositoryViewComponent(props: {
         EntryType.Folder,
         EntryType.Shortcut,
         EntryType.Document,
-        EntryType.RecordSeries
+        EntryType.RecordSeries,
       ];
       repoBrowser?.addEventListener('entrySelected', onEntrySelected);
       repoBrowser?.addEventListener('entryDblClicked', onEntryOpened);
@@ -163,29 +181,6 @@ export default function RepositoryViewComponent(props: {
     }
   }, [props.repoClient, props.loggedIn]);
 
-  const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
-    node: LfRepoTreeNode
-  ) => {
-    if (
-      node?.entryType === EntryType.Folder ||
-      node?.entryType === EntryType.Document ||
-      node?.entryType === EntryType.RecordSeries
-    ) {
-      return true;
-    } else if (
-      (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.Folder) ||
-      (node?.entryType === EntryType.Shortcut &&
-        node?.targetType === EntryType.Document) ||
-        (node?.entryType === EntryType.Shortcut &&
-          node?.targetType === EntryType.RecordSeries)
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   const refreshFolderBrowserAsync: () => Promise<void> = async () => {
     await repositoryBrowser.current.refreshAsync(false);
   };
@@ -200,7 +195,7 @@ export default function RepositoryViewComponent(props: {
               src={require('./../../../Assets/Images/laserfiche-logo.png')}
             />
             <span className={styles.browserTitle}>
-              Laserfiche Repository Explorer
+              {LASERFICHE_REPOSITORY_EXPLORER}
             </span>
           </div>
           {props.loggedIn && (
@@ -236,9 +231,37 @@ export default function RepositoryViewComponent(props: {
   );
 }
 
-const CANNOT_IMPORT_INTO_RECORD_SERIES = 'Cannot import into a Record Series';
-const UPLOAD_FILE_TO_LASERFICHE = 'Upload file to Laserfiche';
-function RepositoryBrowserToolbar(props: {
+export async function openNode(
+  openedNode: LfRepoTreeNode,
+  setParentItem: React.Dispatch<React.SetStateAction<LfRepoTreeNode>>,
+  props: {
+    repoClient: IRepositoryApiClientExInternal;
+    webClientUrl: string;
+    loggedIn: boolean;
+  }
+): Promise<void> {
+  const entryType =
+    openedNode.entryType === EntryType.Shortcut
+      ? openedNode.targetType
+      : openedNode.entryType;
+  if (entryType === EntryType.Folder || entryType === EntryType.RecordSeries) {
+    setParentItem(openedNode);
+  } else {
+    const repoId = await props.repoClient.getCurrentRepoId();
+
+    if (openedNode?.id) {
+      const webClientNodeUrl = getEntryWebAccessUrl(
+        openedNode.id,
+        props.webClientUrl,
+        openedNode.isContainer,
+        repoId
+      );
+      window.open(webClientNodeUrl);
+    }
+  }
+}
+
+export function RepositoryBrowserToolbar(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
   selectedItem: LfRepoTreeNode;
@@ -302,7 +325,11 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title={props?.parentItem?.entryType === EntryType.RecordSeries ? CANNOT_IMPORT_INTO_RECORD_SERIES : UPLOAD_FILE_TO_LASERFICHE}
+            title={
+              props?.parentItem?.entryType === EntryType.RecordSeries
+                ? CANNOT_IMPORT_INTO_RECORD_SERIES
+                : UPLOAD_FILE_TO_LASERFICHE
+            }
             disabled={props?.parentItem?.entryType === EntryType.RecordSeries}
             onClick={openImportFileModal}
           >
@@ -376,7 +403,7 @@ function RepositoryBrowserToolbar(props: {
               className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
             >
               <div className='modal-body'>
-                Please select file/folder to open
+                {PLEASE_SELECT_FILE_FOLDER_TO_OPEN}
               </div>
               <div className='modal-footer'>
                 <button
@@ -385,7 +412,7 @@ function RepositoryBrowserToolbar(props: {
                   data-dismiss='modal'
                   onClick={confirmAlertButton}
                 >
-                  OK
+                  {OK}
                 </button>
               </div>
             </div>
@@ -396,8 +423,6 @@ function RepositoryBrowserToolbar(props: {
   );
 }
 
-const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME =
-  'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
 function ImportFileModal(props: {
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
@@ -624,7 +649,7 @@ function ImportFileModal(props: {
       <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
         <div hidden={!showImport} className={`modal-header ${styles.header}`}>
           <div className='modal-title' id='ModalLabel'>
-            Upload File to Laserfiche
+            {UPLOAD_FILE_TO_LASERFICHE_TITLE}
           </div>
           <div
             className='progress'
@@ -641,7 +666,7 @@ function ImportFileModal(props: {
                 height: 'inherit',
               }}
             >
-              Uploading
+              {UPLOADING}
             </div>
           </div>
         </div>
@@ -665,7 +690,7 @@ function ImportFileModal(props: {
               </div>
               {validationError}
               <div className='form-group row mb-3'>
-                <label className='col-sm-3 col-form-label'>Name</label>
+                <label className='col-sm-3 col-form-label'>{NAME}</label>
                 <div className='col-sm-9'>
                   <input
                     type='text'
@@ -702,14 +727,14 @@ function ImportFileModal(props: {
             disabled={fileUploadPercentage > 0}
             onClick={error ? closeImportFileModal : importFileToRepositoryAsync}
           >
-            OK
+            {OK}
           </button>
           <button
             type='button'
             className='lf-button sec-button'
             onClick={closeImportFileModal}
           >
-            Cancel
+            {CANCEL}
           </button>
         </div>
         <Confirmation cancelButtonText='Go back' />
@@ -782,7 +807,7 @@ function CreateFolderModal(props: {
       <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
         <div className='modal-header'>
           <h5 className='modal-title' id='ModalLabel'>
-            Create Folder
+            {CREATE_FOLDER}
           </h5>
           <button
             type='button'
@@ -796,7 +821,7 @@ function CreateFolderModal(props: {
         </div>
         <div className='modal-body'>
           <div className='form-group'>
-            <label>Folder Name</label>
+            <label>{FOLDER_NAME}</label>
             <input
               type='text'
               className='form-control'
@@ -816,7 +841,7 @@ function CreateFolderModal(props: {
             data-dismiss='modal'
             onClick={createNewFolderAsync}
           >
-            Submit
+            {SUBMIT}
           </button>
           <button
             type='button'
@@ -824,7 +849,7 @@ function CreateFolderModal(props: {
             data-dismiss='modal'
             onClick={closeNewFolderModal}
           >
-            Close
+            {CLOSE}
           </button>
         </div>
       </div>
