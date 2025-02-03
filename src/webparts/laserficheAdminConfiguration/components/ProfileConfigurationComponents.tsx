@@ -54,6 +54,7 @@ export interface SPProfileConfigurationData {
   Title: string;
   TypeAsString: string;
   InternalName: string;
+  EntityPropertyName: string;
 }
 
 export interface MappedFields {
