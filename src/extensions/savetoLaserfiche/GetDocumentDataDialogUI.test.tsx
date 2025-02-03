@@ -167,7 +167,7 @@ describe('GetDocumentDataDialog', () => {
     });
   });
 
-  test('getDocumentDataDialog correctly matches SP field data to Laserfiche fields with OData weirdness', async () => {
+  test('getDocumentDataDialog correctly matches SP field data to Laserfiche fields with special characters', async () => {
     const mockContext: BaseComponentContext = {
       spHttpClient: {
         get: jest.fn((url) => {
