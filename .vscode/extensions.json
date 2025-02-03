@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "msjsdiag.debugger-for-chrome",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
     "epivision.vscode-file-header"

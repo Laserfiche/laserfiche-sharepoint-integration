@@ -12,6 +12,7 @@ module.exports = {
     '^@ms/.*$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '^@microsoft/sp-webpart-base$': '<rootDir>/src/__mocks__/@microsoft/sp-webpart-base.ts',
     '^@microsoft/sp-page-context$': '<rootDir>/src/__mocks__/@microsoft/sp-page-context.ts',
+    '^@microsoft/sp-loader$': '<rootDir>/src/__mocks__/@microsoft/sp-loader.ts',
     '^@microsoft/.*$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '\\.png$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '\\.svg$': '<rootDir>/src/__mocks__/genericFileMock.js',
@@ -19,5 +20,6 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest', // Add this line to transform all JavaScript and TypeScript files
   },
+  modulePathIgnorePatterns: ['<rootDir>/lib/'], // Add this line to ignore the lib directory
   testMatch: ['<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'], // Add this line to specify the test match pattern
 };
