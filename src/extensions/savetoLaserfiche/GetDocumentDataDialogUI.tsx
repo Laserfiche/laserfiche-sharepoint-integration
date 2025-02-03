@@ -315,12 +315,14 @@ export function GetDocumentDialogData(props: {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.EntityPropertyName;
 
-      const rawValue = allSpFieldValues[spFieldName];
-      const valueForTrimmedKey = Object.entries(allSpFieldValues).find(
-        ([key]) => key.replace(/x005f_/g, '') === spFieldName
-      )?.[1];
+      let spDocFieldValue = allSpFieldValues[spFieldName];
+      if (!spDocFieldValue) {
+        const valueForTrimmedKey = Object.entries(allSpFieldValues).find(
+          ([key]) => key.replace(/x005f_/g, '') === spFieldName
+        )?.[1];
 
-      let spDocFieldValue = rawValue ?? valueForTrimmedKey;
+        spDocFieldValue = valueForTrimmedKey;
+      }
 
       if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
