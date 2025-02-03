@@ -1,15 +1,6 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@microsoft/sp-loader', () => {
-  return {
-    SPComponentLoader: {
-      loadCss: jest.fn(),
-      loadScript: jest.fn(),
-    },
-  };
-});
-
 import * as React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
