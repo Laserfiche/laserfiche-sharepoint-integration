@@ -18,8 +18,8 @@ module.exports = {
     '\\.svg$': '<rootDir>/src/__mocks__/genericFileMock.js',
   },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest', // Add this line to transform all JavaScript and TypeScript files
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
-  modulePathIgnorePatterns: ['<rootDir>/lib/'], // Add this line to ignore the lib directory
-  testMatch: ['<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'], // Add this line to specify the test match pattern
+  modulePathIgnorePatterns: ['<rootDir>/lib/'],
+  testMatch: ['<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)'],
 };

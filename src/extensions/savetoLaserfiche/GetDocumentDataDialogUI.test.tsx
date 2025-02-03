@@ -177,7 +177,7 @@ describe('GetDocumentDataDialog', () => {
               json: () =>
                 Promise.resolve({
                   OData__x005f_x0040_x005f__x005f_x0021_x005f_TestSpecial:
-                    'Document Title', /// TODO what's the replication exact value
+                    'Document Title',
                   Author: 'John Doe',
                   Created: '2021-01-01T00:00:00Z',
                 }),
