@@ -10,6 +10,7 @@ import {
   LF_MS_OFFICE_LITE_CSS_URL,
 } from '../../webparts/constants';
 import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
+import { CONTINUE } from '../../webparts/strings';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
@@ -178,7 +179,7 @@ const createPromise: () => Promise<boolean>[] = () => {
 
 export const useConfirm: () => [
   (text: string) => Promise<unknown>,
-  (props: { cancelButtonText: string }) => JSX.Element
+  (props: { cancelButtonText: string; headerText: string }) => JSX.Element
 ] = () => {
   const [open, setOpen] = React.useState(false);
   const [resolver, setResolver] = React.useState({ resolve: null });
@@ -203,7 +204,11 @@ export const useConfirm: () => [
 
   const Confirmation: (props: {
     cancelButtonText: string;
-  }) => JSX.Element = (props: { cancelButtonText: string }) => (
+    headerText: string;
+  }) => JSX.Element = (props: {
+    cancelButtonText: string;
+    headerText: string;
+  }) => (
     <>
       {open && (
         <>
@@ -215,9 +220,7 @@ export const useConfirm: () => [
                   width='30'
                   height='30'
                 />
-                <span className={styles.paddingLeft}>
-                  Document already exists
-                </span>
+                <span className={styles.paddingLeft}>{props.headerText}</span>
               </div>
             </div>
           </div>
@@ -229,7 +232,7 @@ export const useConfirm: () => [
               className={`lf-button primary-button ${styles.actionButton}`}
               onClick={() => onClick(true)}
             >
-              Continue
+              {CONTINUE}
             </button>
             <button
               className='lf-button sec-button'

@@ -29,6 +29,7 @@ import { Entry } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
 import { PathUtils } from '@laserfiche/lf-js-utils';
+import { CANCEL, DOCUMENT_ALREADY_EXISTS } from '../../webparts/strings';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -253,7 +254,10 @@ function SaveToLaserficheDialog(props: {
           closeClick={saveToDialogCloseClick}
         />
       </div>
-      <Confirmation cancelButtonText='Cancel' />
+      <Confirmation
+        cancelButtonText={CANCEL}
+        headerText={DOCUMENT_ALREADY_EXISTS}
+      />
     </div>
   );
 

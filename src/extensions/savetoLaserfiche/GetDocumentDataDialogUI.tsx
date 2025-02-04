@@ -34,7 +34,8 @@ import {
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
-import LoadingDialog from './CommonDialogs';
+import LoadingDialog, { useConfirm } from './CommonDialogs';
+import { COULD_NOT_DETERMINE_CONTENT_TYPE, THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED } from '../../webparts/strings';
 
 const CANCEL = 'Cancel';
 const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING =
@@ -63,6 +64,9 @@ export function GetDocumentDialogData(props: {
   >(undefined);
 
   const [error, setError] = React.useState<JSX.Element | undefined>(undefined);
+  const [getConfirmation, Confirmation] = useConfirm();
+
+  const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
   const listFields = (
     <ul>
@@ -82,6 +86,21 @@ export function GetDocumentDialogData(props: {
   async function saveDocumentToLaserficheAsync(): Promise<void> {
     try {
       const libraryUrl = props.context.pageContext.list.title;
+
+      if (!props.spFileInfo.spContentType) {
+        const warn = await getConfirmation(THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED);
+        if (!warn) {
+          console.warn('Content type could not be determined. User chose to cancel operation.');
+          await props.handleCancelDialog();
+          return;
+        } else {
+          setShowLoading(true);
+        }
+      }
+      else {
+        setShowLoading(true);
+      }
+
       const allSPFieldValues: { [key: string]: string } =
         await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
       const allSPFieldProperties: SPProfileConfigurationData[] =
@@ -382,43 +401,48 @@ export function GetDocumentDialogData(props: {
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <div className={styles.logoHeader}>
-          <img
-            src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
-            width='30'
-            height='30'
-          />
-          <span className={styles.paddingLeft}>Laserfiche</span>
+    <>
+      {showLoading && (
+        <div className={styles.wrapper}>
+          <div className={styles.header}>
+            <div className={styles.logoHeader}>
+              <img
+                src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
+                width='30'
+                height='30'
+              />
+              <span className={styles.paddingLeft}>Laserfiche</span>
+            </div>
+
+            <button
+              className={styles.lfCloseButton}
+              title='close'
+              onClick={props.handleCancelDialog}
+            >
+              <span className='material-icons-outlined'> close </span>
+            </button>
+          </div>
+
+          <div className={styles.contentBox}>
+            {!(missingFields?.length > 0) && !error && <LoadingDialog />}
+            {missingFields?.length > 0 && (
+              <MissingFieldsDialog missingFields={listFields} />
+            )}
+            {error}
+          </div>
+
+          <div className={styles.footer}>
+            <button
+              onClick={props.handleCancelDialog}
+              className='lf-button sec-button'
+            >
+              {CANCEL}
+            </button>
+          </div>
         </div>
-
-        <button
-          className={styles.lfCloseButton}
-          title='close'
-          onClick={props.handleCancelDialog}
-        >
-          <span className='material-icons-outlined'> close </span>
-        </button>
-      </div>
-
-      <div className={styles.contentBox}>
-        {!(missingFields?.length > 0) && !error && <LoadingDialog />}
-        {missingFields?.length > 0 && (
-          <MissingFieldsDialog missingFields={listFields} />
-        )}
-        {error}
-      </div>
-
-      <div className={styles.footer}>
-        <button
-          onClick={props.handleCancelDialog}
-          className='lf-button sec-button'
-        >
-          {CANCEL}
-        </button>
-      </div>
-    </div>
+      )}
+      <Confirmation cancelButtonText={CANCEL} headerText={COULD_NOT_DETERMINE_CONTENT_TYPE}/>
+    </>
   );
 }
 
