@@ -105,22 +105,26 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   }
 
   private async getContentTypeAsync(itemId: string): Promise<string> {
-    const contentTypeUrl = `${getSPListURL(
-      this.context,
-      this.context.pageContext.list.title
-    )}/items(${itemId})/ContentType`;
-    const resp = await this.context.httpClient.get(
-      contentTypeUrl,
-      SPHttpClient.configurations.v1,
-      {
-        headers: {
-          Accept: 'application/json;',
-          'Content-Type': 'application/json;',
-        },
-      }
-    );
-    const val = await resp.json();
-    return val.d.Name;
+    try {
+      const contentTypeUrl = `${getSPListURL(
+        this.context,
+        this.context.pageContext.list.title
+      )}/items(${itemId})/ContentType`;
+      const resp = await this.context.httpClient.get(
+        contentTypeUrl,
+        SPHttpClient.configurations.v1,
+        {
+          headers: {
+            Accept: 'application/json;',
+            'Content-Type': 'application/json;',
+          },
+        }
+      );
+      const val = await resp.json();
+      return val.Name;
+    } catch {
+      return undefined;
+    }
   }
 
   public async pageConfigurationCheck(): Promise<void> {
