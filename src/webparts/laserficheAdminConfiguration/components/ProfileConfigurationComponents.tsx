@@ -427,22 +427,22 @@ export function TemplateSelector(props: {
           <option value=''>{NONE}</option>
           {laserficheTemplateOptions}
         </select>
+        {props.templateWarning && (
+          <div className={styles.templateWarning}>
+            <span
+              className='material-icons-outlined'
+              style={{
+                color: '#c59803',
+              }}
+            >
+              warning
+            </span>
+            <span className={styles.templateWarningMessage}>
+              {TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED}
+            </span>
+          </div>
+        )}
       </div>
-      {props.templateWarning && (
-        <div className={styles.templateWarning}>
-          <span
-            className='material-icons-outlined'
-            style={{
-              color: '#c59803',
-            }}
-          >
-            warning
-          </span>
-          <span className={styles.templateWarningMessage}>
-            {TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED}
-          </span>
-        </div>
-      )}
     </>
   );
 }
