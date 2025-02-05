@@ -34,11 +34,14 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 
 const LoggedOutMessage: React.FC = () => {
   return (
-    <span>
+    <div className='pt-2'>
       {`${PLEASE_LOGIN_TO_LASERFICHE}`}
-      {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-      <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>.
-    </span>
+      <div className='pt-2'>
+        {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
+        <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
+        .
+      </div>
+    </div>
   );
 };
 
