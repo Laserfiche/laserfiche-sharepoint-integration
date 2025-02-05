@@ -59,7 +59,8 @@ export const CANNOT_IMPORT_INTO_RECORD_SERIES =
 export const UPLOAD_FILE_TO_LASERFICHE = 'Upload file to Laserfiche';
 export const UPLOAD_FILE_TO_LASERFICHE_TITLE = 'Upload File to Laserfiche';
 
-export const PLEASE_SELECT_FILE_FOLDER_TO_OPEN = 'Please select file/folder to open';
+export const PLEASE_SELECT_FILE_FOLDER_TO_OPEN =
+  'Please select file/folder to open';
 
 export const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME =
   'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
@@ -74,4 +75,14 @@ export const FOLDER_NAME = 'Folder Name';
 
 export const SUBMIT = 'Submit';
 export const CLOSE = 'Close';
-export const PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME = 'Profile with this name already exists, please provide different name';
+export const PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME =
+  'Profile with this name already exists, please provide different name';
+export const THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED =
+  'There was an issue determining the content type of the selected item. The default mapping will be used if it exists.';
+export const COULD_NOT_DETERMINE_CONTENT_TYPE =
+  'Could not determine content type';
+
+export const DOCUMENT_ALREADY_EXISTS = 'Document already exists';
+export const GO_BACK = 'Go back';
+
+export const CONTINUE = 'Continue';
