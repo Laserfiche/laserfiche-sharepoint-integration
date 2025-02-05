@@ -35,8 +35,10 @@ import {
   CANNOT_IMPORT_INTO_RECORD_SERIES,
   CLOSE,
   CREATE_FOLDER,
+  DOCUMENT_ALREADY_EXISTS,
   ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME,
   FOLDER_NAME,
+  GO_BACK,
   LASERFICHE_REPOSITORY_EXPLORER,
   NAME,
   OK,
@@ -737,7 +739,10 @@ function ImportFileModal(props: {
             {CANCEL}
           </button>
         </div>
-        <Confirmation cancelButtonText='Go back' />
+        <Confirmation
+          cancelButtonText={GO_BACK}
+          headerText={DOCUMENT_ALREADY_EXISTS}
+        />
       </div>
     </div>
   );

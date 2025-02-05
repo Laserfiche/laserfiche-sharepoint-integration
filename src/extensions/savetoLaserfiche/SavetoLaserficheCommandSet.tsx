@@ -11,9 +11,13 @@ import {
   RowAccessor,
 } from '@microsoft/sp-listview-extensibility';
 import { PathUtils } from '@laserfiche/lf-js-utils';
+import { SPHttpClient } from '@microsoft/sp-http';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 import { getSPListURL } from '../../Utils/Funcs';
-import { LASERFICHE_SIGNIN_PAGE_NAME, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
+import {
+  LASERFICHE_SIGNIN_PAGE_NAME,
+  SP_LOCAL_STORAGE_KEY,
+} from '../../webparts/constants';
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -59,9 +63,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     const fileSize = spDocumentProperties.getValueByName('File_x0020_Size');
     const fileUrl = spDocumentProperties.getValueByName('FileRef');
     const fileName = spDocumentProperties.getValueByName('FileLeafRef');
-    const spContentType = spDocumentProperties.getValueByName('ContentType');
     const isCheckedOut =
       spDocumentProperties.getValueByName('CheckoutUser')?.length > 0;
+
+    let spContentType = spDocumentProperties.getValueByName('ContentType');
+    if (!spContentType) {
+      spContentType = await this.getContentTypeAsync(fileId);
+    }
 
     await this.pageConfigurationCheck();
 
@@ -93,6 +101,29 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         spFileUrl: fileUrl,
         fileId,
       });
+    }
+  }
+
+  private async getContentTypeAsync(itemId: string): Promise<string> {
+    try {
+      const contentTypeUrl = `${getSPListURL(
+        this.context,
+        this.context.pageContext.list.title
+      )}/items(${itemId})/ContentType`;
+      const resp = await this.context.httpClient.get(
+        contentTypeUrl,
+        SPHttpClient.configurations.v1,
+        {
+          headers: {
+            Accept: 'application/json;',
+            'Content-Type': 'application/json;',
+          },
+        }
+      );
+      const val = await resp.json();
+      return val.Name;
+    } catch {
+      return undefined;
     }
   }
 
