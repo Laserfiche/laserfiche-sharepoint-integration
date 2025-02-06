@@ -5,9 +5,8 @@ import * as React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { LoggedOutMessageWrapper } from './AdminConfigurationUtilComponents';
+import { PLEASE_LOGIN_TO_LASERFICHE } from '../../strings';
 
-const loggedOutText =
-  /Please login to Laserfiche in order to use this web part./i;
 const loggedInTestText = 'Logged in';
 
 describe('LoggedOutMessageWrapper', () => {
@@ -22,7 +21,7 @@ describe('LoggedOutMessageWrapper', () => {
     );
 
     // Assert
-    const loggedOutElement = screen.queryByText(loggedOutText);
+    const loggedOutElement = screen.queryByText(PLEASE_LOGIN_TO_LASERFICHE);
     expect(loggedOutElement).not.toBeInTheDocument();
     const loggedInElement = screen.getByText(loggedInTestText);
     expect(loggedInElement).toBeInTheDocument();
@@ -39,7 +38,7 @@ describe('LoggedOutMessageWrapper', () => {
     );
 
     // Assert
-    const loggedOutElement = screen.getByText(loggedOutText);
+    const loggedOutElement = screen.getByText(new RegExp(PLEASE_LOGIN_TO_LASERFICHE));
     expect(loggedOutElement).toBeInTheDocument();
     const loggedInElement = screen.queryByText(loggedInTestText);
     expect(loggedInElement).not.toBeInTheDocument();
