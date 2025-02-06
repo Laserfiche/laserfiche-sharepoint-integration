@@ -38,7 +38,9 @@ describe('LoggedOutMessageWrapper', () => {
     );
 
     // Assert
-    const loggedOutElement = screen.getByText(new RegExp(PLEASE_LOGIN_TO_LASERFICHE));
+    // eslint-disable-next-line @rushstack/security/no-unsafe-regexp
+    const regex = new RegExp(PLEASE_LOGIN_TO_LASERFICHE);
+    const loggedOutElement = screen.getByText(regex);
     expect(loggedOutElement).toBeInTheDocument();
     const loggedInElement = screen.queryByText(loggedInTestText);
     expect(loggedInElement).not.toBeInTheDocument();
