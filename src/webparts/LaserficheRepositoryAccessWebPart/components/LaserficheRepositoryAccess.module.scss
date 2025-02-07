@@ -1,6 +1,9 @@
 @font-face {
   font-family: 'Open Sans';
-  src: local('Open Sans'), local('OpenSans'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans.woff) format('woff'), url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+  src: local('Open Sans'), local('OpenSans'),
+    url(https://lfxstatic.com/libs/Open_Sans/OpenSans.woff) format('woff'),
+    url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf)
+      format('truetype');
 }
 
 .lfAdhocMinHeight {
@@ -139,4 +142,24 @@
   height: 18px;
   color: #646464;
   fill: #646464;
+}
+
+.lfComponentContainer {
+  margin: 5px;
+}
+
+:global {
+  .lfComponentContainer
+    .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(
+      .mdc-text-field--textarea
+    )
+    .mat-mdc-form-field-infix {
+    padding: 0;
+  }
+
+  .lfComponentContainer
+    .mat-mdc-text-field-wrapper:not(.mdc-text-field--outlined)
+    .mat-mdc-form-field-infix {
+    padding: 0;
+  }
 }
