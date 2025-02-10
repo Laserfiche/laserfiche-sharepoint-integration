@@ -704,7 +704,7 @@ function ImportFileModal(props: {
                 </div>
               </div>
               <div
-                className={`lfComponentContainer${
+                className={`${styles.lfComponentContainer}${
                   adhocDialogOpened ? ` ${styles.lfAdhocMinHeight}` : ''
                 }`}
               >
