@@ -20,10 +20,10 @@ export const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
 export const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 
 export const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
-  'You must be a currently licensed Laserfiche Cloud user and SharePoint site administrator in order to manage profile configurations and mappings.';
+  'You must be a currently licensed Laserfiche Cloud user and SharePoint site administrator to manage profile configurations and mappings.';
 
 export const PLEASE_LOGIN_TO_LASERFICHE =
-  'Please login to Laserfiche in order to use this web part.';
+  'Please sign in to Laserfiche to use this web part.';
 export const FOR_MORE_INFO_VISIT = 'For more information visit';
 
 export const SELECT_FOLDER = 'Select Folder';
