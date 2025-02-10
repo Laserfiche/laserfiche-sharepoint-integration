@@ -147,19 +147,3 @@
 .lfComponentContainer {
   margin: 5px;
 }
-
-:global {
-  .lfComponentContainer
-    .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(
-      .mdc-text-field--textarea
-    )
-    .mat-mdc-form-field-infix {
-    padding: 0;
-  }
-
-  .lfComponentContainer
-    .mat-mdc-text-field-wrapper:not(.mdc-text-field--outlined)
-    .mat-mdc-form-field-infix {
-    padding: 0;
-  }
-}
