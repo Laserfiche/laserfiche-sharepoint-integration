@@ -6,7 +6,7 @@
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
     "title": "Laserfiche SharePoint Online Integration",
-    "iconPath": "assets/laserfiche-logo.png",
+    "iconPath": "assets/laserfiche-logo-96.png",
     "isDomainIsolated": false,
     "developer": {
       "name": "Laserfiche.com",
