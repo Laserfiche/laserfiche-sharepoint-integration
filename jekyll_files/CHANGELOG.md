@@ -10,7 +10,7 @@ nav_order: 4
 
 ### Features
 
-- [545562] Added support for record series to the repository explorer and configuration pages
+- **545562** Added support for record series to the repository explorer and configuration pages
 
 ### Maintenance
 
@@ -19,7 +19,7 @@ nav_order: 4
   - **488097:** Admin Configuration page appears interactive when user is logged out
   - **487980:** If configured Laserfiche template is deleted, profile configuration page does not show a good error.
   - **490833:** Content Type can't be determined unless column is shown
-- [504592] Fixed issue where certain columns were not mapped correctly if they had special characters in the name.
+- **504592** Fixed issue where certain columns were not mapped correctly if they had special characters in the name.
 
 ## 1.0.0.360
 
