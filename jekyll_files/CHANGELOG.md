@@ -10,7 +10,7 @@ nav_order: 4
 
 ### Features
 
-- Added support for record series to the repository explorer and configuration pages **[545562]**
+- Added support for record series to the repository explorer and configuration pages. (545562)
 
 ### Maintenance
 
