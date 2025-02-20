@@ -10,16 +10,18 @@ nav_order: 4
 
 ### Features
 
-- Added support for record series to the repository explorer and configuration pages  **[545562]**
+- Added support for record series to the repository explorer and configuration pages **[545562]**
 
 ### Maintenance
 
-- Updated dependencies to resolve some vulnerabilities
-- Fixed multiple known issues:
-  - **488097:** Admin Configuration page appears interactive when user is logged out
-  - **487980:** If configured Laserfiche template is deleted, profile configuration page does not show a good error.
-  - **490833:** Content Type can't be determined unless column is shown
-- Fixed issue where certain columns were not mapped correctly if they had special characters in the name. [**504592**]
+- Updated dependencies
+
+### Fixes
+
+- The administration configuration page now refreshes when user is signed out. (Previous Known Issue, 488097)
+- The profile configuration page can now display a warning if a profile references a Laserfiche template that has been deleted. (Previous Known Issue, 487980)
+- The integration can now detect the content type for a document when the Content Type column is not shown. (Previous Known Issue, 490833)
+- The integration can now map columns with names containing special characters. (504592)
 
 ## 1.0.0.360
 
