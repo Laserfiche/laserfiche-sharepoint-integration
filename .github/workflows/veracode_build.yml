@@ -36,7 +36,7 @@ jobs:
 
     
     - name: Veracode Upload And Scan (Static Application Security Testing)
-      uses: veracode/veracode-uploadandscan-action@0.2.6
+      uses: veracode/veracode-uploadandscan-action@0.2.10
       with:
         appname: 'SharePoint Integration'
         createprofile: true
