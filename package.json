@@ -42,7 +42,7 @@
     "@microsoft/eslint-plugin-spfx": "1.20.2",
     "@microsoft/rush-stack-compiler-4.5": "0.5.1",
     "@microsoft/sp-adaptive-card-extension-base": "1.20.0",
-    "@microsoft/sp-build-web": "1.20.2",
+    "@microsoft/sp-build-web": "1.22.2",
     "@microsoft/sp-core-library": "1.20.0",
     "@microsoft/sp-dialog": "1.20.0",
     "@microsoft/sp-listview-extensibility": "1.20.0",
