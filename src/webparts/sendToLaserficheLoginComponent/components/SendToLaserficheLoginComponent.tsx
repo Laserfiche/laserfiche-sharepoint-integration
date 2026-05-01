@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import * as React from 'react';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import { Navigation } from 'spfx-navigation';
 import {
   AbortedLoginError,
@@ -12,13 +11,10 @@ import {
 import {
   clientId,
   LASERFICHE_SIGNIN_PAGE_NAME,
-  LF_INDIGO_PINK_CSS_URL,
-  LF_MS_OFFICE_LITE_CSS_URL,
-  LF_UI_COMPONENTS_URL,
   LOGIN_WINDOW_SUCCESS,
   SP_LOCAL_STORAGE_KEY,
-  ZONE_JS_URL,
 } from '../../constants';
+import '../../../Utils/loadLfUiComponents';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -141,14 +137,10 @@ export default function SendToLaserficheLoginComponent(
     };
 
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
       loginComponent.current.addEventListener(
         'logoutCompleted',
         logoutCompletedInPopup
       );
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
-      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
       try {
         if (window.location.href.includes('autologin')) {

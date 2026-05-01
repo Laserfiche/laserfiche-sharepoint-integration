@@ -7,10 +7,9 @@ import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
 import {
   clientId,
-  LF_UI_COMPONENTS_URL,
   SP_LOCAL_STORAGE_KEY,
-  ZONE_JS_URL,
 } from '../../webparts/constants';
+import '../../Utils/loadLfUiComponents';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,
   SavedToLaserficheSuccessDialogText,
@@ -21,7 +20,6 @@ import {
   SavedToLaserficheDocumentData,
 } from './SaveDocumentToLaserfiche';
 import styles from './SendToLaserFiche.module.scss';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
@@ -114,8 +112,6 @@ function SaveToLaserficheDialog(props: {
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
-      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
         if (loginComponent.current?.authorization_credentials) {
           const validRepoClient = await tryGetValidRepositoryClientAsync();

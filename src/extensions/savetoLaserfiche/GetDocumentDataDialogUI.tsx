@@ -5,18 +5,16 @@ import styles from './SendToLaserFiche.module.scss';
 import * as React from 'react';
 import {
   LASERFICHE_ADMIN_CONFIGURATION_NAME,
-  LF_INDIGO_PINK_CSS_URL,
-  LF_MS_OFFICE_LITE_CSS_URL,
   MANAGE_CONFIGURATIONS,
   MANAGE_MAPPING,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
+import '../../Utils/loadLfUiComponents';
 import {
   ISPDocumentData,
   ProfileMappingConfiguration,
 } from '../../Utils/Types';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
   ProfileConfiguration,
   SPProfileConfigurationData,
@@ -77,9 +75,6 @@ export function GetDocumentDialogData(props: {
   );
 
   React.useEffect(() => {
-    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-
     void saveDocumentToLaserficheAsync();
   }, []);
 

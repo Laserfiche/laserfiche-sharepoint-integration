@@ -11,14 +11,11 @@ import React from 'react';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import {
-  LF_INDIGO_PINK_CSS_URL,
-  LF_MS_OFFICE_LITE_CSS_URL,
-  ZONE_JS_URL,
-  LF_UI_COMPONENTS_URL,
   LASERFICHE_SIGNIN_PAGE_NAME,
   LOGIN_WINDOW_SUCCESS,
   clientId,
 } from '../../constants';
+import '../../../Utils/loadLfUiComponents';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
   PLEASE_LOGIN_TO_LASERFICHE,
@@ -30,7 +27,6 @@ import {
   SIGN_IN,
 } from '../../strings';
 import styles from './LaserficheAdminConfiguration.module.scss';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 
 const LoggedOutMessage: React.FC = () => {
   return (
@@ -76,10 +72,6 @@ export const LoginComponent: React.FC<{
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
-      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
         const loginCompleted: () => Promise<void> = async () => {
           await getAndInitializeRepositoryClientAndServicesAsync();

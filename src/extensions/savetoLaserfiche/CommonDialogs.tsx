@@ -3,14 +3,10 @@
 
 import * as React from 'react';
 import styles from './SendToLaserFiche.module.scss';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
-import {
-  LF_INDIGO_PINK_CSS_URL,
-  LF_MS_OFFICE_LITE_CSS_URL,
-} from '../../webparts/constants';
 import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 import { CONTINUE } from '../../webparts/strings';
+import '../../Utils/loadLfUiComponents';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
@@ -40,11 +36,6 @@ const ERROR_DETAILS = 'Error details';
 export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
-  React.useEffect(() => {
-    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-  }, []);
-
   const metadataFailedNotice: JSX.Element = (
     <>
       <div className={styles.paddingUnder}>
@@ -111,11 +102,6 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
   closeClick: () => Promise<void>;
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
-  React.useEffect(() => {
-    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-  }, []);
-
   function viewFile(): void {
     window.open(props.successfulSave.fileLink);
   }

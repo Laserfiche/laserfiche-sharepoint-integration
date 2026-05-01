@@ -12,16 +12,10 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
-import {
-  LF_INDIGO_PINK_CSS_URL,
-  LF_MS_OFFICE_LITE_CSS_URL,
-  LF_UI_COMPONENTS_URL,
-  ZONE_JS_URL,
-} from '../../constants';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import styles from './LaserficheAdminConfiguration.module.scss';
+import '../../../Utils/loadLfUiComponents';
 import { SPPermission } from '@microsoft/sp-page-context';
 import {
   LoggedOutMessageWrapper,
@@ -81,17 +75,6 @@ export default function LaserficheAdminConfiguration(
       setRepoClient(newRepoClient);
     }
   }
-
-  React.useEffect(() => {
-    const initializeComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
-      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
-    };
-
-    void initializeComponentAsync();
-  }, []);
 
   return (
     <React.StrictMode>
