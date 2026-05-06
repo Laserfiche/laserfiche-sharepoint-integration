@@ -8,6 +8,7 @@ module.exports = {
     '^@laserfiche/lf-repository-api-client$': '<rootDir>/src/__mocks__/@laserfiche/lf-repository-api-client.js',
     '^@laserfiche/lf-js-utils$': '<rootDir>/src/__mocks__/@laserfiche/lf-js-utils.js',
     '^@laserfiche/lf-ui-components-services$': '<rootDir>/src/__mocks__/@laserfiche/lf-ui-components-services.js',
+    '^@laserfiche/types-lf-ui-components$': '<rootDir>/src/__mocks__/@laserfiche/types-lf-ui-components.js',
     '\\.resx$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '^@ms/.*$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '^@microsoft/sp-webpart-base$': '<rootDir>/src/__mocks__/@microsoft/sp-webpart-base.ts',

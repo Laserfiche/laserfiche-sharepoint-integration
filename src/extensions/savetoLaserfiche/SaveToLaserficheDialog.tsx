@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
 import {
@@ -112,6 +112,19 @@ function SaveToLaserficheDialog(props: {
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
+      // <lf-login> populates authorization_credentials asynchronously after
+      // mount. Since lf-ui-components is now vendored at SPFx bootstrap (CSP
+      // fix, story #651728), this useEffect can race ahead of that work and
+      // see undefined. Poll briefly so the credentials check is reliable.
+      const pollStart = Date.now();
+      while (
+        loginComponent.current &&
+        !loginComponent.current.authorization_credentials &&
+        loginComponent.current.state !== LoginState.LoggedOut &&
+        Date.now() - pollStart < 3000
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
       try {
         if (loginComponent.current?.authorization_credentials) {
           const validRepoClient = await tryGetValidRepositoryClientAsync();
