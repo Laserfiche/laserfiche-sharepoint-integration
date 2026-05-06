@@ -5,7 +5,6 @@ import { NgElement, WithProperties } from '@angular/elements';
 import {
   LfLoginComponent,
   AbortedLoginError,
-  LoginState,
 } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
@@ -17,6 +16,7 @@ import {
   clientId,
 } from '../../constants';
 import '../../../Utils/loadLfUiComponents';
+import { waitForLoginCredentialsAsync } from '../../../Utils/lfLogin';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
   PLEASE_LOGIN_TO_LASERFICHE,
@@ -90,19 +90,7 @@ export const LoginComponent: React.FC<{
           'logoutCompleted',
           logoutCompleted
         );
-        // <lf-login> populates authorization_credentials asynchronously after
-        // mount. Since lf-ui-components is now vendored at SPFx bootstrap (CSP
-        // fix, story #651728), this useEffect can race ahead of that work and
-        // see undefined. Poll briefly so the credentials check is reliable.
-        const pollStart = Date.now();
-        while (
-          loginComponent.current &&
-          !loginComponent.current.authorization_credentials &&
-          loginComponent.current.state !== LoginState.LoggedOut &&
-          Date.now() - pollStart < 3000
-        ) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
+        await waitForLoginCredentialsAsync(loginComponent);
         if (loginComponent.current.authorization_credentials) {
           await getAndInitializeRepositoryClientAndServicesAsync();
           props.setLoggedIn(true);

@@ -6,7 +6,6 @@ import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import {
   AbortedLoginError,
   LfLoginComponent,
-  LoginState,
 } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
@@ -21,6 +20,7 @@ import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 import '../../../Utils/loadLfUiComponents';
+import { waitForLoginCredentialsAsync } from '../../../Utils/lfLogin';
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion, getSPListURL } from '../../../Utils/Funcs';
@@ -107,19 +107,7 @@ export default function LaserficheRepositoryAccessWebPart(
           'logoutCompleted',
           logoutCompleted
         );
-        // <lf-login> populates authorization_credentials asynchronously after
-        // mount. Since lf-ui-components is now vendored at SPFx bootstrap (CSP
-        // fix, story #651728), this useEffect can race ahead of that work and
-        // see undefined. Poll briefly so the credentials check is reliable.
-        const pollStart = Date.now();
-        while (
-          loginComponent.current &&
-          !loginComponent.current.authorization_credentials &&
-          loginComponent.current.state !== LoginState.LoggedOut &&
-          Date.now() - pollStart < 3000
-        ) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
+        await waitForLoginCredentialsAsync(loginComponent);
         if (loginComponent.current.authorization_credentials) {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
