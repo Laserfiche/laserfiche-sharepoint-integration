@@ -6,7 +6,6 @@ import styles from './SendToLaserFiche.module.scss';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
 import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 import { CONTINUE } from '../../webparts/strings';
-import '../../Utils/loadLfUiComponents';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 

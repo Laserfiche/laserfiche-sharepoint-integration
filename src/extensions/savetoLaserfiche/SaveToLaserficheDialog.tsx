@@ -9,7 +9,6 @@ import {
   clientId,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
-import '../../Utils/loadLfUiComponents';
 import { waitForLoginCredentialsAsync } from '../../Utils/lfLogin';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,

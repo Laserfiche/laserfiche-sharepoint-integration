@@ -19,7 +19,6 @@ import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
-import '../../../Utils/loadLfUiComponents';
 import { waitForLoginCredentialsAsync } from '../../../Utils/lfLogin';
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
@@ -90,8 +89,13 @@ export default function LaserficheRepositoryAccessWebPart(
       };
 
     const initializeComponentAsync: () => Promise<void> = async () => {
+      let hasInitialized = false;
       try {
         const loginCompleted: () => Promise<void> = async () => {
+          if (hasInitialized) {
+            return;
+          }
+          hasInitialized = true;
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         };
@@ -107,8 +111,9 @@ export default function LaserficheRepositoryAccessWebPart(
           'logoutCompleted',
           logoutCompleted
         );
-        await waitForLoginCredentialsAsync(loginComponent);
-        if (loginComponent.current.authorization_credentials) {
+        const credentialsReady = await waitForLoginCredentialsAsync(loginComponent);
+        if (credentialsReady && !hasInitialized) {
+          hasInitialized = true;
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         }

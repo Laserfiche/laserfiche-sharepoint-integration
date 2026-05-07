@@ -15,7 +15,6 @@ import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageC
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import styles from './LaserficheAdminConfiguration.module.scss';
-import '../../../Utils/loadLfUiComponents';
 import { SPPermission } from '@microsoft/sp-page-context';
 import {
   LoggedOutMessageWrapper,

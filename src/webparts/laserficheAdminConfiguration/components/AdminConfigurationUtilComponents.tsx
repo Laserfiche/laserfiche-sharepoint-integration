@@ -15,7 +15,6 @@ import {
   LOGIN_WINDOW_SUCCESS,
   clientId,
 } from '../../constants';
-import '../../../Utils/loadLfUiComponents';
 import { waitForLoginCredentialsAsync } from '../../../Utils/lfLogin';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
@@ -73,8 +72,13 @@ export const LoginComponent: React.FC<{
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
+      let hasInitialized = false;
       try {
         const loginCompleted: () => Promise<void> = async () => {
+          if (hasInitialized) {
+            return;
+          }
+          hasInitialized = true;
           await getAndInitializeRepositoryClientAndServicesAsync();
           props.setLoggedIn(true);
         };
@@ -90,8 +94,9 @@ export const LoginComponent: React.FC<{
           'logoutCompleted',
           logoutCompleted
         );
-        await waitForLoginCredentialsAsync(loginComponent);
-        if (loginComponent.current.authorization_credentials) {
+        const credentialsReady = await waitForLoginCredentialsAsync(loginComponent);
+        if (credentialsReady && !hasInitialized) {
+          hasInitialized = true;
           await getAndInitializeRepositoryClientAndServicesAsync();
           props.setLoggedIn(true);
         }

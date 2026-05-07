@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { Log } from '@microsoft/sp-core-library';
+import '../../Utils/loadLfUiComponents';
 import { GetDocumentDataCustomDialog } from './GetDocumentDataDialog';
 import {
   BaseListViewCommandSet,

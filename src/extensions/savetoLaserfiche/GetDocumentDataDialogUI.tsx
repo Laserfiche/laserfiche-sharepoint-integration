@@ -9,7 +9,6 @@ import {
   MANAGE_MAPPING,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
-import '../../Utils/loadLfUiComponents';
 import {
   ISPDocumentData,
   ProfileMappingConfiguration,

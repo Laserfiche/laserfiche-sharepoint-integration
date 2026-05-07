@@ -5,6 +5,7 @@ import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+import '../../Utils/loadLfUiComponents';
 import LaserficheRepositoryAccessWebPart from './components/LaserficheRepositoryAccessWebPart';
 import { ILaserficheRepositoryAccessWebPartProps } from './components/ILaserficheRepositoryAccessWebPartProps';
 

@@ -6,6 +6,16 @@ nav_order: 4
 
 # Laserfiche SharePoint Online Integration Changelog
 
+## Unreleased
+
+### Fixes
+
+- Resolved Microsoft SharePoint Online Content Security Policy (CSP) enforcement issue: vendored `zone.js`, `lf-ui-components.js`, `indigo-pink.css`, and `lf-ms-office-lite.css` directly into the solution package instead of fetching from `lfxstatic.com` at runtime. This unblocks tenants whose CSP no longer permits external script sources after Microsoft's March 1, 2026 enforcement (90-day grace period ends June 1, 2026). (651728)
+
+### Maintenance
+
+- The deployed `.sppkg` size grows from ~0.73 MB to ~2.76 MB (~3.8x) due to the vendored assets above. SharePoint admins should be aware of the upload-size change.
+
 ## 1.0.0.471
 
 ### Features

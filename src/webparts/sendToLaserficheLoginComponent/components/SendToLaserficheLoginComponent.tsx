@@ -14,7 +14,7 @@ import {
   LOGIN_WINDOW_SUCCESS,
   SP_LOCAL_STORAGE_KEY,
 } from '../../constants';
-import '../../../Utils/loadLfUiComponents';
+import { waitForLoginCredentialsAsync } from '../../../Utils/lfLogin';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -141,6 +141,8 @@ export default function SendToLaserficheLoginComponent(
         'logoutCompleted',
         logoutCompletedInPopup
       );
+
+      await waitForLoginCredentialsAsync(loginComponent);
 
       try {
         if (window.location.href.includes('autologin')) {
