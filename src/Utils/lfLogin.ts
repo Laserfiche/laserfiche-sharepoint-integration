@@ -25,5 +25,15 @@ export async function waitForLoginCredentialsAsync(
   ) {
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
-  return !!loginRef.current?.authorization_credentials;
+  const credentialsReady = !!loginRef.current?.authorization_credentials;
+  if (
+    !credentialsReady &&
+    loginRef.current &&
+    loginRef.current.state !== LoginState.LoggedOut
+  ) {
+    console.error(
+      `[lfLogin] waitForLoginCredentialsAsync timed out after ${timeoutMs}ms without authorization_credentials`
+    );
+  }
+  return credentialsReady;
 }
