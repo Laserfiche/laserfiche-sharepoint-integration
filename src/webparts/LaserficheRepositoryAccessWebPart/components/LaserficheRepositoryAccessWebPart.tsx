@@ -100,6 +100,7 @@ export default function LaserficheRepositoryAccessWebPart(
           setLoggedIn(true);
         };
         const logoutCompleted: () => Promise<void> = async () => {
+          hasInitialized = false;
           setLoggedIn(false);
         };
 

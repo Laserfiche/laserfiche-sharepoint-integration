@@ -83,6 +83,7 @@ export const LoginComponent: React.FC<{
           props.setLoggedIn(true);
         };
         const logoutCompleted: () => Promise<void> = async () => {
+          hasInitialized = false;
           props.setLoggedIn(false);
         };
 
