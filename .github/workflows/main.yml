@@ -46,9 +46,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm run test
-
       - name: Build solution
         run: gulp build
 
@@ -56,6 +53,9 @@ jobs:
         run: |
           gulp bundle --ship
           gulp package-solution --ship
+
+      - name: Run tests
+        run: npm run test
 
       - name: Upload Build Package
         uses: actions/upload-artifact@v4
