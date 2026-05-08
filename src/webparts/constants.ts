@@ -13,7 +13,12 @@ export const LASERFICHE_SIGNIN_PAGE_NAME = 'LaserficheSignIn';
 export const SP_LOCAL_STORAGE_KEY = 'spdocdata';
 export const SPDEVMODE_LOCAL_STORAGE_KEY = 'spDevMode';
 
-export const LF_UI_COMPONENTS_URL = 'https://lfxstatic.com/npm/@laserfiche/lf-ui-components@16/cdn/lf-ui-components.js';
-export const LF_MS_OFFICE_LITE_CSS_URL = 'https://lfxstatic.com/npm/@laserfiche/lf-ui-components@16/cdn/lf-ms-office-lite.css';
-export const LF_INDIGO_PINK_CSS_URL = 'https://lfxstatic.com/npm/@laserfiche/lf-ui-components@16/cdn/indigo-pink.css';
-export const ZONE_JS_URL = 'https://lfxstatic.com/npm/-/zone.js@0.13.1/bundles/zone.umd.min.js';
+import LF_UI_COMPONENTS_URL_IMPORT from '../Assets/lf-ui-components/lf-ui-components.js';
+import LF_MS_OFFICE_LITE_CSS_URL_IMPORT from '../Assets/lf-ui-components/lf-ms-office-lite.cssasset';
+import LF_INDIGO_PINK_CSS_URL_IMPORT from '../Assets/lf-ui-components/indigo-pink.cssasset';
+import ZONE_JS_URL_IMPORT from '../Assets/lf-ui-components/zone.umd.min.js';
+
+export const LF_UI_COMPONENTS_URL = LF_UI_COMPONENTS_URL_IMPORT;
+export const LF_MS_OFFICE_LITE_CSS_URL = LF_MS_OFFICE_LITE_CSS_URL_IMPORT;
+export const LF_INDIGO_PINK_CSS_URL = LF_INDIGO_PINK_CSS_URL_IMPORT;
+export const ZONE_JS_URL = ZONE_JS_URL_IMPORT;
