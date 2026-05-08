@@ -5,6 +5,7 @@
 
 const gulp = require('gulp');
 const path = require('path');
+const fs = require('fs');
 
 const build = require('@microsoft/sp-build-web');
 
@@ -19,54 +20,42 @@ build.rig.getTasks = function () {
   return result;
 };
 
-// Pre-build task: copy the lf-ui-components CDN assets and zone.js into a local
-// folder. The folder is gitignored. Files are emitted into the .sppkg via the
-// file-loader rule below so they load from SharePoint's own CDN at runtime,
-// satisfying Microsoft's default Content Security Policy (no external scripts).
-//
-// CSS files are copied with a `.cssasset` extension so SPFx's built-in CSS
-// loader pipeline does not pick them up. Our file-loader rule emits them back
-// with the original `.css` extension via the `name` option.
-const fs = require('fs');
-const copyLfUiComponents = build.subTask('copy-lf-ui-components', function (localGulp, buildOptions, done) {
-  const destDir = path.resolve(__dirname, 'src/Assets/lf-ui-components');
-  if (!fs.existsSync(destDir)) {
-    fs.mkdirSync(destDir, { recursive: true });
-  }
-  const copies = [
-    ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ui-components.js', 'lf-ui-components.js'],
-    ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css', 'indigo-pink.cssasset'],
-    ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css', 'lf-ms-office-lite.cssasset'],
-    ['node_modules/zone.js/bundles/zone.umd.min.js', 'zone.umd.min.js']
-  ];
-  for (const [src, destName] of copies) {
-    fs.copyFileSync(path.resolve(__dirname, src), path.join(destDir, destName));
+// Vendor lf-ui-components + zone.js into lib/Assets/packages/ so SPFx's
+// webpack file-loader (rule below) emits content-hashed copies into the
+// .sppkg. This avoids the runtime CDN fetch from lfxstatic.com that
+// SharePoint's default CSP blocks.
+// .css → .cssasset rename keeps SPFx's built-in CSS pipeline from claiming
+// the files; the file-loader emits them back as .css.
+const PACKAGES_LIB_DIR = path.resolve(__dirname, 'lib/Assets/packages');
+const VENDORED_FILES = [
+  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ui-components.js',     'lf-ui-components.js'],
+  ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css',         'indigo-pink.cssasset'],
+  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',   'lf-ms-office-lite.cssasset'],
+  ['node_modules/zone.js/bundles/zone.umd.min.js',                          'zone.umd.min.js']
+];
+build.rig.addPreBuildTask(build.subTask('copy-vendored-packages', function (_g, _o, done) {
+  fs.mkdirSync(PACKAGES_LIB_DIR, { recursive: true });
+  for (const [src, name] of VENDORED_FILES) {
+    fs.copyFileSync(path.resolve(__dirname, src), path.join(PACKAGES_LIB_DIR, name));
   }
   done();
-});
-build.rig.addPreBuildTask(copyLfUiComponents);
+}));
 
 build.configureWebpack.mergeConfig({
   additionalConfiguration: (generatedConfiguration) => {
-    const lfUiAssetsLibPath = path.resolve(__dirname, 'lib/Assets/lf-ui-components');
-
     generatedConfiguration.module.rules.push(
       {
         test: /\.woff2(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: {
-          loader: 'url-loader'
-        }
+        use: { loader: 'url-loader' }
       },
       {
         test: /\.(js|cssasset)$/,
-        include: lfUiAssetsLibPath,
+        include: PACKAGES_LIB_DIR,
         use: {
           loader: 'file-loader',
           options: {
-            name: (resourcePath) => {
-              const ext = resourcePath.endsWith('.cssasset') ? 'css' : 'js';
-              return '[name].[contenthash:8].' + ext;
-            },
+            name: (resourcePath) =>
+              '[name].[contenthash:8].' + (resourcePath.endsWith('.cssasset') ? 'css' : 'js'),
             esModule: false
           }
         }

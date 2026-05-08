@@ -33,8 +33,5 @@ obj
 output.css
 .heft/
 
-# Vendored CDN assets copied by gulp pre-build task (see gulpfile.js)
-/src/Assets/lf-ui-components/
-
 # locally generated documentation
 jekyll_files/_site/
