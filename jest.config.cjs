@@ -5,6 +5,8 @@ module.exports = {
   setupFilesAfterEnv: ['./setupTests.ts'],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.cssasset$': '<rootDir>/src/__mocks__/genericFileMock.js',
+    '/Assets/packages/.*\\.js$': '<rootDir>/src/__mocks__/genericFileMock.js',
     '^@laserfiche/lf-repository-api-client$': '<rootDir>/src/__mocks__/@laserfiche/lf-repository-api-client.js',
     '^@laserfiche/lf-js-utils$': '<rootDir>/src/__mocks__/@laserfiche/lf-js-utils.js',
     '^@laserfiche/lf-ui-components-services$': '<rootDir>/src/__mocks__/@laserfiche/lf-ui-components-services.js',
