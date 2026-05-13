@@ -6,6 +6,13 @@ nav_order: 4
 
 # Laserfiche SharePoint Online Integration Changelog
 
+## 1.0.0.532
+
+### Maintenance
+
+- Added support for [Content Security Policy (CSP) in SharePoint Online](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources).
+- Security updates
+
 ## 1.0.0.471
 
 ### Features
