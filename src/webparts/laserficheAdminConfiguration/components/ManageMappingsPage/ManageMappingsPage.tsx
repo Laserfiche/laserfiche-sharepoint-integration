@@ -31,7 +31,7 @@ const sharepointValidationMapping =
   'Please select a content type from the SharePoint Content Type drop down';
 const laserficheValidationMapping =
   'Please select a content type from the Laserfiche Profile dropdown';
-const validationOf = 'Already Mapping exists for this SharePoint content type';
+const validationOf = 'Mapping already exists for this SharePoint content type';
 
 export default function ManageMappingsPage(
   props: IManageMappingsPageProps
