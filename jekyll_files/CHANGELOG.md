@@ -14,7 +14,7 @@ nav_order: 4
 
 ### Fixes
 
-- Resolved issue with [SharePoint Online's Content Security Policy (CSP) enforcement](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources).
+- Added support for [SharePoint Online's Content Security Policy (CSP)](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources).
 
 ## 1.0.0.471
 
