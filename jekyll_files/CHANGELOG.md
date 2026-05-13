@@ -10,11 +10,11 @@ nav_order: 4
 
 ### Maintenance
 
-- Updated dependencies (jsrsasign 11.1.0 → 11.1.3 to address CVE-2026-4600 and CVE-2026-4601).
+- Security Updates
 
 ### Fixes
 
-- Vendored `lf-ui-components` and `zone.js` into the solution package so the integration loads correctly under SharePoint Online's Content Security Policy (CSP) enforcement (effective March 1, 2026). (651728)
+- Resolved issue with [SharePoint Online's Content Security Policy (CSP) enforcement](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/content-securty-policy-trusted-script-sources).
 
 ## 1.0.0.471
 
