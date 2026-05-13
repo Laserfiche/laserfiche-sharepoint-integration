@@ -6,6 +6,16 @@ nav_order: 4
 
 # Laserfiche SharePoint Online Integration Changelog
 
+## 1.0.0.532
+
+### Maintenance
+
+- Updated dependencies (jsrsasign 11.1.0 → 11.1.3 to address CVE-2026-4600 and CVE-2026-4601).
+
+### Fixes
+
+- Vendored `lf-ui-components` and `zone.js` into the solution package so the integration loads correctly under SharePoint Online's Content Security Policy (CSP) enforcement (effective March 1, 2026). (651728)
+
 ## 1.0.0.471
 
 ### Features
