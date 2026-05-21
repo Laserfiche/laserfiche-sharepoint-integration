@@ -64,31 +64,28 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ## To build documentation locally
 
-1. Follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
+1. [Install Ruby and bundler](https://jekyllrb.com/docs/installation/)
+   - See the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
+     - You may need to add the zscaler.crt (rename extension to .pem) to your rubygems certificate folder, e.g.: `C:\Ruby33-x64\lib\ruby\3.3.0\rubygems\ssl_certs\rubygems.org`
+     - You may also need to paste the zscaler.crt content into `C:\Ruby33-x64\bin\etc\ssl\cert.pem`
+   - Verify installation running [check.rb](https://github.com/rubygems/ruby-ssl-check/blob/master/check.rb)
+   - run `gem install bundler`
+   - run `gem install jekyll`
+     - If fails to download a package, you may need to manually download the gem and install it. E.g. switch to the download folder and run:
+       - `gem install ffi`
+       - `gem install google-protobuf`
+1. navigate to the src directory
+1. remove the Gemfile.lock, if it exists
+1. run `bundle install`
+1. run `bundle exec jekyll serve`
 
-   - Check installations and versions:
+- Check installations and versions:
 
-     ```bash
-     gem --version
-     bundle --version
-     jekyll --version
-     ```
-
-   - Troubleshoot:
-
-     - Certificate issues:
-
-       1. Export the certificate (Base64) you need and save it as a .pem file.
-       1. Copy the .pem file to the RubyGems certificate directory in your installation. E.g., `C:\Ruby32-x64\lib\ruby\3.2.0\rubygems\ssl_certs\rubygems.org`
-       1. Run `gem update --system`
-       1. If you still see the certificate issue, copy the .pem file also to the site_ruby certificate directory, e.g., `C:\Ruby32-x64\lib\ruby\site_ruby\3.2.0\rubygems\ssl_certs\rubygems.org`. Then run `gem update --system` again.
-
-       - More details [here](https://bundler.io/guides/rubygems_tls_ssl_troubleshooting_guide.html#updating-ca-certificates).
-
-     - Dependency issues:
-       1. <tag id="fetch_error">Install the dependencies from local .gem files if you see errors like`'fetch_http': bad response Forbidden 403 (https://index.rubygems.org/gems/google-protobuf-3.25.3-x64-mingw-ucrt.gem?_sm_nck=1)` when run `gem install jekyll`.
-          1. Find the dependency needed in your local drive or go to https://index.rubygems.org/gems and download the package file.
-          1. Run `gem install --local <path_to_gem/filename.gem>`.
+  ```sh
+  gem --version
+  bundle --version
+  bundle exec jekyll --version
+  ```
 
 1. Navigate to directory `<project_path>/jekyll_files`.
 1. Run `bundle install` to install all the dependencies needed to serve.

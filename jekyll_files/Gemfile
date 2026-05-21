@@ -7,4 +7,8 @@ gem "jekyll-include-cache", group: :jekyll_plugins
 
 gem "html-proofer", "~> 5.0", :group => :development
 
-gem 'wdm', '>= 0.1.0' if Gem.win_platform?
+gem 'jekyll-redirect-from'
+
+gem 'wdm', '>= 0.2.0' if Gem.win_platform?
+
+gem "webrick", "~> 1.9"
