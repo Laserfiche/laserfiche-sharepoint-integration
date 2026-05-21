@@ -35,3 +35,6 @@ output.css
 
 # locally generated documentation
 jekyll_files/_site/
+
+# generated sppkg from jekyll pipeline
+LaserficheSharePointOnlineIntegration.sppkg
