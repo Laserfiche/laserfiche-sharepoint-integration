@@ -47,7 +47,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - run **npm install**
 - **npm run build**
 - **npm run package**
-- this should result in the creation of a file with the path `/sharepoint/solution/laserfiche-sharepoint-integration.sppkg` from the root folder.
+- this should result in the creation of a file with the path `/sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg` from the root folder.
 - Navigate to the solution folder
 - run **npm run gulp-trust-dev-cert** (one-time only)
 - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
@@ -59,8 +59,20 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - run **npm install**
 - **npm run bundle**
 - **npm run package-solution**
-- This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
+- This will create the solution file at /sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg.
 - Once you've built and packaged the solution file, you can use it as a production package and upload it in the SharePoint admin center (see [Admin Docs](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation))
+
+## To produce a release-ready package via CI/CD
+
+For official releases, do **not** build the `.sppkg` locally. Use the [SPFx CI/CD GitHub Action](https://github.com/Laserfiche/laserfiche-sharepoint-integration/actions/workflows/main.yml) instead:
+
+1. Run the workflow off the release branch (e.g. `1.x`).
+2. The workflow auto-versions the artifact as `LaserficheSharePointOnlineIntegration.[VERSION_NUMBER].sppkg` (version derived from `package.json` + build number).
+3. Download the workflow artifact → use the `.sppkg` inside `artifact/solution/`.
+4. For sideload distribution: copy that file into `jekyll_files/docs/assets/` (keep historical versions for rollback), update the download link in `jekyll_files/docs/admin-documentation/adding-app-organization.md` to point at the new version, then run the [Deploy SharePoint Integration Documentation](https://github.com/Laserfiche/laserfiche-sharepoint-integration/actions/workflows/jekyll_gh_pages.yml) action.
+5. Verify the new package is reachable from the [download link](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/adding-app-organization.html).
+
+See the [Integrations wiki release runbook](https://v-dev-tfs.laserfiche.com/DefaultCollection/Integrations/_wiki/wikis/Integrations.wiki/134901/Laserfiche-SharePoint-Online-Integration) for the full release procedure (including Microsoft Marketplace publish).
 
 ## To build documentation locally
 

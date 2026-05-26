@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 env:
-  packagePath: sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
+  packagePath: sharepoint/solution
   packagePathUserDocs: UserDocuments
   fullVersion: 1.0.0.${{github.run_number}}
 
@@ -56,6 +56,10 @@ jobs:
           gulp bundle --ship
           gulp package-solution --ship
 
+      - name: Rename .sppkg to include version
+        working-directory: ${{ env.packagePath }}
+        run: mv LaserficheSharePointOnlineIntegration.sppkg LaserficheSharePointOnlineIntegration.${{ env.fullVersion }}.sppkg
+
       - name: Run tests
         run: npm run test
 
@@ -63,5 +67,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: |
-            ${{ env.packagePath }}
+            ${{ env.packagePath }}/LaserficheSharePointOnlineIntegration.${{ env.fullVersion }}.sppkg
             ${{ env.packagePathUserDocs }}
