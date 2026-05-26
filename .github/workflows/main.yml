@@ -56,6 +56,9 @@ jobs:
           gulp bundle --ship
           gulp package-solution --ship
 
+      - name: Rename .sppkg to include version
+        run: mv ${{ env.packagePath }} sharepoint/solution/LaserficheSharePointOnlineIntegration.${{ env.fullVersion }}.sppkg
+
       - name: Run tests
         run: npm run test
 
@@ -63,5 +66,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: |
-            ${{ env.packagePath }}
+            sharepoint/solution/LaserficheSharePointOnlineIntegration.${{ env.fullVersion }}.sppkg
             ${{ env.packagePathUserDocs }}
