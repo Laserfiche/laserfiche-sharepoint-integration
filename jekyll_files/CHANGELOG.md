@@ -6,7 +6,7 @@ nav_order: 4
 
 # Laserfiche SharePoint Online Integration Changelog
 
-## 1.0.0.532
+## 1.0.0.560
 
 ### Maintenance
 
