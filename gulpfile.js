@@ -20,7 +20,7 @@ build.rig.getTasks = function () {
   return result;
 };
 
-// Vendor lf-ui-components + zone.js into lib/Assets/packages/ so SPFx's
+// Vendor lf-ui-components into lib/Assets/packages/ so SPFx's
 // webpack file-loader (rule below) emits content-hashed copies into the
 // .sppkg. This avoids the runtime CDN fetch from lfxstatic.com that
 // SharePoint's default CSP blocks.
@@ -30,8 +30,7 @@ const PACKAGES_LIB_DIR = path.resolve(__dirname, 'lib/Assets/packages');
 const VENDORED_FILES = [
   ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ui-components.js',     'lf-ui-components.js'],
   ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css',         'indigo-pink.cssasset'],
-  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',   'lf-ms-office-lite.cssasset'],
-  ['node_modules/zone.js/bundles/zone.umd.min.js',                          'zone.umd.min.js']
+  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',   'lf-ms-office-lite.cssasset']
 ];
 build.rig.addPreBuildTask(build.subTask('copy-vendored-packages', function (_g, _o, done) {
   fs.mkdirSync(PACKAGES_LIB_DIR, { recursive: true });

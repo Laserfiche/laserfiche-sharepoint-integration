@@ -13,7 +13,6 @@ import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
-  ZONE_JS_URL,
   LF_UI_COMPONENTS_URL,
   LASERFICHE_SIGNIN_PAGE_NAME,
   LOGIN_WINDOW_SUCCESS,
@@ -78,7 +77,6 @@ export const LoginComponent: React.FC<{
     const initializeComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
         const loginCompleted: () => Promise<void> = async () => {

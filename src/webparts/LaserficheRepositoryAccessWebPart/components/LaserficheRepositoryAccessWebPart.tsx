@@ -17,7 +17,6 @@ import {
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
   LOGIN_WINDOW_SUCCESS,
-  ZONE_JS_URL,
 } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
@@ -93,7 +92,6 @@ export default function LaserficheRepositoryAccessWebPart(
       };
 
     const initializeComponentAsync: () => Promise<void> = async () => {
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);

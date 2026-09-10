@@ -16,18 +16,13 @@ jest.mock('@microsoft/sp-http-base', () => {
     },
   };
 });
-jest.mock('@laserfiche/lf-repository-api-client', () => ({
-  TemplateFieldInfo: jest.fn().mockImplementation(({ name }) => ({
+jest.mock('@laserfiche/lf-repository-api-client-v2', () => ({
+  TemplateFieldDefinition: jest.fn().mockImplementation(({ name }) => ({
     name,
   })),
-  ValueToUpdate: jest.fn().mockImplementation(({ value }) => ({
-    value: value,
-  })),
-  FieldToUpdate: jest.fn().mockImplementation(({ values }) => ({
+  FieldToUpdate: jest.fn().mockImplementation(({ name, values }) => ({
+    name,
     values,
-  })),
-  PutFieldValsRequest: jest.fn().mockImplementation(({ fields }) => ({
-    fields,
   })),
 }));
 
@@ -37,9 +32,7 @@ import { GetDocumentDialogData } from './GetDocumentDataDialogUI';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http-base';
 import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
-import {
-  TemplateFieldInfo,
-} from '@laserfiche/lf-repository-api-client';
+import { TemplateFieldDefinition } from '@laserfiche/lf-repository-api-client-v2';
 import { ISPDocumentData } from '../../Utils/Types';
 
 describe('GetDocumentDataDialog', () => {
@@ -73,7 +66,7 @@ describe('GetDocumentDataDialog', () => {
                           mappedFields: [
                             {
                               id: 'dd',
-                              lfField: new TemplateFieldInfo({
+                              lfField: new TemplateFieldDefinition({
                                 name: 'testField',
                               }),
                               spField: {
@@ -161,9 +154,9 @@ describe('GetDocumentDataDialog', () => {
     await waitFor(() => {
       expect(spDocData.documentName).toEqual('%(DocumentName)');
       expect(spDocData.templateName).toEqual('Test Template');
-      expect(spDocData.metadata!.metadata!.fields!.testField).toEqual({
-        values: [{ value: 'Document Title' }],
-      });
+      expect(spDocData.metadata!.fields).toEqual([
+        { name: 'testField', values: ['Document Title'] },
+      ]);
     });
   });
 
@@ -198,7 +191,7 @@ describe('GetDocumentDataDialog', () => {
                           mappedFields: [
                             {
                               id: 'dd',
-                              lfField: new TemplateFieldInfo({
+                              lfField: new TemplateFieldDefinition({
                                 name: 'testField',
                               }),
                               spField: {
@@ -286,9 +279,9 @@ describe('GetDocumentDataDialog', () => {
     await waitFor(() => {
       expect(spDocData.documentName).toEqual('%(DocumentName)');
       expect(spDocData.templateName).toEqual('Test Template');
-      expect(spDocData.metadata!.metadata!.fields!.testField).toEqual({
-        values: [{ value: 'Document Title' }],
-      });
+      expect(spDocData.metadata!.fields).toEqual([
+        { name: 'testField', values: ['Document Title'] },
+      ]);
     });
   });
 });

@@ -17,7 +17,6 @@ import {
   LF_UI_COMPONENTS_URL,
   LOGIN_WINDOW_SUCCESS,
   SP_LOCAL_STORAGE_KEY,
-  ZONE_JS_URL,
 } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
@@ -147,7 +146,6 @@ export default function SendToLaserficheLoginComponent(
         'logoutCompleted',
         logoutCompletedInPopup
       );
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
       try {

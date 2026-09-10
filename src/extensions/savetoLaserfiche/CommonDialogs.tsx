@@ -30,13 +30,9 @@ const EXISTING_SP_DOCUMENT_DELETED =
   'The existing SharePoint document was deleted.';
 const EXISTING_SP_DOCUMENT_REPLACED =
   'The existing SharePoint document was replaced with a link to the document in Laserfiche.';
-const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
-  'Unable to save metadata due to at least one invalid field value.';
 const CLOSE = 'Close';
 const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 
-const WARNING = 'Warning: ';
-const ERROR_DETAILS = 'Error details';
 export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
@@ -44,18 +40,6 @@ export function SavedToLaserficheSuccessDialogText(props: {
     SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
     SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
   }, []);
-
-  const metadataFailedNotice: JSX.Element = (
-    <>
-      <div className={styles.paddingUnder}>
-        <b>{WARNING}</b>
-        {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
-      </div>
-      <Collapsible title={ERROR_DETAILS}>
-        {props.successfulSave.failedMetadata}
-      </Collapsible>
-    </>
-  );
 
   return (
     <>
@@ -69,7 +53,6 @@ export function SavedToLaserficheSuccessDialogText(props: {
           {props.successfulSave.action === ActionTypes.REPLACE &&
             EXISTING_SP_DOCUMENT_REPLACED}
         </div>
-        {!props.successfulSave.metadataSaved && metadataFailedNotice}
       </div>
     </>
   );

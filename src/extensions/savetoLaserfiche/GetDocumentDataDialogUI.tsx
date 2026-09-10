@@ -22,15 +22,11 @@ import {
   SPProfileConfigurationData,
 } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 import {
-  IPostEntryWithEdocMetadataRequest,
+  FieldType,
   FieldToUpdate,
-  IPutFieldValsRequest,
-  PutFieldValsRequest,
-  IValueToUpdate,
-  TemplateFieldInfo,
-  ValueToUpdate,
-  WFieldType,
-} from '@laserfiche/lf-repository-api-client';
+  IImportEntryRequestMetadata,
+  TemplateFieldDefinition,
+} from '@laserfiche/lf-repository-api-client-v2';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
@@ -237,11 +233,11 @@ export function GetDocumentDialogData(props: {
       (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
     );
     if (matchingLFConfig.selectedTemplateName?.length > 0) {
-      const metadata: IPostEntryWithEdocMetadataRequest = {
-        template: matchingLFConfig.selectedTemplateName,
+      const metadata: IImportEntryRequestMetadata = {
+        templateName: matchingLFConfig.selectedTemplateName,
       };
       const missingRequiredFields: SPProfileConfigurationData[] = [];
-      const fields: { [key: string]: FieldToUpdate } = {};
+      const fields: FieldToUpdate[] = [];
       formatMetadata(
         matchingLFConfig,
         missingRequiredFields,
@@ -299,15 +295,12 @@ export function GetDocumentDialogData(props: {
   }
 
   function getDocumentDataWithMetadata(
-    fields: { [key: string]: FieldToUpdate },
-    metadata: IPostEntryWithEdocMetadataRequest,
+    fields: FieldToUpdate[],
+    metadata: IImportEntryRequestMetadata,
     matchingLFConfig: ProfileConfiguration,
     laserficheProfileName: string
   ): ISPDocumentData {
-    const metadataFields: IPutFieldValsRequest = {
-      fields,
-    };
-    metadata.metadata = new PutFieldValsRequest(metadataFields);
+    metadata.fields = fields;
 
     const fileData: ISPDocumentData = {
       action: matchingLFConfig.Action,
@@ -329,7 +322,7 @@ export function GetDocumentDialogData(props: {
     missingRequiredFields: SPProfileConfigurationData[],
     allSpFieldValues: { [key: string]: string },
     allSPFieldProperties: SPProfileConfigurationData[],
-    fields: { [key: string]: FieldToUpdate }
+    fields: FieldToUpdate[]
   ): void {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.EntityPropertyName;
@@ -364,14 +357,12 @@ export function GetDocumentDialogData(props: {
           missingRequiredFields.push(currentField);
         }
 
-        const valueToUpdate: IValueToUpdate = {
-          value: spDocFieldValue,
-          position: 1,
-        };
-        const newValueToUpdate = new ValueToUpdate(valueToUpdate);
-        fields[lfField.name] = new FieldToUpdate({
-          values: [newValueToUpdate],
-        });
+        fields.push(
+          new FieldToUpdate({
+            name: lfField.name,
+            values: [spDocFieldValue],
+          })
+        );
       } else {
         if (mapping.lfField.isRequired) {
           missingRequiredFields.push(mapping.spField);
@@ -381,7 +372,7 @@ export function GetDocumentDialogData(props: {
   }
 
   function forceTruncateToFieldTypeLength(
-    lfField: TemplateFieldInfo,
+    lfField: TemplateFieldDefinition,
     spDocFieldValue: string
   ): string {
     if (lfField.length !== 0) {
@@ -390,9 +381,9 @@ export function GetDocumentDialogData(props: {
         spDocFieldValue = spDocFieldValue.slice(0, lfField.length);
       }
     } else if (
-      lfField.fieldType === WFieldType.ShortInteger ||
-      lfField.fieldType === WFieldType.LongInteger ||
-      lfField.fieldType === WFieldType.Number
+      lfField.fieldType === FieldType.ShortInteger ||
+      lfField.fieldType === FieldType.LongInteger ||
+      lfField.fieldType === FieldType.Number
     ) {
       const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9.]/g, '');
       spDocFieldValue = extractOnlyNumbers;

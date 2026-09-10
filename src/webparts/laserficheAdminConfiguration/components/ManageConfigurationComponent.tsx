@@ -2,11 +2,11 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import {
-  ODataValueContextOfIListOfWTemplateInfo,
-  ODataValueOfIListOfTemplateFieldInfo,
-  TemplateFieldInfo,
-  WTemplateInfo,
-} from '@laserfiche/lf-repository-api-client';
+  TemplateDefinition,
+  TemplateDefinitionCollectionResponse,
+  TemplateFieldDefinition,
+  TemplateFieldDefinitionCollectionResponse,
+} from '@laserfiche/lf-repository-api-client-v2';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
 import * as React from 'react';
 import { useState } from 'react';
@@ -25,10 +25,10 @@ export default function ManageConfiguration(
   props: React.PropsWithChildren<IManageConfigurationProps>
 ): JSX.Element {
   const [availableLfTemplates, setAvailableLfTemplates] = useState<
-    WTemplateInfo[] | undefined
+    TemplateDefinition[] | undefined
   >([]);
   const [lfFieldsForSelectedTemplate, setLfFieldsForSelectedTemplate] =
-    useState<TemplateFieldInfo[] | undefined>(undefined);
+    useState<TemplateFieldDefinition[] | undefined>(undefined);
   const [availableSPFields, setAvailableSPFields] = useState<
     SPProfileConfigurationData[] | undefined
   >(undefined);
@@ -36,18 +36,18 @@ export default function ManageConfiguration(
   const [showErrorModal, setShowErrorModal] = useState<string | undefined>();
   const [templateWarning, setTemplateWarning] = useState<boolean>(false);
 
-  async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
+  async function getAllAvailableTemplates(): Promise<TemplateDefinition[]> {
     const repoId = await props.repoClient.getCurrentRepoId();
-    const templateInfo: WTemplateInfo[] = [];
-    await props.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
+    const templateInfo: TemplateDefinition[] = [];
+    await props.repoClient.templateDefinitionsClient.listTemplateDefinitionsForEach(
       {
-        callback: async (response: ODataValueContextOfIListOfWTemplateInfo) => {
+        callback: async (response: TemplateDefinitionCollectionResponse) => {
           if (response.value) {
             templateInfo.push(...response.value);
           }
           return true;
         },
-        repoId,
+        repositoryId: repoId,
       }
     );
     return templateInfo;
@@ -55,14 +55,14 @@ export default function ManageConfiguration(
 
   const getLaserficheFieldsAsync: (
     templateName: string
-  ) => Promise<TemplateFieldInfo[]> = async (templateName: string) => {
+  ) => Promise<TemplateFieldDefinition[]> = async (templateName: string) => {
     if (templateName?.length > 0) {
       const repoId = await props.repoClient.getCurrentRepoId();
-      const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
-        await props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
-          { repoId, templateName: templateName }
+      const apiTemplateResponse: TemplateFieldDefinitionCollectionResponse =
+        await props.repoClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName(
+          { repositoryId: repoId, templateName: templateName }
         );
-      const fieldsValues: TemplateFieldInfo[] = apiTemplateResponse.value;
+      const fieldsValues: TemplateFieldDefinition[] = apiTemplateResponse.value;
       return fieldsValues;
     } else {
       return null;
@@ -72,7 +72,7 @@ export default function ManageConfiguration(
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       try {
-        const templates: WTemplateInfo[] = await getAllAvailableTemplates();
+        const templates: TemplateDefinition[] = await getAllAvailableTemplates();
         templates.sort();
         setAvailableLfTemplates(templates);
         if (props.profileConfig.selectedTemplateName) {
@@ -80,7 +80,7 @@ export default function ManageConfiguration(
             (r) => r.name === props.profileConfig.selectedTemplateName
           );
           if (selectedTemplateExists) {
-            const templateFields: TemplateFieldInfo[] =
+            const templateFields: TemplateFieldDefinition[] =
               await getLaserficheFieldsAsync(
                 props.profileConfig.selectedTemplateName
               );
@@ -88,7 +88,7 @@ export default function ManageConfiguration(
           } else {
             setTemplateWarning(true);
             templates.push(
-              new WTemplateInfo({
+              new TemplateDefinition({
                 displayName: props.profileConfig.selectedTemplateName,
               })
             );

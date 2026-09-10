@@ -42,8 +42,8 @@ Documentation site (Jekyll) lives under `jekyll_files/` and is published to GitH
 | SPFx | **1.23.2** (all `@microsoft/sp-*` and `@microsoft/eslint-*-spfx` pinned to `1.23.2`) | `package.json` |
 | TypeScript | **5.3.3** + Rush stack compiler 5.3 | `tsconfig.json` extends `@microsoft/rush-stack-compiler-5.3` |
 | React | **17.0.1** (NOT 18) | `package.json`; React 18 only lands in the SPFx 1.24 *preview* |
-| Angular Elements | **16.2.x** | for `lf-ui-components` wrapper |
-| `@laserfiche/lf-ui-components` | **16.x** | NOT v21 yet (v21 is zoneless) |
+| Angular Elements | **21.2.x** | for `lf-ui-components` wrapper; types only (`NgElement`/`WithProperties`) |
+| `@laserfiche/lf-ui-components` | **21.1.x** | zoneless — no `zone.js`; the `cdn/` bundle self-registers the custom elements |
 | Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed) | `package.json` `test` script |
 | ESLint | **8.57.1** with `@microsoft/eslint-config-spfx` | `.eslintrc.js` |
 | Prettier | repo config | `.prettierrc` |
@@ -53,7 +53,7 @@ Run `nvm use 22` before building; that is the version CI uses and the only one M
 
 **On Node 24:** the SPFx rig (`@microsoft/sp-build-web` → `SPBuildRig.js`) checks `process.version` against `>=18.17.1 <19 || >=20.11.0 <21 || >=22.14.0 <23` and throws otherwise. `SPFX_OVERRIDE_NODE_VERSION_CHECK=true` bypasses it — this is SPFx's own hook for testing unreleased Node versions. Verified on Node 24.15.0: `build`, `bundle --ship`, `package-solution --ship` and all 29 tests pass, and the `.sppkg` payload is byte-for-byte identical to the Node 22 build. The only file that differs between any two packaging runs is the auto-generated `Client Side Assets` feature GUID in `ClientSideAssets.xml`, which SPFx regenerates every run on *any* Node version — so it is not a Node-version artifact.
 
-**Why this repo stays on gulp:** SPFx 1.22+ scaffolds new projects with Heft, and `m365 spfx project upgrade` will tell you to migrate. Do **not** follow that advice here. `@microsoft/sp-build-web` is still published and patched on the gulp rig (1.23.2, June 2026), and Microsoft supports existing gulp projects. `gulpfile.js` carries load-bearing custom logic — the `copy-vendored-packages` pre-build task plus the `file-loader` rules — that vendors `lf-ui-components` and `zone.js` into the `.sppkg` to avoid a runtime CDN fetch from `lfxstatic.com` that SharePoint's CSP blocks. A Heft migration would require rewriting exactly that code.
+**Why this repo stays on gulp:** SPFx 1.22+ scaffolds new projects with Heft, and `m365 spfx project upgrade` will tell you to migrate. Do **not** follow that advice here. `@microsoft/sp-build-web` is still published and patched on the gulp rig (1.23.2, June 2026), and Microsoft supports existing gulp projects. `gulpfile.js` carries load-bearing custom logic — the `copy-vendored-packages` pre-build task plus the `file-loader` rules — that vendors `lf-ui-components` into the `.sppkg` to avoid a runtime CDN fetch from `lfxstatic.com` that SharePoint's CSP blocks. A Heft migration would require rewriting exactly that code.
 
 ---
 
@@ -157,13 +157,12 @@ See the [Integrations wiki](https://v-dev-tfs.laserfiche.com/DefaultCollection/I
 
 Microsoft activated SharePoint Online Content Security Policy (CSP) enforcement on **March 1, 2026** ([MS guidance](https://techcommunity.microsoft.com/blog/spblog/sharepoint-online-content-security-policy-csp-enforcement-dates-and-guidance/4472662)). The default CSP **blocks `script-src` to external origins** including `lfxstatic.com`.
 
-This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`, the two CSS files, and `zone.js` into the `.sppkg`. The pattern:
+This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` and the two CSS files into the `.sppkg`. (`zone.js` was vendored too until the v21 upgrade made it unnecessary.) The pattern:
 
-1. **`gulpfile.js`** has a pre-build task `copy-vendored-packages` that copies four files from `node_modules` into `lib/Assets/packages/` at build time:
+1. **`gulpfile.js`** has a pre-build task `copy-vendored-packages` that copies three files from `node_modules` into `lib/Assets/packages/` at build time:
    - `@laserfiche/lf-ui-components/cdn/lf-ui-components.js` → `lf-ui-components.js`
    - `@laserfiche/lf-ui-components/cdn/indigo-pink.css` → `indigo-pink.cssasset` (rename!)
    - `@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css` → `lf-ms-office-lite.cssasset` (rename!)
-   - `zone.js/bundles/zone.umd.min.js` → `zone.umd.min.js`
 
 2. The `.cssasset` rename is critical — it stops SPFx’s own CSS pipeline from claiming those files. A custom webpack rule (`module.rules.push(...)` in `gulpfile.js`) catches `\.(js|cssasset)$` inside `lib/Assets/packages/` and runs them through **`file-loader`**, which emits content-hashed copies (e.g. `lf-ui-components.abc12345.js`) and replaces the import with the emitted URL.
 
@@ -172,7 +171,6 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
    export { default as LF_UI_COMPONENTS_URL } from '../Assets/packages/lf-ui-components.js';
    export { default as LF_MS_OFFICE_LITE_CSS_URL } from '../Assets/packages/lf-ms-office-lite.cssasset';
    export { default as LF_INDIGO_PINK_CSS_URL } from '../Assets/packages/indigo-pink.cssasset';
-   export { default as ZONE_JS_URL } from '../Assets/packages/zone.umd.min.js';
    ```
 
 4. **`src/Assets/packages-assets.d.ts`** declares those modules so TypeScript accepts the imports as `string` (the emitted URL).
@@ -207,7 +205,7 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 
 ### Authentication & API
 
-- Uses `@laserfiche/lf-repository-api-client` v1 (NOT v2) for Laserfiche Cloud API calls.
+- Uses `@laserfiche/lf-repository-api-client-v2` for Laserfiche Cloud API calls. Request arguments are named objects keyed `repositoryId` (not v1's `repoId`), collection responses expose `.value`, and `importEntry` is atomic: metadata rides on `ImportEntryRequest.metadata` and a metadata failure fails the whole import (v1's partial-success `CreateEntryResult.operations` envelope is gone).
 - OAuth login is handled by `<lf-login>` web component from `lf-ui-components`. `connectedCallback` restores credentials from local storage asynchronously — see `loadLfUiComponentsLib` callers and any logic that reads `authorization_credentials` immediately after the script tag is added.
 - Multi-tenant SP app: the SP app registration ID is `clientId = '8ee987ea-a0b1-4ca2-85c4-a79b335cd214'` (in `constants.ts`).
 
@@ -253,8 +251,9 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 - ❌ Bumping `package-solution.json` `version` or `package.json` `version` by hand — CI does this via `sed`.
 - ❌ Upgrading React past 17 without verifying SPFx 1.23 still bundles it (SPFx 1.23 supports React 17; React 18 arrives with SPFx 1.24, still in preview).
 - ❌ Setting `SPFX_OVERRIDE_NODE_VERSION_CHECK` in CI, or building release packages on Node 24 — local Node 24 dev is fine, releases build on supported Node 22.
-- ❌ Removing `zone.js` until `lf-ui-components` is upgraded to v21 (zoneless) — `@angular/elements` 15/16 still needs Zone.js.
 - ❌ Bypassing the SP Workbench — the SPFx serve workflow is the cheapest way to catch render bugs before tenant upload.
+- ❌ Putting a caret on `@laserfiche/types-lf-ui-components` while it is on a `--preview-` version. `lf-ui-components-services` declares its peer as `^21.1.0`, and semver caret ranges do **not** match prerelease versions, so `npm i` fails with `ERESOLVE`. Pin it **exactly** and add a matching `overrides` entry (a caret plus an override is rejected outright with `EOVERRIDE`). Keep the pinned version in step with `lf-ui-components`.
+- ❌ Dropping the explicit `@angular/*` block from `devDependencies`. Angular is not bundled — it lives inside the vendored `cdn/lf-ui-components.js` — but without those entries `@angular/cdk` (peers `^21 || ^22`) floats `@angular/common` to 22.x and breaks `lf-ui-components`'s `^21.2.8` peer.
 
 ---
 
