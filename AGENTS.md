@@ -36,19 +36,24 @@ Documentation site (Jekyll) lives under `jekyll_files/` and is published to GitH
 
 | Tool | Version | Source |
 |---|---|---|
-| Node.js | **18.x** (`>=18.0.0 <19.0.0` per `package.json` engines) | locally |
-| Node.js (CI) | **20.x** | `.github/workflows/main.yml` (`actions/setup-node@v4` `node-version: 20.x`) |
-| SPFx | **1.20.x** (`@microsoft/sp-build-web` `1.20.2`, all `@microsoft/sp-*` `1.20.0`) | `package.json` |
-| TypeScript | **4.9.5** + Rush stack compiler 4.5 | `tsconfig.json` extends `@microsoft/rush-stack-compiler-4.5` |
-| React | **17.0.1** (NOT 18) | `package.json` |
+| Node.js | **22.x** (`nvm use 22`; pinned in `.nvmrc`) | locally |
+| Node.js (CI) | **22.x** | both workflows use `actions/setup-node@v4` with `node-version-file: .nvmrc` |
+| Node.js 24 | works, but **opt-in only** — set `SPFX_OVERRIDE_NODE_VERSION_CHECK=true` | unsupported by Microsoft; never set in CI |
+| SPFx | **1.23.2** (all `@microsoft/sp-*` and `@microsoft/eslint-*-spfx` pinned to `1.23.2`) | `package.json` |
+| TypeScript | **5.3.3** + Rush stack compiler 5.3 | `tsconfig.json` extends `@microsoft/rush-stack-compiler-5.3` |
+| React | **17.0.1** (NOT 18) | `package.json`; React 18 only lands in the SPFx 1.24 *preview* |
 | Angular Elements | **16.2.x** | for `lf-ui-components` wrapper |
 | `@laserfiche/lf-ui-components` | **16.x** | NOT v21 yet (v21 is zoneless) |
-| Jest | **29.x** with `--experimental-vm-modules` | `package.json` `test` script |
+| Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed) | `package.json` `test` script |
 | ESLint | **8.57.1** with `@microsoft/eslint-config-spfx` | `.eslintrc.js` |
 | Prettier | repo config | `.prettierrc` |
 | Gulp | 4.0.2 (SPFx build wrapper) | `gulpfile.js` |
 
-If you accidentally use Node 22/Node 21 etc., builds may pass locally but produce a `.sppkg` that differs from CI’s output — always run final verification on Node 20.x to match the GitHub Action.
+Run `nvm use 22` before building; that is the version CI uses and the only one Microsoft supports for SPFx 1.23.2.
+
+**On Node 24:** the SPFx rig (`@microsoft/sp-build-web` → `SPBuildRig.js`) checks `process.version` against `>=18.17.1 <19 || >=20.11.0 <21 || >=22.14.0 <23` and throws otherwise. `SPFX_OVERRIDE_NODE_VERSION_CHECK=true` bypasses it — this is SPFx's own hook for testing unreleased Node versions. Verified on Node 24.15.0: `build`, `bundle --ship`, `package-solution --ship` and all 29 tests pass, and the `.sppkg` payload is byte-for-byte identical to the Node 22 build. The only file that differs between any two packaging runs is the auto-generated `Client Side Assets` feature GUID in `ClientSideAssets.xml`, which SPFx regenerates every run on *any* Node version — so it is not a Node-version artifact.
+
+**Why this repo stays on gulp:** SPFx 1.22+ scaffolds new projects with Heft, and `m365 spfx project upgrade` will tell you to migrate. Do **not** follow that advice here. `@microsoft/sp-build-web` is still published and patched on the gulp rig (1.23.2, June 2026), and Microsoft supports existing gulp projects. `gulpfile.js` carries load-bearing custom logic — the `copy-vendored-packages` pre-build task plus the `file-loader` rules — that vendors `lf-ui-components` and `zone.js` into the `.sppkg` to avoid a runtime CDN fetch from `lfxstatic.com` that SharePoint's CSP blocks. A Heft migration would require rewriting exactly that code.
 
 ---
 
@@ -104,7 +109,7 @@ npm run package-solution             # gulp package-solution --ship
 # .sppkg lands at sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
 
 # Tests
-npm test                             # jest with --experimental-vm-modules
+npm test                             # jest (v30)
 # 6 test suites, 29 tests as of 1.0.0.566. All must pass for PR merge.
 
 # Clean
@@ -121,7 +126,7 @@ npm run clean                        # gulp clean (wipes lib/, temp/, sharepoint
 
 Triggers on push/PR to `\d+.x` branches (so `1.x`, future `2.x`) and `workflow_dispatch`.
 
-- Checkout → setup Node 20.x
+- Checkout → setup Node from `.nvmrc` (22.x)
 - `if 1.x`: auto-tag the commit `1.0.0.${run_number}`
 - `sed -i` replaces the literal `"1.0.0.0"` in `config/package-solution.json` and `package.json` with the run-number version
 - `npm ci`
@@ -246,8 +251,8 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 - ❌ Building the release `.sppkg` locally for distribution — always use the GitHub Action so the version is auto-stamped.
 - ❌ Committing `lib/`, `temp/`, `sharepoint/solution/*.sppkg` (only the versioned `jekyll_files/docs/assets/*.sppkg` belong in git, and only via the sideload PR).
 - ❌ Bumping `package-solution.json` `version` or `package.json` `version` by hand — CI does this via `sed`.
-- ❌ Upgrading React past 17 without verifying SPFx 1.20 still bundles it (SPFx 1.20 supports React 17; React 18+ may need SPFx 1.21+).
-- ❌ Upgrading Node to >=19 locally without verifying CI’s Node 20 still produces an equivalent `.sppkg`.
+- ❌ Upgrading React past 17 without verifying SPFx 1.23 still bundles it (SPFx 1.23 supports React 17; React 18 arrives with SPFx 1.24, still in preview).
+- ❌ Setting `SPFX_OVERRIDE_NODE_VERSION_CHECK` in CI, or building release packages on Node 24 — local Node 24 dev is fine, releases build on supported Node 22.
 - ❌ Removing `zone.js` until `lf-ui-components` is upgraded to v21 (zoneless) — `@angular/elements` 15/16 still needs Zone.js.
 - ❌ Bypassing the SP Workbench — the SPFx serve workflow is the cheapest way to catch render bugs before tenant upload.
 
