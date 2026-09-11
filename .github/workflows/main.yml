@@ -52,7 +52,6 @@ jobs:
         run: gulp build
 
       - name: Bundle and package
-        continue-on-error: true #TODO: Remove continue-on-error once the issue with gulp bundle is resolved
         run: |
           gulp bundle --ship
           gulp package-solution --ship

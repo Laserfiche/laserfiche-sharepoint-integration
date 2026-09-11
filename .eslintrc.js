@@ -27,7 +27,7 @@ module.exports = {
         '@rushstack/pair-react-dom-render-unmount': 1,
         // STANDARDIZED BY:   @typescript-eslint\eslint-plugin\dist\configs\recommended.json
         '@typescript-eslint/adjacent-overload-signatures': 1,
-                // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
+        // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
         //                    Even if the compiler may be able to infer a type, this inference will be unavailable
         //                    to a person who is reviewing a GitHub diff.  This rule makes writing code harder,
         //                    but writing code is a much less important activity than reading it.
@@ -158,7 +158,7 @@ module.exports = {
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
         'no-control-regex': 2,
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
-        'no-debugger': 1,
+        //'no-debugger': 1,  TODO: Enable this rule once we have a process for removing debugger statements from code before shipping.
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
         'no-delete-var': 2,
         // RATIONALE:         Catches code that is likely to be incorrect
