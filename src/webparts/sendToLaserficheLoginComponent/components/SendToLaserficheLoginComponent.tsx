@@ -22,7 +22,11 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
-import { getEntryWebAccessUrl, getRegion, getSPListURL } from '../../../Utils/Funcs';
+import {
+  getEntryWebAccessUrl,
+  getRegion,
+  getSPListURL,
+} from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 declare global {
@@ -155,7 +159,7 @@ export default function SendToLaserficheLoginComponent(
         } else {
           await handleLoginOrLogoutInMainWindowAsync();
         }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`Unable to initialize sign-in page: ${err}`);
       }
@@ -195,7 +199,10 @@ export default function SendToLaserficheLoginComponent(
       }
     );
 
+    debugger; //TODO: Remove this debugger statement after testing
     await dialog.show();
+    debugger; //TODO: Remove this debugger statement after testing
+
     if (!dialog.successful) {
       console.warn('Could not sign in successfully');
     }
@@ -329,7 +336,10 @@ export default function SendToLaserficheLoginComponent(
         }
       }
     } catch (error) {
-      console.warn(`Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`, error);
+      console.warn(
+        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
+        error
+      );
       return false;
     }
     return false;
