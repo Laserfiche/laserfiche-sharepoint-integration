@@ -199,8 +199,10 @@ export default function SendToLaserficheLoginComponent(
       }
     );
 
+    // eslint-disable-next-line no-debugger -- temporary debugging aid, remove with the statement below
     debugger; //TODO: Remove this debugger statement after testing
     await dialog.show();
+    // eslint-disable-next-line no-debugger -- temporary debugging aid, remove with the statement below
     debugger; //TODO: Remove this debugger statement after testing
 
     if (!dialog.successful) {

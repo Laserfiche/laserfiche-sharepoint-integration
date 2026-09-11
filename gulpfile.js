@@ -60,6 +60,25 @@ build.configureWebpack.mergeConfig({
         }
       }
     );
+
+    // TEMP (debug): keep the `debugger;` statements in SendToLaserficheLoginComponent.tsx
+    // alive in --ship bundles. SPFx minifies through terser, whose compress.drop_debugger
+    // defaults to true, so those statements would otherwise never reach the packaged
+    // .sppkg. Remove this block together with those debugger statements.
+    if (generatedConfiguration.optimization && generatedConfiguration.optimization.minimize) {
+      const terserOptions = (generatedConfiguration.optimization.minimizer || [])
+        .map((plugin) => plugin && plugin.minifier && plugin.minifier._pool && plugin.minifier._pool._workerData)
+        .filter(Boolean);
+      if (terserOptions.length === 0) {
+        throw new Error(
+          'Could not reach the terser options of the SPFx ship minifier, so debugger statements would be stripped from the bundle. Update gulpfile.js for the current @rushstack/module-minifier internals.'
+        );
+      }
+      for (const options of terserOptions) {
+        options.compress = Object.assign({}, options.compress, { drop_debugger: false });
+      }
+    }
+
     return generatedConfiguration;
   }
 });
