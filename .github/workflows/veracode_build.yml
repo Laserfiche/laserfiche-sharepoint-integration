@@ -15,10 +15,10 @@ jobs:
     steps:
 
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Setup Node.js environment
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version-file: .nvmrc
 
@@ -30,11 +30,11 @@ jobs:
 
     - name: 'create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
-      
+
     - name: 'Compress SharePoint files'
       run: tar -czvf ./veracode/sharepoint-integration.tar.gz ./lib
 
-    
+
     - name: Veracode Upload And Scan (Static Application Security Testing)
       uses: veracode/veracode-uploadandscan-action@0.2.10
       with:
