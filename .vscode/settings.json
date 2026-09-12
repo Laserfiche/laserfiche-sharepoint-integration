@@ -1,5 +1,34 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+  // Format with Prettier (see .prettierrc) on every save.
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Only format when a Prettier config is found.
+  "prettier.requireConfig": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   // Configure glob patterns for excluding files and folders in the file explorer.
   "files.exclude": {
     "**/.git": true,
@@ -16,13 +45,16 @@
   "powerHeader.template": "Copyright (c) <author>.\\nLicensed under the <licenseType> License. See LICENSE.md in the project root for license information.",
   "powerHeader.variables": ["<author>='Laserfiche'", "<licenseType>='MIT'"],
   "[html]": {
-    "powerHeader.commentMode": "block"
+    "powerHeader.commentMode": "block",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[css]": {
-    "powerHeader.commentMode": "block"
+    "powerHeader.commentMode": "block",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
-    "powerHeader.commentMode": "block"
+    "powerHeader.commentMode": "block",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "powerHeader.autoInsert.languages": ["plaintext", "Log", "json"]
 }

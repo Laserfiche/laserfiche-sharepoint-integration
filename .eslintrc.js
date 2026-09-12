@@ -21,9 +21,13 @@ module.exports = {
         '@rushstack/hoist-jest-mock': 1,
         // Require regular expressions to be constructed from string constants rather than dynamically building strings at runtime. https://www.npmjs.com/package/@rushstack/eslint-plugin-security
         '@rushstack/security/no-unsafe-regexp': 1,
+        // Require chunk names for dynamic imports in SPFx projects. https://www.npmjs.com/package/@rushstack/eslint-plugin
+        '@rushstack/import-requires-chunk-name': 1,
+        // Ensure that React components rendered with ReactDOM.render() are unmounted with ReactDOM.unmountComponentAtNode(). https://www.npmjs.com/package/@rushstack/eslint-plugin
+        '@rushstack/pair-react-dom-render-unmount': 1,
         // STANDARDIZED BY:   @typescript-eslint\eslint-plugin\dist\configs\recommended.json
         '@typescript-eslint/adjacent-overload-signatures': 1,
-                // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
+        // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
         //                    Even if the compiler may be able to infer a type, this inference will be unavailable
         //                    to a person who is reviewing a GitHub diff.  This rule makes writing code harder,
         //                    but writing code is a much less important activity than reading it.
@@ -281,9 +285,9 @@ module.exports = {
         // ====================================================================
         // @microsoft/eslint-plugin-spfx
         // ====================================================================
-        '@microsoft/spfx/import-requires-chunk-name': 1,
+        // NOTE: import-requires-chunk-name and pair-react-dom-render-unmount moved from
+        // @microsoft/eslint-plugin-spfx to @rushstack/eslint-plugin in SPFx 1.23; see above.
         '@microsoft/spfx/no-require-ensure': 2,
-        '@microsoft/spfx/pair-react-dom-render-unmount': 1,
       },
     },
     {

@@ -1,7 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => {
+jest.mock('@laserfiche/lf-repository-api-client-v2', () => {
   return {
     EntryType: {
       Folder: 'Folder',
@@ -28,7 +28,7 @@ import RepositoryViewWebPart, {
   openNode,
   RepositoryBrowserToolbar,
 } from './RepositoryViewWebPart';
-import { EntryType } from '@laserfiche/lf-repository-api-client';
+import { EntryType } from '@laserfiche/lf-repository-api-client-v2';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import {
   CANNOT_IMPORT_INTO_RECORD_SERIES,

@@ -3,16 +3,15 @@
 
 import { NgElement, WithProperties } from '@angular/elements';
 import {
-  EntryType,
-  PostEntryChildrenRequest,
-  PostEntryChildrenEntryType,
+  CreateEntryRequest,
+  CreateEntryRequestEntryType,
   Entry,
+  EntryType,
   FieldToUpdate,
-  ValueToUpdate,
-  PostEntryWithEdocMetadataRequest,
-  PutFieldValsRequest,
   FileParameter,
-} from '@laserfiche/lf-repository-api-client';
+  ImportEntryRequest,
+  ImportEntryRequestMetadata,
+} from '@laserfiche/lf-repository-api-client-v2';
 import {
   LfRepoTreeNodeService,
   LfFieldsService,
@@ -500,16 +499,21 @@ function ImportFileModal(props: {
         setImportFileValidationMessage(fileNameValidation);
         return;
       }
-      const extension = PathUtils.getCleanedExtension(fileData.name);
+      const extension =
+        PathUtils.getCleanedExtension(
+          PathUtils.getFileExtension(fileData.name)
+        ) ?? '';
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBackslash = fileName.includes('\\');
       try {
-        const entryWithPathExists =
+        const entryWithPath =
           await props.repoClient.entriesClient.getEntryByPath({
-            repoId,
+            repositoryId: repoId,
             fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
           });
-        if (entryWithPathExists) {
+        // v2 returns a GetEntryByPathResponse on success, so the response is
+        // always truthy: test the entry itself.
+        if (entryWithPath?.entry) {
           setShowImport(false);
           const confirmUpload = await getConfirmation(
             ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
@@ -553,18 +557,16 @@ function ImportFileModal(props: {
     const fieldValidation = fieldContainer.current?.forceValidation();
     if (fieldValidation) {
       const fieldValues = fieldContainer.current.getFieldValues();
-      const formattedFieldValues:
-        | {
-            [key: string]: FieldToUpdate;
-          }
-        | undefined = {};
+      const formattedFieldValues: FieldToUpdate[] = [];
 
       for (const key in fieldValues) {
         const value = fieldValues[key];
-        formattedFieldValues[key] = new FieldToUpdate({
-          ...value,
-          values: value.values.map((val) => new ValueToUpdate(val)),
-        });
+        formattedFieldValues.push(
+          new FieldToUpdate({
+            name: key,
+            values: value?.values?.map((val) => val.value),
+          })
+        );
       }
 
       const templateValue = getTemplateName();
@@ -574,16 +576,14 @@ function ImportFileModal(props: {
       }
 
       setFileUploadPercentage(80);
-      const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-        new PostEntryWithEdocMetadataRequest({
-          template: templateName,
-          metadata: new PutFieldValsRequest({
-            fields: formattedFieldValues,
-          }),
+      const fieldsmetadata: ImportEntryRequestMetadata =
+        new ImportEntryRequestMetadata({
+          templateName,
+          fields: formattedFieldValues,
         });
+      // v2 has no separate `extension` parameter: the extension has to be part
+      // of the electronic document's file name.
       const fileNameWithExt = fileName + extension;
-      const fileextensionperiod = extension;
-      const fileNameNoPeriod = fileName;
       const parentEntryId = props.parentItem.id;
 
       const file: FileParameter = {
@@ -591,16 +591,21 @@ function ImportFileModal(props: {
         fileName: fileNameWithExt,
       };
       const requestParameters = {
-        repoId,
-        parentEntryId: Number.parseInt(parentEntryId, 10),
-        electronicDocument: file,
-        autoRename: true,
-        fileName: fileNameNoPeriod,
-        request: fieldsmetadata,
-        extension: fileextensionperiod,
+        repositoryId: repoId,
+        entryId: Number.parseInt(parentEntryId, 10),
+        file,
+        request: new ImportEntryRequest({
+          name: fileName,
+          autoRename: true,
+          // v2 defaults this to false, which would store txt/tif/tiff/bmp/pcx/
+          // jpg/jpeg/gif/png files as image pages rather than as the
+          // electronic document. v1 always stored the edoc.
+          importAsElectronicDocument: true,
+          metadata: fieldsmetadata,
+        }),
       };
 
-      await props.repoClient.entriesClient.importDocument(requestParameters);
+      await props.repoClient.entriesClient.importEntry(requestParameters);
       setFileUploadPercentage(100);
       props.closeImportModal();
     } else {
@@ -774,22 +779,19 @@ function CreateFolderModal(props: {
         setCreateFolderNameValidationMessage(undefined);
 
         const repoId = await props.repoClient.getCurrentRepoId();
-        const postEntryChildrenRequest: PostEntryChildrenRequest =
-          new PostEntryChildrenRequest({
-            entryType: PostEntryChildrenEntryType.Folder,
-            name: folderName,
-          });
+        const createEntryRequest: CreateEntryRequest = new CreateEntryRequest({
+          entryType: CreateEntryRequestEntryType.Folder,
+          name: folderName,
+        });
         const requestParameters = {
-          repoId,
+          repositoryId: repoId,
           entryId: Number.parseInt(props.parentItem.id, 10),
-          request: postEntryChildrenRequest,
+          request: createEntryRequest,
         };
         try {
           const array = [];
           const newFolderEntry: Entry =
-            await props.repoClient.entriesClient.createOrCopyEntry(
-              requestParameters
-            );
+            await props.repoClient.entriesClient.createEntry(requestParameters);
 
           array.push(newFolderEntry);
           props.closeCreateFolderModal();

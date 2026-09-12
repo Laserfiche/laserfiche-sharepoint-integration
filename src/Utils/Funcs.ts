@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { UrlUtils } from '@laserfiche/lf-js-utils';
-import { WFieldType } from '@laserfiche/lf-repository-api-client';
+import { FieldType } from '@laserfiche/lf-repository-api-client-v2';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import { SPDEVMODE_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
@@ -51,20 +51,20 @@ export function getRegion(): string {
   return region;
 }
 
-export function getCorrespondingTypeFieldName(fieldType: WFieldType): string {
+export function getCorrespondingTypeFieldName(fieldType: FieldType): string {
   switch (fieldType) {
-    case WFieldType.Date:
-    case WFieldType.List:
-    case WFieldType.Time:
-    case WFieldType.Number:
+    case FieldType.Date:
+    case FieldType.List:
+    case FieldType.Time:
+    case FieldType.Number:
       return fieldType;
-    case WFieldType.DateTime:
+    case FieldType.DateTime:
       return 'Date/Time';
-    case WFieldType.String:
+    case FieldType.String:
       return 'Text';
-    case WFieldType.ShortInteger:
+    case FieldType.ShortInteger:
       return 'Integer';
-    case WFieldType.LongInteger:
+    case FieldType.LongInteger:
       return 'Long Integer';
   }
 }
