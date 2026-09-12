@@ -158,7 +158,7 @@ module.exports = {
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
         'no-control-regex': 2,
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
-        //'no-debugger': 1,  TODO: Enable this rule once we have a process for removing debugger statements from code before shipping.
+        'no-debugger': 1,
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
         'no-delete-var': 2,
         // RATIONALE:         Catches code that is likely to be incorrect
