@@ -112,6 +112,7 @@ export default function SendToLaserficheLoginComponent(
   const loginText: JSX.Element | undefined = getLoginText();
 
   const loginCompletedInPopup: () => Promise<void> = async () => {
+    // eslint-disable-next-line no-debugger -- temporary debugging aid, remove with the statement below
     debugger; //TODO: Remove this debugger statement after testing
 
     clearPopupTimeout();
