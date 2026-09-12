@@ -48,6 +48,30 @@ const ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY =
   "Once signed in you'll be able to view your Laserfiche repository.";
 
 const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+// TEMP (debug): traces the popup -> opener sign-in handshake. Remove together
+// with the debugger statement in SendToLaserficheLoginComponent.
+function debugLog(message: string, data?: Record<string, unknown>): void {
+  let payload = '';
+  try {
+    payload = data ? JSON.stringify(data) : '';
+  } catch (err) {
+    payload = `[unserializable: ${err}]`;
+  }
+  console.log(`[lf-repo] ${message}`, payload);
+}
+
+// The opener only learns about a sign-in when lf-login writes this key, which
+// is what raises the storage event that makes it emit loginCompleted.
+function getStoredAccessTokenKey(): string | undefined {
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const key = window.localStorage.key(i);
+    if (key?.startsWith('lf-login.') && key.endsWith('.access-token')) {
+      return key;
+    }
+  }
+  return undefined;
+}
+
 export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
@@ -97,12 +121,29 @@ export default function LaserficheRepositoryAccessWebPart(
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
       try {
         const loginCompleted: () => Promise<void> = async () => {
+          debugLog('loginCompleted received by web part', {
+            state: loginComponent.current?.state,
+            tokenKey: getStoredAccessTokenKey() ?? 'none',
+          });
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         };
         const logoutCompleted: () => Promise<void> = async () => {
+          debugLog('logoutCompleted received by web part');
           setLoggedIn(false);
         };
+
+        // The popup signs in on its own lf-login element; this one only finds
+        // out through the storage event raised when the token is written.
+        window.addEventListener('storage', (event: StorageEvent) => {
+          if (event.key?.startsWith('lf-login.')) {
+            debugLog('storage event seen by web part', {
+              key: event.key,
+              hadOldValue: !!event.oldValue,
+              hasNewValue: !!event.newValue,
+            });
+          }
+        });
 
         loginComponent.current.addEventListener(
           'loginCompleted',
@@ -112,6 +153,11 @@ export default function LaserficheRepositoryAccessWebPart(
           'logoutCompleted',
           logoutCompleted
         );
+        debugLog('web part initialized', {
+          state: loginComponent.current.state,
+          hasCredentials: !!loginComponent.current.authorization_credentials,
+          tokenKey: getStoredAccessTokenKey() ?? 'none',
+        });
         if (loginComponent.current.authorization_credentials) {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
@@ -171,10 +217,25 @@ export default function LaserficheRepositoryAccessWebPart(
     }
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
+    debugLog('opened sign-in popup', { url });
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
+        if (event.data?.lfSignInDebug) {
+          console.log(`[lf-signin -> opener] ${event.data.lfSignInDebug}`);
+          return;
+        }
+        debugLog('message from popup', {
+          data:
+            typeof event.data === 'string'
+              ? event.data
+              : JSON.stringify(event.data),
+        });
         if (event.data === LOGIN_WINDOW_SUCCESS) {
           loginWindow.close();
+          debugLog('closed popup on success', {
+            tokenKey: getStoredAccessTokenKey() ?? 'none',
+            state: loginComponent.current?.state,
+          });
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
           if (parsedError.ErrorMessage && parsedError.ErrorType) {
