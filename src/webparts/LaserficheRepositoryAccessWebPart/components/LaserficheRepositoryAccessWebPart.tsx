@@ -7,6 +7,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
   AbortedLoginError,
   LfLoginComponent,
+  LoginType,
 } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
@@ -268,6 +269,7 @@ export default function LaserficheRepositoryAccessWebPart(
             redirect_behavior='Replace'
             client_id={clientId}
             authorize_url_host_name={region}
+            login_type={LoginType.Cloud}
             ref={loginComponent}
             hidden
           />

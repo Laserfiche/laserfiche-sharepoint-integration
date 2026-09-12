@@ -8,6 +8,7 @@ import {
   AbortedLoginError,
   LfLoginComponent,
   LoginState,
+  LoginType,
 } from '@laserfiche/types-lf-ui-components';
 import {
   clientId,
@@ -117,22 +118,31 @@ export default function SendToLaserficheLoginComponent(
     }
   };
 
+  const getStoredAccessToken: () => string | undefined = () => {
+    const key = getStoredAccessTokenKey();
+    return key ? window.localStorage.getItem(key) ?? undefined : undefined;
+  };
+
   const startTokenPoll: () => void = () => {
     clearTokenPoll();
+    // A token from an earlier sign-in is usually already sitting in storage, so
+    // watch for the value changing rather than for the key existing.
+    const tokenAtStart = getStoredAccessToken();
     let elapsedMs = 0;
     tokenPoll.current = setInterval(() => {
       elapsedMs += TOKEN_POLL_INTERVAL_MS;
-      const tokenKey = getStoredAccessTokenKey();
-      if (tokenKey) {
-        debugLog('access token reached localStorage', {
-          key: tokenKey,
+      const token = getStoredAccessToken();
+      if (token && token !== tokenAtStart) {
+        debugLog('a new access token was written to localStorage', {
+          key: getStoredAccessTokenKey(),
           afterMs: elapsedMs,
           loginCompletedAlreadyFired: loginCompletedFired.current,
           state: loginComponent.current?.state,
         });
         clearTokenPoll();
       } else if (elapsedMs >= POPUP_LOGIN_TIMEOUT_MS) {
-        debugLog('access token never reached localStorage', {
+        debugLog('no new access token was written', {
+          hadTokenAtStart: !!tokenAtStart,
           state: loginComponent.current?.state,
         });
         clearTokenPoll();
@@ -545,6 +555,7 @@ export default function SendToLaserficheLoginComponent(
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}
+          login_type={LoginType.Cloud}
           ref={loginComponent}
           hidden
         />
