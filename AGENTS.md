@@ -44,7 +44,7 @@ Documentation site (Jekyll) lives under `jekyll_files/` and is published to GitH
 | React | **17.0.1** (NOT 18) | `package.json`; React 18 only lands in the SPFx 1.24 *preview* |
 | Angular Elements | **21.2.x** | for `lf-ui-components` wrapper; types only (`NgElement`/`WithProperties`) |
 | `@laserfiche/lf-ui-components` | **21.1.x** | zoneless — no `zone.js`; the `cdn/` bundle self-registers the custom elements |
-| Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed) | `package.json` `test` script |
+| Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed). Transform is **`babel-jest` only** — no `ts-jest`, see Testing | `package.json` `test` script, `jest.config.cjs` |
 | ESLint | **8.57.1** with `@microsoft/eslint-config-spfx` | `.eslintrc.js` |
 | Prettier | repo config | `.prettierrc` |
 | Gulp | 4.0.2 (SPFx build wrapper) | `gulpfile.js` |
@@ -110,7 +110,7 @@ npm run package-solution             # gulp package-solution --ship
 
 # Tests
 npm test                             # jest (v30)
-# 6 test suites, 29 tests as of 1.0.0.566. All must pass for PR merge.
+# 7 test suites, 37 tests on the 1.23.2 branch. All must pass for PR merge.
 
 # Clean
 npm run clean                        # gulp clean (wipes lib/, temp/, sharepoint/solution/)
@@ -220,8 +220,10 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` 
 
 ## Testing
 
-- `npm test` runs Jest with `--experimental-vm-modules` (required for ESM in some deps).
+- `npm test` runs plain `jest` (v30). The `--experimental-vm-modules` flag is no longer needed.
 - Tests live next to source as `*.test.ts(x)` or `*.spec.ts(x)`.
+- **The transform is `babel-jest` only** — `jest.config.cjs` maps `^.+\.(js|jsx|ts|tsx)$` to `babel-jest`, configured by `babel.config.cjs` (`preset-env` + `preset-react` + `preset-typescript`). Do **not** re-add `ts-jest`: its preset appends a second, unreachable transform entry (Jest picks the first pattern that matches, and the `babel-jest` one always wins), so it is dead weight that only drifts out of version step with `jest`.
+- Babel strips types without checking them, so **type errors in tests surface at `gulp build`, not at `npm test`** — `tsconfig.json` includes `src/**/*.ts(x)`, which covers the test files and emits them to `lib/`. CI runs `gulp build` before `npm test`; locally, run both.
 - All `@microsoft/sp-*` and `@laserfiche/*` imports are mocked under `src/__mocks__/`. If you add a new SP API import in a tested code path, you may need to extend the mock.
 - `npm run serve` for SharePoint Workbench (interactive verification with `spDevMode` localStorage flag to point at `a.clouddev.laserfiche.com`).
 - Manual verification in a SharePoint tenant: upload `.sppkg` to `https://<tenant>.sharepoint.com/sites/appcatalog`, install on a site, add the web parts to a page, **check DevTools Console for CSP errors** before merging anything that changes script loads.
