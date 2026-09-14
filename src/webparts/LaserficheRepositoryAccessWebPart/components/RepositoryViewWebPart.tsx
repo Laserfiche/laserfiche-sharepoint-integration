@@ -209,20 +209,14 @@ export default function RepositoryViewComponent(props: {
                 webClientUrl={props.webClientUrl}
                 refreshFolderBrowserAsync={refreshFolderBrowserAsync}
               />
-              <div
-                className='lf-folder-browser-sample-container'
-                style={{ height: '400px' }}
-              >
-                <div className='repository-browser'>
-                  <lf-repository-browser
-                    ref={repositoryBrowser}
-                    ok_button_text='Okay'
-                    cancel_button_text='Cancel'
-                    multiple='false'
-                    style={{ height: '420px' }}
-                    isSelectable={isNodeSelectable}
-                  />
-                </div>
+              <div className={styles.repositoryBrowserContainer}>
+                <lf-repository-browser
+                  ref={repositoryBrowser}
+                  ok_button_text='Okay'
+                  cancel_button_text='Cancel'
+                  multiple='false'
+                  isSelectable={isNodeSelectable}
+                />
               </div>
             </>
           )}

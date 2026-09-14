@@ -147,3 +147,12 @@
 .lfComponentContainer {
   margin: 5px;
 }
+
+/* lf-repository-browser sizes its own internals off a definite height, so the
+   height belongs on one box only. The element fills this container via its own
+   flex-grow, which keeps the two from disagreeing. */
+.repositoryBrowserContainer {
+  display: flex;
+  flex-direction: column;
+  height: 420px;
+}
