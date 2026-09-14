@@ -360,8 +360,18 @@ export default function SendToLaserficheLoginComponent(
 
   async function handleLoginOrLogoutInPopupAsync(): Promise<void> {
     if (loginComponent.current.state === LoginState.LoggedIn) {
+      const wantsLogout =
+        new URLSearchParams(window.location.search).get('action') === 'logout';
+      if (!wantsLogout) {
+        // The opener asked for a sign-in and this element already holds a
+        // session. Signing out here is what made clicking "Sign in" sign the
+        // user out; report success instead and let the opener adopt it.
+        debugLog('already signed in, reporting success without signing out');
+        postToOpenerOnce(LOGIN_WINDOW_SUCCESS);
+        return;
+      }
       logoutRequested.current = true;
-      debugLog('already signed in, clicking logout');
+      debugLog('signing out because the opener asked for it');
       const logoutButton = loginComponent.current.querySelector(
         '.login-button'
       ) as HTMLButtonElement;

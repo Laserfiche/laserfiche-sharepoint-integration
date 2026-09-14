@@ -7,6 +7,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
   AbortedLoginError,
   LfLoginComponent,
+  LoginState,
   LoginType,
 } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
@@ -87,6 +88,13 @@ export default function LaserficheRepositoryAccessWebPart(
   const [messageErrorModal, setMessageErrorModal] = useState<
     JSX.Element | undefined
   >(undefined);
+  const loginWindowRef = React.useRef<Window | undefined>(undefined);
+  const messageListenerAttached = React.useRef(false);
+  // Assigned inside the effect so the popup handler can reconcile the signed-in
+  // state without duplicating the repository client setup.
+  const syncSignedInState = React.useRef<(() => Promise<void>) | undefined>(
+    undefined
+  );
 
   const region = getRegion();
 
@@ -115,6 +123,25 @@ export default function LaserficheRepositoryAccessWebPart(
           // user is not logged in
         }
       };
+
+    // A sign-in can finish without this element ever raising loginCompleted: it
+    // may have restored the session before we subscribed, or the popup may have
+    // found an existing session and changed no storage at all. So reconcile
+    // explicitly at the points we know something happened.
+    const syncSignedInStateAsync: () => Promise<void> = async () => {
+      const signedIn =
+        loginComponent.current?.state === LoginState.LoggedIn ||
+        !!loginComponent.current?.authorization_credentials;
+      debugLog('syncing signed-in state', {
+        signedIn,
+        state: loginComponent.current?.state,
+      });
+      if (signedIn) {
+        await getAndInitializeRepositoryClientAndServicesAsync();
+      }
+      setLoggedIn(signedIn);
+    };
+    syncSignedInState.current = syncSignedInStateAsync;
 
     const initializeComponentAsync: () => Promise<void> = async () => {
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
@@ -159,10 +186,7 @@ export default function LaserficheRepositoryAccessWebPart(
           hasCredentials: !!loginComponent.current.authorization_credentials,
           tokenKey: getStoredAccessTokenKey() ?? 'none',
         });
-        if (loginComponent.current.authorization_credentials) {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          setLoggedIn(true);
-        }
+        await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`Unable to initialize repository explorer: ${err}`);
@@ -199,9 +223,12 @@ export default function LaserficheRepositoryAccessWebPart(
   }
 
   async function clickLogin(): Promise<void> {
+    // The popup cannot tell a sign-in apart from a sign-out by looking at its
+    // own element state, so say which one this click means.
+    const action = loggedIn ? 'logout' : 'login';
     const url =
       props.context.pageContext.web.absoluteUrl +
-      '/SitePages/LaserficheSignIn.aspx?autologin';
+      `/SitePages/LaserficheSignIn.aspx?autologin&action=${action}`;
     const hasSignIn = await pageConfigurationCheck();
     if (!hasSignIn) {
       const mes = (
@@ -218,43 +245,62 @@ export default function LaserficheRepositoryAccessWebPart(
     }
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
-    debugLog('opened sign-in popup', { url });
-    window.addEventListener('message', (event) => {
-      if (event.origin === window.origin) {
-        if (event.data?.lfSignInDebug) {
-          console.log(`[lf-signin -> opener] ${event.data.lfSignInDebug}`);
-          return;
-        }
-        debugLog('message from popup', {
-          data:
-            typeof event.data === 'string'
-              ? event.data
-              : JSON.stringify(event.data),
-        });
-        if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindow.close();
-          debugLog('closed popup on success', {
-            tokenKey: getStoredAccessTokenKey() ?? 'none',
-            state: loginComponent.current?.state,
-          });
-        } else if (event.data) {
-          const parsedError: AbortedLoginError = event.data;
-          if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindow.close();
-            const mes = (
-              <MessageDialog
-                title='Sign In Failed'
-                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-                clickOkay={() => {
-                  setMessageErrorModal(undefined);
-                }}
-              />
-            );
-            setMessageErrorModal(mes);
-          }
-        }
-      }
+    loginWindowRef.current = loginWindow;
+    debugLog('opened sign-in popup', { url, action });
+
+    // Attached once: this used to be registered per click, so a second sign-in
+    // left two handlers processing every message from the popup.
+    if (!messageListenerAttached.current) {
+      messageListenerAttached.current = true;
+      window.addEventListener('message', (event: MessageEvent) => {
+        void handlePopupMessageAsync(event);
+      });
+    }
+  }
+
+  async function handlePopupMessageAsync(event: MessageEvent): Promise<void> {
+    if (event.origin !== window.origin) {
+      return;
+    }
+    if (event.data?.lfSignInDebug) {
+      console.log(`[lf-signin -> opener] ${event.data.lfSignInDebug}`);
+      return;
+    }
+    debugLog('message from popup', {
+      data:
+        typeof event.data === 'string'
+          ? event.data
+          : JSON.stringify(event.data),
     });
+    if (event.data === LOGIN_WINDOW_SUCCESS) {
+      loginWindowRef.current?.close();
+      loginWindowRef.current = undefined;
+      debugLog('closed popup on success', {
+        tokenKey: getStoredAccessTokenKey() ?? 'none',
+        state: loginComponent.current?.state,
+      });
+      // The popup may have signed in on its own element without touching this
+      // one, so ask directly rather than waiting for an event that may not come.
+      await syncSignedInState.current?.();
+      return;
+    }
+    if (event.data) {
+      const parsedError: AbortedLoginError = event.data;
+      if (parsedError.ErrorMessage && parsedError.ErrorType) {
+        loginWindowRef.current?.close();
+        loginWindowRef.current = undefined;
+        const mes = (
+          <MessageDialog
+            title='Sign In Failed'
+            message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+            clickOkay={() => {
+              setMessageErrorModal(undefined);
+            }}
+          />
+        );
+        setMessageErrorModal(mes);
+      }
+    }
   }
 
   return (
