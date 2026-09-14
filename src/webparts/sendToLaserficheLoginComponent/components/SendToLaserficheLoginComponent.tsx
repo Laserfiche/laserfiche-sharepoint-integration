@@ -75,6 +75,7 @@ export default function SendToLaserficheLoginComponent(
   );
 
   const loginCompletedFired = React.useRef(false);
+  const logoutRequested = React.useRef(false);
   const tokenPoll = React.useRef<ReturnType<typeof setInterval> | undefined>(
     undefined
   );
@@ -246,14 +247,22 @@ export default function SendToLaserficheLoginComponent(
     const errorOccurred = (ev as CustomEvent).detail as
       | AbortedLoginError
       | undefined;
-    clearPopupTimeout();
-    clearTokenPoll();
     debugLog('logoutCompleted fired in popup', {
       errorOccurred: errorOccurred ? JSON.stringify(errorOccurred) : 'none',
+      logoutRequested: logoutRequested.current,
       state: loginComponent.current?.state,
     });
-    // A clean logout releases the popup; an aborted login reports why, so the
-    // opener can show the failure instead of just closing the window.
+
+    // lf-login also raises this with no detail when it decides nobody is signed
+    // in yet, which is the normal opening move of a sign-in. Releasing the popup
+    // on that would close it before it ever reaches the sign-in page, so only an
+    // aborted login or a logout we asked for ends the popup here.
+    if (!errorOccurred && !logoutRequested.current) {
+      return;
+    }
+
+    clearPopupTimeout();
+    clearTokenPoll();
     postToOpenerOnce(errorOccurred ?? LOGIN_WINDOW_SUCCESS);
   };
 
@@ -351,6 +360,8 @@ export default function SendToLaserficheLoginComponent(
 
   async function handleLoginOrLogoutInPopupAsync(): Promise<void> {
     if (loginComponent.current.state === LoginState.LoggedIn) {
+      logoutRequested.current = true;
+      debugLog('already signed in, clicking logout');
       const logoutButton = loginComponent.current.querySelector(
         '.login-button'
       ) as HTMLButtonElement;
