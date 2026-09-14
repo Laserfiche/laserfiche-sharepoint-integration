@@ -45,6 +45,7 @@ Documentation site (Jekyll) lives under `jekyll_files/` and is published to GitH
 | Angular Elements | **21.2.x** | for `lf-ui-components` wrapper; types only (`NgElement`/`WithProperties`) |
 | `@laserfiche/lf-ui-components` | **21.1.x** | zoneless — no `zone.js`; the `cdn/` bundle self-registers the custom elements |
 | Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed). Transform is **`babel-jest` only** — no `ts-jest`, see Testing | `package.json` `test` script, `jest.config.cjs` |
+| Testing Library | `@testing-library/react` **12.1.5**, `@testing-library/jest-dom` **6.9.1** (pinned exactly) — both at their React-17 ceiling, see Testing | `package.json` |
 | ESLint | **8.57.1** with `@microsoft/eslint-config-spfx` | `.eslintrc.js` |
 | Prettier | repo config | `.prettierrc` |
 | Gulp | 4.0.2 (SPFx build wrapper) | `gulpfile.js` |
@@ -224,6 +225,7 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` 
 - Tests live next to source as `*.test.ts(x)` or `*.spec.ts(x)`.
 - **The transform is `babel-jest` only** — `jest.config.cjs` maps `^.+\.(js|jsx|ts|tsx)$` to `babel-jest`, configured by `babel.config.cjs` (`preset-env` + `preset-react` + `preset-typescript`). Do **not** re-add `ts-jest`: its preset appends a second, unreachable transform entry (Jest picks the first pattern that matches, and the `babel-jest` one always wins), so it is dead weight that only drifts out of version step with `jest`.
 - Babel strips types without checking them, so **type errors in tests surface at `gulp build`, not at `npm test`** — `tsconfig.json` includes `src/**/*.ts(x)`, which covers the test files and emits them to `lib/`. CI runs `gulp build` before `npm test`; locally, run both.
+- **Testing Library is capped by React 17.** `@testing-library/react` **12.1.5** is the last release that accepts React 17 (its peer is `react: <18.0.0`; v13+ requires React 18). RTL 12 depends on `@testing-library/dom` **^8**, and that in turn caps jest-dom: `@testing-library/jest-dom` **6.10.0 and every 7.x** declare a peer of `@testing-library/dom >=10 <11` *and* import `queries`/`prettyDOM` from it at runtime, so installing one loads a **second** copy of `@testing-library/dom` (v10 for jest-dom, v8 for RTL) into the same test process. **6.9.1 is the last jest-dom with no `@testing-library/dom` dependency at all**, which is why it is pinned exactly rather than carried on a caret — `^6.9.1` would float to 6.10.0 and reintroduce the duplicate. All three move together only when React 18 lands with SPFx 1.24: React 18 → RTL 16 → dom 10 → jest-dom 7.
 - All `@microsoft/sp-*` and `@laserfiche/*` imports are mocked under `src/__mocks__/`. If you add a new SP API import in a tested code path, you may need to extend the mock.
 - `npm run serve` for SharePoint Workbench (interactive verification with `spDevMode` localStorage flag to point at `a.clouddev.laserfiche.com`).
 - Manual verification in a SharePoint tenant: upload `.sppkg` to `https://<tenant>.sharepoint.com/sites/appcatalog`, install on a site, add the web parts to a page, **check DevTools Console for CSP errors** before merging anything that changes script loads.
@@ -254,6 +256,7 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` 
 - ❌ Upgrading React past 17 without verifying SPFx 1.23 still bundles it (SPFx 1.23 supports React 17; React 18 arrives with SPFx 1.24, still in preview).
 - ❌ Setting `SPFX_OVERRIDE_NODE_VERSION_CHECK` in CI, or building release packages on Node 24 — local Node 24 dev is fine, releases build on supported Node 22.
 - ❌ Bypassing the SP Workbench — the SPFx serve workflow is the cheapest way to catch render bugs before tenant upload.
+- ❌ Bumping `@testing-library/react` past **12.x** or `@testing-library/jest-dom` past **6.9.1** while this repo is on React 17 — see Testing. RTL 13+ hard-requires React 18; jest-dom 6.10+/7.x drag in a duplicate `@testing-library/dom`. Both are gated on the same SPFx 1.24 / React 18 move.
 - ❌ Putting a caret on `@laserfiche/types-lf-ui-components` while it is on a `--preview-` version. `lf-ui-components-services` declares its peer as `^21.1.0`, and semver caret ranges do **not** match prerelease versions, so `npm i` fails with `ERESOLVE`. Pin it **exactly** and add a matching `overrides` entry (a caret plus an override is rejected outright with `EOVERRIDE`). Keep the pinned version in step with `lf-ui-components`.
 - ❌ Dropping the explicit `@angular/*` block from `devDependencies`. Angular is not bundled — it lives inside the vendored `cdn/lf-ui-components.js` — but without those entries `@angular/cdk` (peers `^21 || ^22`) floats `@angular/common` to 22.x and breaks `lf-ui-components`'s `^21.2.8` peer.
 
