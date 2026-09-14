@@ -68,7 +68,7 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
     ReactDOM.render(element, this.domElement);
   }
 
-  protected async onAfterClose(): Promise<void> {
+  protected override async onAfterClose(): Promise<void> {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
     if (this.closeParent) {

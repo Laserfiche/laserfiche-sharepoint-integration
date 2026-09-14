@@ -56,5 +56,14 @@
     "powerHeader.commentMode": "block",
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "powerHeader.autoInsert.languages": ["plaintext", "Log", "json"]
+  "powerHeader.autoInsert.languages": ["plaintext", "Log", "json"],
+  "cSpell.words": [
+    "downleveled",
+    "edoc",
+    "Laserfiche",
+    "listview",
+    "spfx",
+    "webpart",
+    "webparts"
+  ]
 }
