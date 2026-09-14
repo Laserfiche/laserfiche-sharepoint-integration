@@ -85,6 +85,7 @@ export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
   const [webClientUrl, setWebClientUrl] = React.useState('');
+  const [customerId, setCustomerId] = React.useState('');
   const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
@@ -127,6 +128,7 @@ export default function LaserficheRepositoryAccessWebPart(
         setWebClientUrl(
           loginComponent?.current?.account_endpoints.webClientUrl
         );
+        setCustomerId(loginComponent?.current?.account_id);
         if (accessToken) {
           await ensureRepoClientInitializedAsync();
         } else {
@@ -363,6 +365,7 @@ export default function LaserficheRepositoryAccessWebPart(
         )}
         <RepositoryViewComponent
           webClientUrl={webClientUrl}
+          customerId={customerId}
           repoClient={repoClient}
           loggedIn={loggedIn}
         />

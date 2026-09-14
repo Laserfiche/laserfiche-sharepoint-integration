@@ -37,12 +37,14 @@ export class SaveDocumentToLaserfiche {
     const accessToken = loginComponent?.authorization_credentials?.accessToken;
     if (accessToken) {
       const webClientUrl = loginComponent?.account_endpoints.webClientUrl;
+      const customerId = loginComponent?.account_id;
 
       if (this.validRepoClient && this.spFileMetadata) {
         const spFileData = await this.GetFileData();
         const result = await this.saveFileToLaserficheAsync(
           spFileData,
-          webClientUrl
+          webClientUrl,
+          customerId
         );
         return result;
       } else {
@@ -82,7 +84,8 @@ export class SaveDocumentToLaserfiche {
 
   async saveFileToLaserficheAsync(
     spFileData: Blob,
-    webClientUrl: string
+    webClientUrl: string,
+    customerId: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
     if (spFileData && this.validRepoClient) {
       const laserficheProfileName = this.spFileMetadata.lfProfile;
@@ -90,12 +93,14 @@ export class SaveDocumentToLaserfiche {
       if (laserficheProfileName) {
         result = await this.sendToLaserficheWithMappingAsync(
           spFileData,
-          webClientUrl
+          webClientUrl,
+          customerId
         );
       } else {
         result = await this.sendToLaserficheNoMappingAsync(
           spFileData,
-          webClientUrl
+          webClientUrl,
+          customerId
         );
       }
       return result;
@@ -105,7 +110,8 @@ export class SaveDocumentToLaserfiche {
 
   async sendToLaserficheWithMappingAsync(
     fileData: Blob,
-    webClientUrl: string
+    webClientUrl: string,
+    customerId: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
     const metadata: ImportEntryRequestMetadata | undefined = this
       .spFileMetadata.templateName
@@ -169,7 +175,8 @@ export class SaveDocumentToLaserfiche {
         entryId.toString(),
         webClientUrl,
         false,
-        repoId
+        repoId,
+        customerId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
@@ -213,7 +220,8 @@ export class SaveDocumentToLaserfiche {
 
   async sendToLaserficheNoMappingAsync(
     fileData: Blob,
-    webClientUrl: string
+    webClientUrl: string,
+    customerId: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
     const fileNameWithExt = this.spFileMetadata.fileName;
 
@@ -245,7 +253,8 @@ export class SaveDocumentToLaserfiche {
         entryId.toString(),
         webClientUrl,
         false,
-        repoId
+        repoId,
+        customerId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));

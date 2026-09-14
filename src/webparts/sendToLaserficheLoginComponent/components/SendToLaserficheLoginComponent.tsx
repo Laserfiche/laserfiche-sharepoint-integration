@@ -209,7 +209,9 @@ export default function SendToLaserficheLoginComponent(
     webClientUrl = getEntryWebAccessUrl(
       '1',
       loginComponent.current?.account_endpoints.webClientUrl,
-      true
+      true,
+      undefined,
+      loginComponent.current?.account_id
     );
   }
   const loginText: JSX.Element | undefined = getLoginText();

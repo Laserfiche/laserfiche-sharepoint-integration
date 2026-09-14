@@ -10,25 +10,28 @@ export function getEntryWebAccessUrl(
   nodeId: string,
   waUrl: string,
   isContainer: boolean,
-  repoId?: string
+  repoId?: string,
+  customerId?: string
 ): string | undefined {
   if (!nodeId || nodeId?.length === 0 || !waUrl || waUrl?.length === 0) {
     return undefined;
   }
+  const commonQueryParams: UrlUtils.QueryParameter[] = [];
+  if (repoId) {
+    commonQueryParams.push(['repo', repoId]);
+  }
+  if (customerId) {
+    commonQueryParams.push(['customerId', customerId]);
+  }
   let newUrl: string;
   if (isContainer) {
-    const queryParams: UrlUtils.QueryParameter[] = repoId
-      ? [['repo', repoId]]
-      : [];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);
+    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', commonQueryParams);
     newUrl += `#?id=${encodeURIComponent(nodeId)}`;
   } else {
-    const queryParams: UrlUtils.QueryParameter[] = repoId
-      ? [
-          ['repo', repoId],
-          ['docid', nodeId],
-        ]
-      : [['docid', nodeId]];
+    const queryParams: UrlUtils.QueryParameter[] = [
+      ...commonQueryParams,
+      ['docid', nodeId],
+    ];
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
   }
   return newUrl;

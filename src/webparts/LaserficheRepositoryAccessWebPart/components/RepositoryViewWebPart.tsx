@@ -115,6 +115,7 @@ export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
 export default function RepositoryViewComponent(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
+  customerId: string;
   loggedIn: boolean;
 }): JSX.Element {
   const repositoryBrowser: React.RefObject<
@@ -207,6 +208,7 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
+                customerId={props.customerId}
                 refreshFolderBrowserAsync={refreshFolderBrowserAsync}
               />
               <div className={styles.repositoryBrowserContainer}>
@@ -232,6 +234,7 @@ export async function openNode(
   props: {
     repoClient: IRepositoryApiClientExInternal;
     webClientUrl: string;
+    customerId: string;
     loggedIn: boolean;
   }
 ): Promise<void> {
@@ -249,7 +252,8 @@ export async function openNode(
         openedNode.id,
         props.webClientUrl,
         openedNode.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     }
@@ -259,6 +263,7 @@ export async function openNode(
 export function RepositoryBrowserToolbar(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
+  customerId: string;
   selectedItem: LfRepoTreeNode;
   parentItem: LfRepoTreeNode;
   loggedIn: boolean;
@@ -284,7 +289,8 @@ export function RepositoryBrowserToolbar(props: {
         props.selectedItem.id,
         props.webClientUrl,
         props.selectedItem.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     } else if (props.parentItem?.id) {
@@ -292,7 +298,8 @@ export function RepositoryBrowserToolbar(props: {
         props.parentItem.id,
         props.webClientUrl,
         props.parentItem.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     } else {

@@ -65,6 +65,7 @@ describe('RepositoryViewWebPart', () => {
       <RepositoryViewWebPart
         repoClient={repoClient}
         webClientUrl={''}
+        customerId={''}
         loggedIn={false}
       />
     );
@@ -207,6 +208,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -229,6 +231,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -249,6 +252,7 @@ describe('openNode', () => {
   let props: {
     repoClient: IRepositoryApiClientExInternal;
     webClientUrl: string;
+    customerId: string;
     loggedIn: boolean;
   };
 
@@ -259,6 +263,7 @@ describe('openNode', () => {
         getCurrentRepoId: jest.fn().mockResolvedValue('repoId'),
       } as unknown as IRepositoryApiClientExInternal,
       webClientUrl: 'http://webclient.url',
+      customerId: 'customerId',
       loggedIn: true,
     };
   });
@@ -309,7 +314,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });
@@ -335,7 +341,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });
