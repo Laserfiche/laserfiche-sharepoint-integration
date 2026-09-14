@@ -12,6 +12,7 @@ import {
 } from '@laserfiche/types-lf-ui-components';
 import {
   clientId,
+  repositoryScopes,
   LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
@@ -580,6 +581,7 @@ export default function SendToLaserficheLoginComponent(
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}
+          scope={repositoryScopes}
           login_type={LoginType.Cloud}
           ref={loginComponent}
           hidden

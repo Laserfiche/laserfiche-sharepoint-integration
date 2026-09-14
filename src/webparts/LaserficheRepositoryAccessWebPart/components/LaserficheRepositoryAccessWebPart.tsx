@@ -14,6 +14,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
   clientId,
+  repositoryScopes,
   LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
@@ -320,6 +321,7 @@ export default function LaserficheRepositoryAccessWebPart(
             redirect_uri={redirectPage}
             redirect_behavior='Replace'
             client_id={clientId}
+            scope={repositoryScopes}
             authorize_url_host_name={region}
             login_type={LoginType.Cloud}
             ref={loginComponent}

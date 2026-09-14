@@ -7,6 +7,7 @@ import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
 import {
   clientId,
+  repositoryScopes,
   LF_UI_COMPONENTS_URL,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
@@ -212,6 +213,7 @@ function SaveToLaserficheDialog(props: {
             authorize_url_host_name={region}
             redirect_behavior='Replace'
             client_id={clientId}
+            scope={repositoryScopes}
             ref={loginComponent}
           />
           <img

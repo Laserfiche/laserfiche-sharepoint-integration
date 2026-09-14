@@ -3,6 +3,14 @@
 
 export const clientId = '8ee987ea-a0b1-4ca2-85c4-a79b335cd214';
 
+// Scopes requested when signing in. lf-login only puts a scope on the token
+// request when this is set, and the v2 repository API rejects an unscoped token
+// with 403 "Ensure your access token has the correctly configured scope". These
+// must stay in step with the "scopes" in
+// UserDocuments/LaserficheSharePointIntegrationAppManifest.json, which is what
+// the app registration grants.
+export const repositoryScopes = 'repository.Read repository.Write';
+
 export const LASERFICHE_ADMIN_CONFIGURATION_NAME = 'LaserficheAdminConfiguration';
 export const MANAGE_MAPPING = 'ManageMapping';
 export const MANAGE_CONFIGURATIONS = 'ManageConfigurations';

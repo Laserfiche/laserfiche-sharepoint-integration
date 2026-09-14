@@ -17,6 +17,7 @@ import {
   LASERFICHE_SIGNIN_PAGE_NAME,
   LOGIN_WINDOW_SUCCESS,
   clientId,
+  repositoryScopes,
 } from '../../constants';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
@@ -198,6 +199,7 @@ export const LoginComponent: React.FC<{
         authorize_url_host_name={region}
         redirect_behavior='Replace'
         client_id={clientId}
+        scope={repositoryScopes}
         ref={loginComponent}
         hidden
       />
