@@ -32,10 +32,29 @@ const VENDORED_FILES = [
   ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css',         'indigo-pink.cssasset'],
   ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',   'lf-ms-office-lite.cssasset']
 ];
+// lf-ui-components' CDN bundle is not wrapped in a function scope, so all ~3600
+// of its minified top-level declarations become globals - two-character names
+// like `Rx`, `Nx`, `Tt`. On a SharePoint page that shares `window` with the
+// Microsoft bundles and every other SPFx solution, anything that later assigns
+// one of those names (an RxJS UMD build publishing `window.Rx`, say) replaces
+// the library's own binding, and the next Angular component creation dies with
+// "Rx is not a function" - leaving the custom element un-upgraded and its
+// methods missing. Wrapping the file as we vendor it keeps its declarations
+// private; customElements.define still registers globally, so nothing else
+// changes. Remove once the upstream bundle is scope-wrapped.
+const wrapInFunctionScope = (contents) =>
+  `(function(){\n${contents}\n})();\n`;
+
 build.rig.addPreBuildTask(build.subTask('copy-vendored-packages', function (_g, _o, done) {
   fs.mkdirSync(PACKAGES_LIB_DIR, { recursive: true });
   for (const [src, name] of VENDORED_FILES) {
-    fs.copyFileSync(path.resolve(__dirname, src), path.join(PACKAGES_LIB_DIR, name));
+    const from = path.resolve(__dirname, src);
+    const to = path.join(PACKAGES_LIB_DIR, name);
+    if (name.endsWith('.js')) {
+      fs.writeFileSync(to, wrapInFunctionScope(fs.readFileSync(from, 'utf8')));
+    } else {
+      fs.copyFileSync(from, to);
+    }
   }
   done();
 }));
