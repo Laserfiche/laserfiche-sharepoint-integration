@@ -88,6 +88,13 @@ export default function SendToLaserficheLoginComponent(
 
   const loginCompletedFired = React.useRef(false);
   const logoutRequested = React.useRef(false);
+
+  // Which action this page's own button asked the popup for, and the popup it
+  // opened. Both are refs so the message handler, attached once, reads the
+  // current click rather than the one that registered it.
+  const requestedAction = React.useRef<'login' | 'logout'>('login');
+  const loginWindowRef = React.useRef<Window | undefined>(undefined);
+  const messageListenerAttached = React.useRef(false);
   const tokenPoll = React.useRef<ReturnType<typeof setInterval> | undefined>(
     undefined
   );
@@ -517,9 +524,15 @@ export default function SendToLaserficheLoginComponent(
   }
 
   async function clickLogin(): Promise<void> {
+    // The popup cannot tell a sign-in apart from a sign-out by looking at its
+    // own element state, so say which one this click means. Without it the
+    // popup takes the click for a sign-in, reports success and signs nobody
+    // out, which is what made "Sign out" here do nothing.
+    const action = loggedIn ? 'logout' : 'login';
+    requestedAction.current = action;
     const url =
       props.context.pageContext.web.absoluteUrl +
-      '/SitePages/LaserficheSignIn.aspx?autologin';
+      `/SitePages/LaserficheSignIn.aspx?autologin&action=${action}`;
     const hasSignIn = await pageConfigurationCheck();
     if (!hasSignIn) {
       const mes = (
@@ -537,14 +550,30 @@ export default function SendToLaserficheLoginComponent(
 
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
+    loginWindowRef.current = loginWindow;
+
+    // Attached once: registering per click left one handler per click, and each
+    // of those acts on the action its own click asked for, so an old sign-out
+    // handler would still fire on a later sign-in.
+    if (messageListenerAttached.current) {
+      return;
+    }
+    messageListenerAttached.current = true;
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
         if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindow.close();
+          loginWindowRef.current?.close();
+          loginWindowRef.current = undefined;
+          if (requestedAction.current === 'logout') {
+            // The popup signs out on its own lf-login element, so
+            // logoutCompleted does not necessarily reach the one on this page.
+            setLoggedIn(false);
+          }
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
           if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindow.close();
+            loginWindowRef.current?.close();
+            loginWindowRef.current = undefined;
             const mes = (
               <MessageDialog
                 title='Sign In Failed'
