@@ -97,6 +97,9 @@ export default function LaserficheRepositoryAccessWebPart(
   >(undefined);
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
   const messageListenerAttached = React.useRef(false);
+  // What the last click asked the popup to do. The popup reports the same
+  // success message either way, so this is the only thing that says which.
+  const requestedAction = React.useRef<'login' | 'logout'>('login');
   // Assigned inside the effect so the popup handler can reconcile the signed-in
   // state without duplicating the repository client setup.
   const syncSignedInState = React.useRef<(() => Promise<void>) | undefined>(
@@ -233,6 +236,7 @@ export default function LaserficheRepositoryAccessWebPart(
     // The popup cannot tell a sign-in apart from a sign-out by looking at its
     // own element state, so say which one this click means.
     const action = loggedIn ? 'logout' : 'login';
+    requestedAction.current = action;
     const url =
       props.context.pageContext.web.absoluteUrl +
       `/SitePages/LaserficheSignIn.aspx?autologin&action=${action}`;
@@ -283,9 +287,20 @@ export default function LaserficheRepositoryAccessWebPart(
       loginWindowRef.current?.close();
       loginWindowRef.current = undefined;
       debugLog('closed popup on success', {
+        action: requestedAction.current,
         hasStoredToken: hasStoredAccessToken(),
         state: loginComponent.current?.state,
       });
+      if (requestedAction.current === 'logout') {
+        // Do not ask this element: the popup signed out on its own, and this
+        // one keeps reporting LoggedIn (and keeps its cached
+        // authorization_credentials) until the popup's storage writes reach it.
+        // Syncing here raced logoutCompleted and re-asserted "signed in", so
+        // whichever landed last decided the button.
+        debugLog('sign-out reported, clearing signed-in state');
+        setLoggedIn(false);
+        return;
+      }
       // The popup may have signed in on its own element without touching this
       // one, so ask directly rather than waiting for an event that may not come.
       await syncSignedInState.current?.();
