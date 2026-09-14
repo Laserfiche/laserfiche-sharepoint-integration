@@ -47,6 +47,17 @@ const POPUP_LOGIN_TIMEOUT_MS = 30000;
 // How often the popup re-checks whether the token reached localStorage, so a
 // loginCompleted event that fired before we subscribed is still visible.
 const TOKEN_POLL_INTERVAL_MS = 500;
+// lf-login builds its keys as `lf-login.${btoa(login_identifier)}.access-token`.
+// Its service assigns login_identifier from client_id in its own constructor,
+// before the element's client_id setter has run, so today the identifier is '',
+// btoa('') is '', and the middle segment is empty - hence the doubled dot. If the
+// library ever fixes that ordering the segment becomes btoa(clientId), so check
+// both spellings; a wildcard scan is what used to match stale keys from earlier
+// builds.
+const ACCESS_TOKEN_STORAGE_KEYS = [
+  'lf-login..access-token',
+  `lf-login.${btoa(clientId)}.access-token`,
+];
 const SIGN_IN_DID_NOT_COMPLETE = 'Timed out waiting for sign in to complete.';
 const NOTE_THIS_WEB_PART_IS_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
   '*Note: This web part is only needed if you are attempting to save a document to Laserfiche.';
@@ -100,16 +111,14 @@ export default function SendToLaserficheLoginComponent(
     );
   };
 
-  // lf-login stores the token under `lf-login.<loginIdentifier>.access-token`,
-  // and writing it is what fires the storage event the opener listens for.
-  const getStoredAccessTokenKey: () => string | undefined = () => {
-    for (let i = 0; i < window.localStorage.length; i++) {
-      const key = window.localStorage.key(i);
-      if (key?.startsWith('lf-login.') && key.endsWith('.access-token')) {
-        return key;
-      }
-    }
-    return undefined;
+  const getStoredAccessTokenKey: () => string | undefined = () =>
+    ACCESS_TOKEN_STORAGE_KEYS.find(
+      (key) => !!window.localStorage.getItem(key)
+    );
+
+  const getStoredAccessToken: () => string | undefined = () => {
+    const key = getStoredAccessTokenKey();
+    return key ? window.localStorage.getItem(key) ?? undefined : undefined;
   };
 
   const clearTokenPoll: () => void = () => {
@@ -117,11 +126,6 @@ export default function SendToLaserficheLoginComponent(
       clearInterval(tokenPoll.current);
       tokenPoll.current = undefined;
     }
-  };
-
-  const getStoredAccessToken: () => string | undefined = () => {
-    const key = getStoredAccessTokenKey();
-    return key ? window.localStorage.getItem(key) ?? undefined : undefined;
   };
 
   const startTokenPoll: () => void = () => {
@@ -176,7 +180,7 @@ export default function SendToLaserficheLoginComponent(
     popupTimeout.current = setTimeout(() => {
       debugLog('timed out waiting for loginCompleted', {
         state: loginComponent.current?.state,
-        tokenKey: getStoredAccessTokenKey() ?? 'none',
+        hasStoredToken: !!getStoredAccessToken(),
         loginCompletedFired: loginCompletedFired.current,
       });
       postToOpenerOnce({
@@ -208,14 +212,14 @@ export default function SendToLaserficheLoginComponent(
     clearTokenPoll();
     debugLog('loginCompleted fired in popup', {
       state: loginComponent.current?.state,
-      tokenKey: getStoredAccessTokenKey() ?? 'none',
+      hasStoredToken: !!getStoredAccessToken(),
       hasCredentials: !!loginComponent.current?.authorization_credentials,
     });
 
     // Very end of the popup sign-in flow: the token exchange is done and the
     // only step left is telling the opener to close this window. Inspect
-    // getStoredAccessTokenKey() here - if it returns a key, the opener should
-    // have received a storage event for it.
+    // getStoredAccessToken() here - if it returns a value, the opener should
+    // have received a storage event for that key.
     // eslint-disable-next-line no-debugger -- temporary debugging aid, remove with the logging above
     debugger; //TODO: Remove this debugger statement after testing
     postToOpenerOnce(LOGIN_WINDOW_SUCCESS);
@@ -306,7 +310,7 @@ export default function SendToLaserficheLoginComponent(
             state: loginComponent.current.state,
             hasCredentials:
               !!loginComponent.current.authorization_credentials,
-            tokenKey: getStoredAccessTokenKey() ?? 'none',
+            hasStoredToken: !!getStoredAccessToken(),
           });
           startTokenPoll();
           await handleLoginOrLogoutInPopupAsync();
@@ -394,7 +398,7 @@ export default function SendToLaserficheLoginComponent(
     }
     debugLog('back from sign-in page, waiting for loginCompleted', {
       state: loginComponent.current.state,
-      tokenKey: getStoredAccessTokenKey() ?? 'none',
+      hasStoredToken: !!getStoredAccessToken(),
     });
 
     // Back from the sign-in page the component is still exchanging the

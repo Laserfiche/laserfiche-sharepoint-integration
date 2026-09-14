@@ -62,16 +62,22 @@ function debugLog(message: string, data?: Record<string, unknown>): void {
   console.log(`[lf-repo] ${message}`, payload);
 }
 
-// The opener only learns about a sign-in when lf-login writes this key, which
-// is what raises the storage event that makes it emit loginCompleted.
-function getStoredAccessTokenKey(): string | undefined {
-  for (let i = 0; i < window.localStorage.length; i++) {
-    const key = window.localStorage.key(i);
-    if (key?.startsWith('lf-login.') && key.endsWith('.access-token')) {
-      return key;
-    }
-  }
-  return undefined;
+// The opener only learns about a sign-in when lf-login writes this key, which is
+// what raises the storage event that makes it emit loginCompleted. The key is
+// `lf-login.${btoa(login_identifier)}.access-token`; lf-login's service assigns
+// login_identifier from client_id in its own constructor, before the element's
+// client_id setter has run, so today the identifier is '' and the middle segment
+// is empty - hence the doubled dot. If the library ever fixes that ordering the
+// segment becomes btoa(clientId), so check both spellings.
+const ACCESS_TOKEN_STORAGE_KEYS = [
+  'lf-login..access-token',
+  `lf-login.${btoa(clientId)}.access-token`,
+];
+
+function hasStoredAccessToken(): boolean {
+  return ACCESS_TOKEN_STORAGE_KEYS.some(
+    (key) => !!window.localStorage.getItem(key)
+  );
 }
 
 export default function LaserficheRepositoryAccessWebPart(
@@ -151,7 +157,7 @@ export default function LaserficheRepositoryAccessWebPart(
         const loginCompleted: () => Promise<void> = async () => {
           debugLog('loginCompleted received by web part', {
             state: loginComponent.current?.state,
-            tokenKey: getStoredAccessTokenKey() ?? 'none',
+            hasStoredToken: hasStoredAccessToken(),
           });
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
@@ -184,7 +190,7 @@ export default function LaserficheRepositoryAccessWebPart(
         debugLog('web part initialized', {
           state: loginComponent.current.state,
           hasCredentials: !!loginComponent.current.authorization_credentials,
-          tokenKey: getStoredAccessTokenKey() ?? 'none',
+          hasStoredToken: hasStoredAccessToken(),
         });
         await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -276,7 +282,7 @@ export default function LaserficheRepositoryAccessWebPart(
       loginWindowRef.current?.close();
       loginWindowRef.current = undefined;
       debugLog('closed popup on success', {
-        tokenKey: getStoredAccessTokenKey() ?? 'none',
+        hasStoredToken: hasStoredAccessToken(),
         state: loginComponent.current?.state,
       });
       // The popup may have signed in on its own element without touching this
