@@ -120,13 +120,11 @@ export default function SendToLaserficheLoginComponent(
   };
 
   const getStoredAccessTokenKey: () => string | undefined = () =>
-    ACCESS_TOKEN_STORAGE_KEYS.find(
-      (key) => !!window.localStorage.getItem(key)
-    );
+    ACCESS_TOKEN_STORAGE_KEYS.find((key) => !!window.localStorage.getItem(key));
 
   const getStoredAccessToken: () => string | undefined = () => {
     const key = getStoredAccessTokenKey();
-    return key ? window.localStorage.getItem(key) ?? undefined : undefined;
+    return key ? (window.localStorage.getItem(key) ?? undefined) : undefined;
   };
 
   const clearTokenPoll: () => void = () => {
@@ -225,13 +223,6 @@ export default function SendToLaserficheLoginComponent(
       hasStoredToken: !!getStoredAccessToken(),
       hasCredentials: !!loginComponent.current?.authorization_credentials,
     });
-
-    // Very end of the popup sign-in flow: the token exchange is done and the
-    // only step left is telling the opener to close this window. Inspect
-    // getStoredAccessToken() here - if it returns a value, the opener should
-    // have received a storage event for that key.
-    // eslint-disable-next-line no-debugger -- temporary debugging aid, remove with the logging above
-    debugger; //TODO: Remove this debugger statement after testing
     postToOpenerOnce(LOGIN_WINDOW_SUCCESS);
   };
 
@@ -318,8 +309,7 @@ export default function SendToLaserficheLoginComponent(
             href: window.location.href,
             referrer: document.referrer,
             state: loginComponent.current.state,
-            hasCredentials:
-              !!loginComponent.current.authorization_credentials,
+            hasCredentials: !!loginComponent.current.authorization_credentials,
             hasStoredToken: !!getStoredAccessToken(),
           });
           startTokenPoll();

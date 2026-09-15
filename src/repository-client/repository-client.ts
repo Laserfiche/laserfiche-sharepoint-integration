@@ -36,7 +36,7 @@ export class RepositoryClientExInternal {
       this.addAuthorizationHeader(request, accessToken);
       return {
         regionalDomain: lfLogin.account_endpoints.regionalDomain,
-      }; // update this if you are using a different region
+      };
     } else {
       throw new Error('No access token');
     }
