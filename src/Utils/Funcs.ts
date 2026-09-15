@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { UrlUtils } from '@laserfiche/lf-js-utils';
-import { WFieldType } from '@laserfiche/lf-repository-api-client';
+import { FieldType } from '@laserfiche/lf-repository-api-client-v2';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import { SPDEVMODE_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
@@ -10,25 +10,28 @@ export function getEntryWebAccessUrl(
   nodeId: string,
   waUrl: string,
   isContainer: boolean,
-  repoId?: string
+  repoId?: string,
+  customerId?: string
 ): string | undefined {
   if (!nodeId || nodeId?.length === 0 || !waUrl || waUrl?.length === 0) {
     return undefined;
   }
+  const commonQueryParams: UrlUtils.QueryParameter[] = [];
+  if (repoId) {
+    commonQueryParams.push(['repo', repoId]);
+  }
+  if (customerId) {
+    commonQueryParams.push(['customerId', customerId]);
+  }
   let newUrl: string;
   if (isContainer) {
-    const queryParams: UrlUtils.QueryParameter[] = repoId
-      ? [['repo', repoId]]
-      : [];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);
+    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', commonQueryParams);
     newUrl += `#?id=${encodeURIComponent(nodeId)}`;
   } else {
-    const queryParams: UrlUtils.QueryParameter[] = repoId
-      ? [
-          ['repo', repoId],
-          ['docid', nodeId],
-        ]
-      : [['docid', nodeId]];
+    const queryParams: UrlUtils.QueryParameter[] = [
+      ...commonQueryParams,
+      ['docid', nodeId],
+    ];
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
   }
   return newUrl;
@@ -51,20 +54,20 @@ export function getRegion(): string {
   return region;
 }
 
-export function getCorrespondingTypeFieldName(fieldType: WFieldType): string {
+export function getCorrespondingTypeFieldName(fieldType: FieldType): string {
   switch (fieldType) {
-    case WFieldType.Date:
-    case WFieldType.List:
-    case WFieldType.Time:
-    case WFieldType.Number:
+    case FieldType.Date:
+    case FieldType.List:
+    case FieldType.Time:
+    case FieldType.Number:
       return fieldType;
-    case WFieldType.DateTime:
+    case FieldType.DateTime:
       return 'Date/Time';
-    case WFieldType.String:
+    case FieldType.String:
       return 'Text';
-    case WFieldType.ShortInteger:
+    case FieldType.ShortInteger:
       return 'Integer';
-    case WFieldType.LongInteger:
+    case FieldType.LongInteger:
       return 'Long Integer';
   }
 }

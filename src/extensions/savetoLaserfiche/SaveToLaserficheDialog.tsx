@@ -7,9 +7,9 @@ import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
 import {
   clientId,
+  repositoryScopes,
   LF_UI_COMPONENTS_URL,
   SP_LOCAL_STORAGE_KEY,
-  ZONE_JS_URL,
 } from '../../webparts/constants';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,
@@ -25,7 +25,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
-import { Entry } from '@laserfiche/lf-repository-api-client';
+import { Entry } from '@laserfiche/lf-repository-api-client-v2';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
 import { PathUtils } from '@laserfiche/lf-js-utils';
@@ -68,7 +68,7 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
     ReactDOM.render(element, this.domElement);
   }
 
-  protected async onAfterClose(): Promise<void> {
+  protected override async onAfterClose(): Promise<void> {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
     if (this.closeParent) {
@@ -105,7 +105,7 @@ function SaveToLaserficheDialog(props: {
     const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
     try {
       // test accessToken validity
-      await newRepoClient.repositoriesClient.getRepositoryList({});
+      await newRepoClient.repositoriesClient.listRepositories({});
     } catch {
       return undefined;
     }
@@ -114,7 +114,6 @@ function SaveToLaserficheDialog(props: {
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
         if (loginComponent.current?.authorization_credentials) {
@@ -128,18 +127,20 @@ function SaveToLaserficheDialog(props: {
               const repoId = await validRepoClient.getCurrentRepoId();
               const entryInfo: Entry =
                 await validRepoClient.entriesClient.getEntry({
-                  repoId,
+                  repositoryId: repoId,
                   entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
                 });
-              const entryWithPathExists =
+              const entryWithPath =
                 await validRepoClient.entriesClient.getEntryByPath({
-                  repoId,
+                  repositoryId: repoId,
                   fullPath: PathUtils.combinePaths(
                     entryInfo.fullPath,
                     PathUtils.removeFileExtension(props.spFileMetadata.fileName)
                   ),
                 });
-              if (entryWithPathExists) {
+              // v2 returns a GetEntryByPathResponse for a successful lookup, so
+              // the response object itself is always truthy: test the entry.
+              if (entryWithPath?.entry) {
                 setShowSaveTo(false);
                 const confirmSave = await getConfirmation(
                   ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
@@ -152,6 +153,9 @@ function SaveToLaserficheDialog(props: {
                   props.isSuccessfulLoggedIn(true);
                   await props.closeClick();
                 }
+              } else {
+                // No entry at that path: same outcome as the 404 below.
+                await continueSavingDocumentAsync(saveToLF);
               }
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
@@ -209,6 +213,7 @@ function SaveToLaserficheDialog(props: {
             authorize_url_host_name={region}
             redirect_behavior='Replace'
             client_id={clientId}
+            scope={repositoryScopes}
             ref={loginComponent}
           />
           <img

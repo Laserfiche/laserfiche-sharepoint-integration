@@ -20,7 +20,31 @@ Admin and User Documentation is available on [GitHub pages](https://laserfiche.g
 
 ## Prerequisites
 
-See .github/workflows/main.yml for Node and NPM version used.
+This solution targets **SharePoint Framework 1.23.2**, which is supported on **Node.js 22 LTS**. The version is pinned in [.nvmrc](./.nvmrc), so from the repo root run:
+
+```bash
+nvm use 22
+```
+
+CI builds the release package on the same version (both workflows read `.nvmrc` via `node-version-file`), so local builds match the shipped artifact.
+
+### Building on Node.js 24
+
+Node 24 is **not supported by any SPFx release** — the SPFx build rig checks `process.version` and refuses to run outside Node 18/20/22. You can still develop on Node 24 by opting in explicitly:
+
+```bash
+SPFX_OVERRIDE_NODE_VERSION_CHECK=true npx gulp build
+```
+
+On Windows PowerShell:
+
+```bash
+$env:SPFX_OVERRIDE_NODE_VERSION_CHECK = "true"; npx gulp build
+```
+
+This flag is SPFx's own hook for testing unreleased Node versions. `build`, `bundle --ship`, `package-solution --ship`, and the test suite have all been verified on Node 24.15.0, and the resulting `.sppkg` is byte-for-byte identical to the Node 22 build (apart from the `Client Side Assets` feature GUID, which SPFx regenerates on every packaging run regardless of Node version).
+
+Do **not** set this flag in CI — release packages are built on supported Node 22.
 
 ## Change Log
 
@@ -35,6 +59,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 ## To run locally in your SharePoint Workbench
 
 - Ensure that you are at the solution folder
+  - run **nvm use 22**
   - run **npm install**
   - run **npm run gulp-trust-dev-cert**
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
@@ -44,6 +69,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ## To test in a SharePoint site using localhost
 
+- run **nvm use 22**
 - run **npm install**
 - **npm run build**
 - **npm run package**
@@ -56,6 +82,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ## To test in a SharePoint site with files hosted by SharePoint
 
+- run **nvm use 22**
 - run **npm install**
 - **npm run bundle**
 - **npm run package-solution**

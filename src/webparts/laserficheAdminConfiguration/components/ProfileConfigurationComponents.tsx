@@ -4,10 +4,10 @@
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
-  TemplateFieldInfo,
-  WFieldType,
-  WTemplateInfo,
-} from '@laserfiche/lf-repository-api-client';
+  FieldType,
+  TemplateDefinition,
+  TemplateFieldDefinition,
+} from '@laserfiche/lf-repository-api-client-v2';
 import {
   LfRepoTreeNode,
   LfRepoTreeNodeService,
@@ -59,7 +59,7 @@ export interface SPProfileConfigurationData {
 
 export interface MappedFields {
   id: string;
-  lfField: TemplateFieldInfo | undefined;
+  lfField: TemplateFieldDefinition | undefined;
   spField: SPProfileConfigurationData | undefined;
 }
 
@@ -83,7 +83,7 @@ export function ProfileHeader(props: {
 }
 
 export function ConfigurationBody(props: {
-  availableLfTemplates: WTemplateInfo[];
+  availableLfTemplates: TemplateDefinition[];
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
   profileConfig: ProfileConfiguration;
@@ -401,7 +401,7 @@ export function DocumentName(props: { documentName: string }): JSX.Element {
 }
 
 export function TemplateSelector(props: {
-  availableLfTemplates: WTemplateInfo[];
+  availableLfTemplates: TemplateDefinition[];
   selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
   templateWarning: boolean;
@@ -449,7 +449,7 @@ export function TemplateSelector(props: {
 export function SharePointLaserficheColumnMatching(props: {
   profileConfig: ProfileConfiguration;
   availableSPFields: SPProfileConfigurationData[];
-  lfFieldsForSelectedTemplate: TemplateFieldInfo[];
+  lfFieldsForSelectedTemplate: TemplateFieldDefinition[];
   validate: boolean;
   hasError: (hasError: boolean) => void;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
@@ -779,25 +779,25 @@ export function hasFieldTypeMismatch(mapped: MappedFields): boolean {
   const lfFieldType = mapped.lfField.fieldType;
   const spFieldType = mapped.spField.TypeAsString;
   if (
-    lfFieldType === WFieldType.DateTime ||
-    lfFieldType === WFieldType.Date ||
-    lfFieldType === WFieldType.Time
+    lfFieldType === FieldType.DateTime ||
+    lfFieldType === FieldType.Date ||
+    lfFieldType === FieldType.Time
   ) {
     if (spFieldType !== 'DateTime') {
       return true;
     }
   } else if (
-    lfFieldType === WFieldType.LongInteger ||
-    lfFieldType === WFieldType.ShortInteger
+    lfFieldType === FieldType.LongInteger ||
+    lfFieldType === FieldType.ShortInteger
   ) {
     if (spFieldType !== 'Number') {
       return true;
     }
-  } else if (lfFieldType === WFieldType.Number) {
+  } else if (lfFieldType === FieldType.Number) {
     if (spFieldType !== 'Number' && spFieldType !== 'Currency') {
       return true;
     }
-  } else if (lfFieldType === WFieldType.List) {
+  } else if (lfFieldType === FieldType.List) {
     if (spFieldType !== 'Choice') {
       return true;
     }

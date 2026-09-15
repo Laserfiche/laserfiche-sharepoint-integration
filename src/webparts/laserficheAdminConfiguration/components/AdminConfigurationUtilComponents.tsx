@@ -13,11 +13,11 @@ import { getRegion, getSPListURL } from '../../../Utils/Funcs';
 import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
-  ZONE_JS_URL,
   LF_UI_COMPONENTS_URL,
   LASERFICHE_SIGNIN_PAGE_NAME,
   LOGIN_WINDOW_SUCCESS,
   clientId,
+  repositoryScopes,
 } from '../../constants';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
@@ -74,11 +74,14 @@ export const LoginComponent: React.FC<{
     NgElement & WithProperties<LfLoginComponent>
   > = React.createRef();
 
+  const requestedAction = React.useRef<'login' | 'logout'>('login');
+  const loginWindowRef = React.useRef<Window | undefined>(undefined);
+  const messageListenerAttached = React.useRef(false);
+
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       try {
         const loginCompleted: () => Promise<void> = async () => {
@@ -150,9 +153,15 @@ export const LoginComponent: React.FC<{
   }
 
   async function clickLogin(): Promise<void> {
+    // The popup cannot tell a sign-in apart from a sign-out by looking at its
+    // own element state, so say which one this click means. Without it the
+    // popup takes the click for a sign-in, reports success and signs nobody
+    // out, which is what made "Sign out" here do nothing.
+    const action = props.loggedIn ? 'logout' : 'login';
+    requestedAction.current = action;
     const url =
       props.context.pageContext.web.absoluteUrl +
-      '/SitePages/LaserficheSignIn.aspx?autologin';
+      `/SitePages/LaserficheSignIn.aspx?autologin&action=${action}`;
     const hasSignIn = await pageConfigurationCheck();
     if (!hasSignIn) {
       const mes = (
@@ -169,14 +178,31 @@ export const LoginComponent: React.FC<{
     }
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
+    loginWindowRef.current = loginWindow;
+
+    // Attached once: registering per click left one handler per click, and each
+    // of those acts on the action its own click asked for, so an old sign-out
+    // handler would still fire on a later sign-in.
+    if (messageListenerAttached.current) {
+      return;
+    }
+    messageListenerAttached.current = true;
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
         if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindow.close();
+          loginWindowRef.current?.close();
+          loginWindowRef.current = undefined;
+          if (requestedAction.current === 'logout') {
+            // Nothing else tells this page the sign-out happened: the popup
+            // signs out on its own lf-login element, so logoutCompleted does
+            // not necessarily reach the one on this page.
+            props.setLoggedIn(false);
+          }
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
           if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindow.close();
+            loginWindowRef.current?.close();
+            loginWindowRef.current = undefined;
             const mes = (
               <MessageDialog
                 title={SIGN_IN_FAILED}
@@ -200,6 +226,7 @@ export const LoginComponent: React.FC<{
         authorize_url_host_name={region}
         redirect_behavior='Replace'
         client_id={clientId}
+        scope={repositoryScopes}
         ref={loginComponent}
         hidden
       />

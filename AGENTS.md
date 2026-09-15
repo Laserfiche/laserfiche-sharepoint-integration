@@ -36,19 +36,25 @@ Documentation site (Jekyll) lives under `jekyll_files/` and is published to GitH
 
 | Tool | Version | Source |
 |---|---|---|
-| Node.js | **18.x** (`>=18.0.0 <19.0.0` per `package.json` engines) | locally |
-| Node.js (CI) | **20.x** | `.github/workflows/main.yml` (`actions/setup-node@v4` `node-version: 20.x`) |
-| SPFx | **1.20.x** (`@microsoft/sp-build-web` `1.20.2`, all `@microsoft/sp-*` `1.20.0`) | `package.json` |
-| TypeScript | **4.9.5** + Rush stack compiler 4.5 | `tsconfig.json` extends `@microsoft/rush-stack-compiler-4.5` |
-| React | **17.0.1** (NOT 18) | `package.json` |
-| Angular Elements | **16.2.x** | for `lf-ui-components` wrapper |
-| `@laserfiche/lf-ui-components` | **16.x** | NOT v21 yet (v21 is zoneless) |
-| Jest | **29.x** with `--experimental-vm-modules` | `package.json` `test` script |
+| Node.js | **22.x** (`nvm use 22`; pinned in `.nvmrc`) | locally |
+| Node.js (CI) | **22.x** | both workflows use `actions/setup-node@v4` with `node-version-file: .nvmrc` |
+| Node.js 24 | works, but **opt-in only** — set `SPFX_OVERRIDE_NODE_VERSION_CHECK=true` | unsupported by Microsoft; never set in CI |
+| SPFx | **1.23.2** (all `@microsoft/sp-*` and `@microsoft/eslint-*-spfx` pinned to `1.23.2`) | `package.json` |
+| TypeScript | **5.3.3** + Rush stack compiler 5.3 | `tsconfig.json` extends `@microsoft/rush-stack-compiler-5.3` |
+| React | **17.0.1** (NOT 18) | `package.json`; React 18 only lands in the SPFx 1.24 *preview* |
+| Angular Elements | **21.2.x** | for `lf-ui-components` wrapper; types only (`NgElement`/`WithProperties`) |
+| `@laserfiche/lf-ui-components` | **21.1.x** | zoneless — no `zone.js`; the `cdn/` bundle self-registers the custom elements |
+| Jest | **30.x** (plain `jest`; `--experimental-vm-modules` no longer needed). Transform is **`babel-jest` only** — no `ts-jest`, see Testing | `package.json` `test` script, `jest.config.cjs` |
+| Testing Library | `@testing-library/react` **12.1.5**, `@testing-library/jest-dom` **6.9.1** (pinned exactly) — both at their React-17 ceiling, see Testing | `package.json` |
 | ESLint | **8.57.1** with `@microsoft/eslint-config-spfx` | `.eslintrc.js` |
 | Prettier | repo config | `.prettierrc` |
 | Gulp | 4.0.2 (SPFx build wrapper) | `gulpfile.js` |
 
-If you accidentally use Node 22/Node 21 etc., builds may pass locally but produce a `.sppkg` that differs from CI’s output — always run final verification on Node 20.x to match the GitHub Action.
+Run `nvm use 22` before building; that is the version CI uses and the only one Microsoft supports for SPFx 1.23.2.
+
+**On Node 24:** the SPFx rig (`@microsoft/sp-build-web` → `SPBuildRig.js`) checks `process.version` against `>=18.17.1 <19 || >=20.11.0 <21 || >=22.14.0 <23` and throws otherwise. `SPFX_OVERRIDE_NODE_VERSION_CHECK=true` bypasses it — this is SPFx's own hook for testing unreleased Node versions. Verified on Node 24.15.0: `build`, `bundle --ship`, `package-solution --ship` and all 29 tests pass, and the `.sppkg` payload is byte-for-byte identical to the Node 22 build. The only file that differs between any two packaging runs is the auto-generated `Client Side Assets` feature GUID in `ClientSideAssets.xml`, which SPFx regenerates every run on *any* Node version — so it is not a Node-version artifact.
+
+**Why this repo stays on gulp:** SPFx 1.22+ scaffolds new projects with Heft, and `m365 spfx project upgrade` will tell you to migrate. Do **not** follow that advice here. `@microsoft/sp-build-web` is still published and patched on the gulp rig (1.23.2, June 2026), and Microsoft supports existing gulp projects. `gulpfile.js` carries load-bearing custom logic — the `copy-vendored-packages` pre-build task plus the `file-loader` rules — that vendors `lf-ui-components` into the `.sppkg` to avoid a runtime CDN fetch from `lfxstatic.com` that SharePoint's CSP blocks. A Heft migration would require rewriting exactly that code.
 
 ---
 
@@ -104,8 +110,8 @@ npm run package-solution             # gulp package-solution --ship
 # .sppkg lands at sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
 
 # Tests
-npm test                             # jest with --experimental-vm-modules
-# 6 test suites, 29 tests as of 1.0.0.566. All must pass for PR merge.
+npm test                             # jest (v30)
+# 7 test suites, 37 tests on the 1.23.2 branch. All must pass for PR merge.
 
 # Clean
 npm run clean                        # gulp clean (wipes lib/, temp/, sharepoint/solution/)
@@ -121,7 +127,7 @@ npm run clean                        # gulp clean (wipes lib/, temp/, sharepoint
 
 Triggers on push/PR to `\d+.x` branches (so `1.x`, future `2.x`) and `workflow_dispatch`.
 
-- Checkout → setup Node 20.x
+- Checkout → setup Node from `.nvmrc` (22.x)
 - `if 1.x`: auto-tag the commit `1.0.0.${run_number}`
 - `sed -i` replaces the literal `"1.0.0.0"` in `config/package-solution.json` and `package.json` with the run-number version
 - `npm ci`
@@ -152,13 +158,12 @@ See the [Integrations wiki](https://v-dev-tfs.laserfiche.com/DefaultCollection/I
 
 Microsoft activated SharePoint Online Content Security Policy (CSP) enforcement on **March 1, 2026** ([MS guidance](https://techcommunity.microsoft.com/blog/spblog/sharepoint-online-content-security-policy-csp-enforcement-dates-and-guidance/4472662)). The default CSP **blocks `script-src` to external origins** including `lfxstatic.com`.
 
-This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`, the two CSS files, and `zone.js` into the `.sppkg`. The pattern:
+This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` and the two CSS files into the `.sppkg`. (`zone.js` was vendored too until the v21 upgrade made it unnecessary.) The pattern:
 
-1. **`gulpfile.js`** has a pre-build task `copy-vendored-packages` that copies four files from `node_modules` into `lib/Assets/packages/` at build time:
+1. **`gulpfile.js`** has a pre-build task `copy-vendored-packages` that copies three files from `node_modules` into `lib/Assets/packages/` at build time:
    - `@laserfiche/lf-ui-components/cdn/lf-ui-components.js` → `lf-ui-components.js`
    - `@laserfiche/lf-ui-components/cdn/indigo-pink.css` → `indigo-pink.cssasset` (rename!)
    - `@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css` → `lf-ms-office-lite.cssasset` (rename!)
-   - `zone.js/bundles/zone.umd.min.js` → `zone.umd.min.js`
 
 2. The `.cssasset` rename is critical — it stops SPFx’s own CSS pipeline from claiming those files. A custom webpack rule (`module.rules.push(...)` in `gulpfile.js`) catches `\.(js|cssasset)$` inside `lib/Assets/packages/` and runs them through **`file-loader`**, which emits content-hashed copies (e.g. `lf-ui-components.abc12345.js`) and replaces the import with the emitted URL.
 
@@ -167,7 +172,6 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
    export { default as LF_UI_COMPONENTS_URL } from '../Assets/packages/lf-ui-components.js';
    export { default as LF_MS_OFFICE_LITE_CSS_URL } from '../Assets/packages/lf-ms-office-lite.cssasset';
    export { default as LF_INDIGO_PINK_CSS_URL } from '../Assets/packages/indigo-pink.cssasset';
-   export { default as ZONE_JS_URL } from '../Assets/packages/zone.umd.min.js';
    ```
 
 4. **`src/Assets/packages-assets.d.ts`** declares those modules so TypeScript accepts the imports as `string` (the emitted URL).
@@ -202,7 +206,7 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 
 ### Authentication & API
 
-- Uses `@laserfiche/lf-repository-api-client` v1 (NOT v2) for Laserfiche Cloud API calls.
+- Uses `@laserfiche/lf-repository-api-client-v2` for Laserfiche Cloud API calls. Request arguments are named objects keyed `repositoryId` (not v1's `repoId`), collection responses expose `.value`, and `importEntry` is atomic: metadata rides on `ImportEntryRequest.metadata` and a metadata failure fails the whole import (v1's partial-success `CreateEntryResult.operations` envelope is gone).
 - OAuth login is handled by `<lf-login>` web component from `lf-ui-components`. `connectedCallback` restores credentials from local storage asynchronously — see `loadLfUiComponentsLib` callers and any logic that reads `authorization_credentials` immediately after the script tag is added.
 - Multi-tenant SP app: the SP app registration ID is `clientId = '8ee987ea-a0b1-4ca2-85c4-a79b335cd214'` (in `constants.ts`).
 
@@ -217,8 +221,11 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 
 ## Testing
 
-- `npm test` runs Jest with `--experimental-vm-modules` (required for ESM in some deps).
+- `npm test` runs plain `jest` (v30). The `--experimental-vm-modules` flag is no longer needed.
 - Tests live next to source as `*.test.ts(x)` or `*.spec.ts(x)`.
+- **The transform is `babel-jest` only** — `jest.config.cjs` maps `^.+\.(js|jsx|ts|tsx)$` to `babel-jest`, configured by `babel.config.cjs` (`preset-env` + `preset-react` + `preset-typescript`). Do **not** re-add `ts-jest`: its preset appends a second, unreachable transform entry (Jest picks the first pattern that matches, and the `babel-jest` one always wins), so it is dead weight that only drifts out of version step with `jest`.
+- Babel strips types without checking them, so **type errors in tests surface at `gulp build`, not at `npm test`** — `tsconfig.json` includes `src/**/*.ts(x)`, which covers the test files and emits them to `lib/`. CI runs `gulp build` before `npm test`; locally, run both.
+- **Testing Library is capped by React 17.** `@testing-library/react` **12.1.5** is the last release that accepts React 17 (its peer is `react: <18.0.0`; v13+ requires React 18). RTL 12 depends on `@testing-library/dom` **^8**, and that in turn caps jest-dom: `@testing-library/jest-dom` **6.10.0 and every 7.x** declare a peer of `@testing-library/dom >=10 <11` *and* import `queries`/`prettyDOM` from it at runtime, so installing one loads a **second** copy of `@testing-library/dom` (v10 for jest-dom, v8 for RTL) into the same test process. **6.9.1 is the last jest-dom with no `@testing-library/dom` dependency at all**, which is why it is pinned exactly rather than carried on a caret — `^6.9.1` would float to 6.10.0 and reintroduce the duplicate. All three move together only when React 18 lands with SPFx 1.24: React 18 → RTL 16 → dom 10 → jest-dom 7.
 - All `@microsoft/sp-*` and `@laserfiche/*` imports are mocked under `src/__mocks__/`. If you add a new SP API import in a tested code path, you may need to extend the mock.
 - `npm run serve` for SharePoint Workbench (interactive verification with `spDevMode` localStorage flag to point at `a.clouddev.laserfiche.com`).
 - Manual verification in a SharePoint tenant: upload `.sppkg` to `https://<tenant>.sharepoint.com/sites/appcatalog`, install on a site, add the web parts to a page, **check DevTools Console for CSP errors** before merging anything that changes script loads.
@@ -246,10 +253,12 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components`,
 - ❌ Building the release `.sppkg` locally for distribution — always use the GitHub Action so the version is auto-stamped.
 - ❌ Committing `lib/`, `temp/`, `sharepoint/solution/*.sppkg` (only the versioned `jekyll_files/docs/assets/*.sppkg` belong in git, and only via the sideload PR).
 - ❌ Bumping `package-solution.json` `version` or `package.json` `version` by hand — CI does this via `sed`.
-- ❌ Upgrading React past 17 without verifying SPFx 1.20 still bundles it (SPFx 1.20 supports React 17; React 18+ may need SPFx 1.21+).
-- ❌ Upgrading Node to >=19 locally without verifying CI’s Node 20 still produces an equivalent `.sppkg`.
-- ❌ Removing `zone.js` until `lf-ui-components` is upgraded to v21 (zoneless) — `@angular/elements` 15/16 still needs Zone.js.
+- ❌ Upgrading React past 17 without verifying SPFx 1.23 still bundles it (SPFx 1.23 supports React 17; React 18 arrives with SPFx 1.24, still in preview).
+- ❌ Setting `SPFX_OVERRIDE_NODE_VERSION_CHECK` in CI, or building release packages on Node 24 — local Node 24 dev is fine, releases build on supported Node 22.
 - ❌ Bypassing the SP Workbench — the SPFx serve workflow is the cheapest way to catch render bugs before tenant upload.
+- ❌ Bumping `@testing-library/react` past **12.x** or `@testing-library/jest-dom` past **6.9.1** while this repo is on React 17 — see Testing. RTL 13+ hard-requires React 18; jest-dom 6.10+/7.x drag in a duplicate `@testing-library/dom`. Both are gated on the same SPFx 1.24 / React 18 move.
+- ❌ Putting a caret on `@laserfiche/types-lf-ui-components` while it is on a `--preview-` version. `lf-ui-components-services` declares its peer as `^21.1.0`, and semver caret ranges do **not** match prerelease versions, so `npm i` fails with `ERESOLVE`. Pin it **exactly** and add a matching `overrides` entry (a caret plus an override is rejected outright with `EOVERRIDE`). Keep the pinned version in step with `lf-ui-components`.
+- ❌ Dropping the explicit `@angular/*` block from `devDependencies`. Angular is not bundled — it lives inside the vendored `cdn/lf-ui-components.js` — but without those entries `@angular/cdk` (peers `^21 || ^22`) floats `@angular/common` to 22.x and breaks `lf-ui-components`'s `^21.2.8` peer.
 
 ---
 
