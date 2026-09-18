@@ -51,36 +51,6 @@ const ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY =
   "Once signed in you'll be able to view your Laserfiche repository.";
 
 const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
-// TEMP (debug): traces the popup -> opener sign-in handshake. Remove together
-// with the debugger statement in SendToLaserficheLoginComponent.
-function debugLog(message: string, data?: Record<string, unknown>): void {
-  let payload = '';
-  try {
-    payload = data ? JSON.stringify(data) : '';
-  } catch (err) {
-    payload = `[unserializable: ${err}]`;
-  }
-  console.log(`[lf-repo] ${message}`, payload);
-}
-
-// The opener only learns about a sign-in when lf-login writes this key, which is
-// what raises the storage event that makes it emit loginCompleted. The key is
-// `lf-login.${btoa(login_identifier)}.access-token`; lf-login's service assigns
-// login_identifier from client_id in its own constructor, before the element's
-// client_id setter has run, so today the identifier is '' and the middle segment
-// is empty - hence the doubled dot. If the library ever fixes that ordering the
-// segment becomes btoa(clientId), so check both spellings.
-const ACCESS_TOKEN_STORAGE_KEYS = [
-  'lf-login..access-token',
-  `lf-login.${btoa(clientId)}.access-token`,
-];
-
-function hasStoredAccessToken(): boolean {
-  return ACCESS_TOKEN_STORAGE_KEYS.some(
-    (key) => !!window.localStorage.getItem(key)
-  );
-}
-
 export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
@@ -144,10 +114,6 @@ export default function LaserficheRepositoryAccessWebPart(
       const signedIn =
         loginComponent.current?.state === LoginState.LoggedIn ||
         !!loginComponent.current?.authorization_credentials;
-      debugLog('syncing signed-in state', {
-        signedIn,
-        state: loginComponent.current?.state,
-      });
       if (signedIn) {
         await getAndInitializeRepositoryClientAndServicesAsync();
       }
@@ -161,29 +127,12 @@ export default function LaserficheRepositoryAccessWebPart(
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
       try {
         const loginCompleted: () => Promise<void> = async () => {
-          debugLog('loginCompleted received by web part', {
-            state: loginComponent.current?.state,
-            hasStoredToken: hasStoredAccessToken(),
-          });
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
         };
         const logoutCompleted: () => Promise<void> = async () => {
-          debugLog('logoutCompleted received by web part');
           setLoggedIn(false);
         };
-
-        // The popup signs in on its own lf-login element; this one only finds
-        // out through the storage event raised when the token is written.
-        window.addEventListener('storage', (event: StorageEvent) => {
-          if (event.key?.startsWith('lf-login.')) {
-            debugLog('storage event seen by web part', {
-              key: event.key,
-              hadOldValue: !!event.oldValue,
-              hasNewValue: !!event.newValue,
-            });
-          }
-        });
 
         loginComponent.current.addEventListener(
           'loginCompleted',
@@ -193,11 +142,6 @@ export default function LaserficheRepositoryAccessWebPart(
           'logoutCompleted',
           logoutCompleted
         );
-        debugLog('web part initialized', {
-          state: loginComponent.current.state,
-          hasCredentials: !!loginComponent.current.authorization_credentials,
-          hasStoredToken: hasStoredAccessToken(),
-        });
         await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
@@ -228,7 +172,10 @@ export default function LaserficheRepositoryAccessWebPart(
         }
       }
     } catch (error) {
-      console.warn(`Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`, error);
+      console.warn(
+        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
+        error
+      );
       return false;
     }
     return false;
@@ -259,7 +206,6 @@ export default function LaserficheRepositoryAccessWebPart(
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     loginWindowRef.current = loginWindow;
-    debugLog('opened sign-in popup', { url, action });
 
     // Attached once: this used to be registered per click, so a second sign-in
     // left two handlers processing every message from the popup.
@@ -275,31 +221,15 @@ export default function LaserficheRepositoryAccessWebPart(
     if (event.origin !== window.origin) {
       return;
     }
-    if (event.data?.lfSignInDebug) {
-      console.log(`[lf-signin -> opener] ${event.data.lfSignInDebug}`);
-      return;
-    }
-    debugLog('message from popup', {
-      data:
-        typeof event.data === 'string'
-          ? event.data
-          : JSON.stringify(event.data),
-    });
     if (event.data === LOGIN_WINDOW_SUCCESS) {
       loginWindowRef.current?.close();
       loginWindowRef.current = undefined;
-      debugLog('closed popup on success', {
-        action: requestedAction.current,
-        hasStoredToken: hasStoredAccessToken(),
-        state: loginComponent.current?.state,
-      });
       if (requestedAction.current === 'logout') {
         // Do not ask this element: the popup signed out on its own, and this
         // one keeps reporting LoggedIn (and keeps its cached
         // authorization_credentials) until the popup's storage writes reach it.
         // Syncing here raced logoutCompleted and re-asserted "signed in", so
         // whichever landed last decided the button.
-        debugLog('sign-out reported, clearing signed-in state');
         setLoggedIn(false);
         return;
       }

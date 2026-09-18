@@ -45,20 +45,6 @@ const CANCEL = 'Cancel';
 // How long the popup waits for the component to finish exchanging the
 // authorization code before it reports failure to the opener.
 const POPUP_LOGIN_TIMEOUT_MS = 30000;
-// How often the popup re-checks whether the token reached localStorage, so a
-// loginCompleted event that fired before we subscribed is still visible.
-const TOKEN_POLL_INTERVAL_MS = 500;
-// lf-login builds its keys as `lf-login.${btoa(login_identifier)}.access-token`.
-// Its service assigns login_identifier from client_id in its own constructor,
-// before the element's client_id setter has run, so today the identifier is '',
-// btoa('') is '', and the middle segment is empty - hence the doubled dot. If the
-// library ever fixes that ordering the segment becomes btoa(clientId), so check
-// both spellings; a wildcard scan is what used to match stale keys from earlier
-// builds.
-const ACCESS_TOKEN_STORAGE_KEYS = [
-  'lf-login..access-token',
-  `lf-login.${btoa(clientId)}.access-token`,
-];
 const SIGN_IN_DID_NOT_COMPLETE = 'Timed out waiting for sign in to complete.';
 const NOTE_THIS_WEB_PART_IS_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
   '*Note: This web part is only needed if you are attempting to save a document to Laserfiche.';
@@ -86,7 +72,6 @@ export default function SendToLaserficheLoginComponent(
     undefined
   );
 
-  const loginCompletedFired = React.useRef(false);
   const logoutRequested = React.useRef(false);
 
   // Which action this page's own button asked the popup for, and the popup it
@@ -95,82 +80,12 @@ export default function SendToLaserficheLoginComponent(
   const requestedAction = React.useRef<'login' | 'logout'>('login');
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
   const messageListenerAttached = React.useRef(false);
-  const tokenPoll = React.useRef<ReturnType<typeof setInterval> | undefined>(
-    undefined
-  );
-
-  // TEMP (debug): this popup's console dies with the window, so every line is
-  // also forwarded to the opener, which prints it. Remove with the debugger
-  // statement in loginCompletedInPopup.
-  const debugLog: (message: string, data?: Record<string, unknown>) => void = (
-    message,
-    data
-  ) => {
-    let payload = '';
-    try {
-      payload = data ? JSON.stringify(data) : '';
-    } catch (err) {
-      payload = `[unserializable: ${err}]`;
-    }
-    console.log(`[lf-signin] ${message}`, payload);
-    window.opener?.postMessage(
-      { lfSignInDebug: `${message} ${payload}`.trim() },
-      window.origin
-    );
-  };
-
-  const getStoredAccessTokenKey: () => string | undefined = () =>
-    ACCESS_TOKEN_STORAGE_KEYS.find((key) => !!window.localStorage.getItem(key));
-
-  const getStoredAccessToken: () => string | undefined = () => {
-    const key = getStoredAccessTokenKey();
-    return key ? (window.localStorage.getItem(key) ?? undefined) : undefined;
-  };
-
-  const clearTokenPoll: () => void = () => {
-    if (tokenPoll.current !== undefined) {
-      clearInterval(tokenPoll.current);
-      tokenPoll.current = undefined;
-    }
-  };
-
-  const startTokenPoll: () => void = () => {
-    clearTokenPoll();
-    // A token from an earlier sign-in is usually already sitting in storage, so
-    // watch for the value changing rather than for the key existing.
-    const tokenAtStart = getStoredAccessToken();
-    let elapsedMs = 0;
-    tokenPoll.current = setInterval(() => {
-      elapsedMs += TOKEN_POLL_INTERVAL_MS;
-      const token = getStoredAccessToken();
-      if (token && token !== tokenAtStart) {
-        debugLog('a new access token was written to localStorage', {
-          key: getStoredAccessTokenKey(),
-          afterMs: elapsedMs,
-          loginCompletedAlreadyFired: loginCompletedFired.current,
-          state: loginComponent.current?.state,
-        });
-        clearTokenPoll();
-      } else if (elapsedMs >= POPUP_LOGIN_TIMEOUT_MS) {
-        debugLog('no new access token was written', {
-          hadTokenAtStart: !!tokenAtStart,
-          state: loginComponent.current?.state,
-        });
-        clearTokenPoll();
-      }
-    }, TOKEN_POLL_INTERVAL_MS);
-  };
 
   const postToOpenerOnce: (message: unknown) => void = (message) => {
     if (sentPostMessage.current) {
-      debugLog('suppressed duplicate post to opener');
       return;
     }
     sentPostMessage.current = true;
-    debugLog('posting to opener', {
-      message: typeof message === 'string' ? message : JSON.stringify(message),
-      hasOpener: !!window.opener,
-    });
     window.opener?.postMessage(message, window.origin);
   };
 
@@ -184,11 +99,6 @@ export default function SendToLaserficheLoginComponent(
   const startPopupTimeout: () => void = () => {
     clearPopupTimeout();
     popupTimeout.current = setTimeout(() => {
-      debugLog('timed out waiting for loginCompleted', {
-        state: loginComponent.current?.state,
-        hasStoredToken: !!getStoredAccessToken(),
-        loginCompletedFired: loginCompletedFired.current,
-      });
       postToOpenerOnce({
         ErrorType: 'TokenExchangeTimeout',
         ErrorMessage: SIGN_IN_DID_NOT_COMPLETE,
@@ -215,14 +125,7 @@ export default function SendToLaserficheLoginComponent(
   const loginText: JSX.Element | undefined = getLoginText();
 
   const loginCompletedInPopup: () => Promise<void> = async () => {
-    loginCompletedFired.current = true;
     clearPopupTimeout();
-    clearTokenPoll();
-    debugLog('loginCompleted fired in popup', {
-      state: loginComponent.current?.state,
-      hasStoredToken: !!getStoredAccessToken(),
-      hasCredentials: !!loginComponent.current?.authorization_credentials,
-    });
     postToOpenerOnce(LOGIN_WINDOW_SUCCESS);
   };
 
@@ -250,13 +153,7 @@ export default function SendToLaserficheLoginComponent(
 
   const logoutCompletedInPopup: (ev: Event) => void = (ev: Event) => {
     const errorOccurred = (ev as CustomEvent).detail as
-      | AbortedLoginError
-      | undefined;
-    debugLog('logoutCompleted fired in popup', {
-      errorOccurred: errorOccurred ? JSON.stringify(errorOccurred) : 'none',
-      logoutRequested: logoutRequested.current,
-      state: loginComponent.current?.state,
-    });
+      AbortedLoginError | undefined;
 
     // lf-login also raises this with no detail when it decides nobody is signed
     // in yet, which is the normal opening move of a sign-in. Releasing the popup
@@ -267,14 +164,12 @@ export default function SendToLaserficheLoginComponent(
     }
 
     clearPopupTimeout();
-    clearTokenPoll();
     postToOpenerOnce(errorOccurred ?? LOGIN_WINDOW_SUCCESS);
   };
 
   React.useEffect(() => {
     const cleanUpFunction: () => void = () => {
       clearPopupTimeout();
-      clearTokenPoll();
       loginComponent.current.removeEventListener(
         'loginCompleted',
         loginCompletedInMainWindow
@@ -305,14 +200,6 @@ export default function SendToLaserficheLoginComponent(
       try {
         if (window.location.href.includes('autologin')) {
           document.body.style.display = 'none';
-          debugLog('popup loaded', {
-            href: window.location.href,
-            referrer: document.referrer,
-            state: loginComponent.current.state,
-            hasCredentials: !!loginComponent.current.authorization_credentials,
-            hasStoredToken: !!getStoredAccessToken(),
-          });
-          startTokenPoll();
           await handleLoginOrLogoutInPopupAsync();
         } else {
           await handleLoginOrLogoutInMainWindowAsync();
@@ -370,12 +257,10 @@ export default function SendToLaserficheLoginComponent(
         // The opener asked for a sign-in and this element already holds a
         // session. Signing out here is what made clicking "Sign in" sign the
         // user out; report success instead and let the opener adopt it.
-        debugLog('already signed in, reporting success without signing out');
         postToOpenerOnce(LOGIN_WINDOW_SUCCESS);
         return;
       }
       logoutRequested.current = true;
-      debugLog('signing out because the opener asked for it');
       const logoutButton = loginComponent.current.querySelector(
         '.login-button'
       ) as HTMLButtonElement;
@@ -392,14 +277,9 @@ export default function SendToLaserficheLoginComponent(
       document.referrer.includes('accounts.') ||
       document.referrer.includes('signin.');
     if (!redirectedFromACS) {
-      debugLog('starting login flow, redirecting to sign-in page');
       await loginComponent.current.initLoginFlowAsync();
       return;
     }
-    debugLog('back from sign-in page, waiting for loginCompleted', {
-      state: loginComponent.current.state,
-      hasStoredToken: !!getStoredAccessToken(),
-    });
 
     // Back from the sign-in page the component is still exchanging the
     // authorization code for a token, so its state reads LoggedOut for a moment.
