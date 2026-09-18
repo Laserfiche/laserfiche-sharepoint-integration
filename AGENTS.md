@@ -70,7 +70,7 @@ src/
   extensions/savetoLaserfiche/    command-set (dialogs invoked from list items)
   repository-client/              repository API wrapper
   Assets/
-    CSS/         bootstrap.min.css, commonStyles.css
+    CSS/         commonStyles.css (bootstrap.min.css is vendored from npm into lib/ at build time)
     Images/      logo, icons
     packages-assets.d.ts          TypeScript module declarations for the vendored CDN assets
   __mocks__/                      Jest mocks for @microsoft/sp-*, @laserfiche/*, .png/.svg/.cssasset
@@ -186,6 +186,23 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` 
    '/Assets/packages/.*\\.js$':       '<rootDir>/src/__mocks__/genericFileMock.js',
    ```
 
+### Bootstrap is vendored too — but inlined, not runtime-loaded
+
+`bootstrap` is an npm dependency (**5.3.8**) and its stylesheet is vendored by the same `copy-vendored-packages` pre-build task — but down a **different** path. The two are not interchangeable:
+
+| | `lf-ui-components` | Bootstrap CSS |
+|---|---|---|
+| Destination | `lib/Assets/packages/` | `lib/Assets/CSS/` |
+| Webpack handling | `file-loader` → emitted URL | SPFx CSS pipeline → inlined into the bundle |
+| `.cssasset` rename | yes (keeps SPFx's pipeline off it) | no |
+| Loaded by | `SPComponentLoader` at runtime | `require(...)` at module scope |
+
+`src/Assets/CSS/` holds only `commonStyles.css`. `bootstrap.min.css` has **no** counterpart under `src/` on purpose: SPFx's `copy-static-assets` task copies `src/Assets/**` → `lib/Assets/**`, and the gulp task writes the npm copy into that same `lib/Assets/CSS/` directory — so the existing `require('../../../Assets/CSS/bootstrap.min.css')` statements resolve to it unchanged. A hand-copied file under `src/` only drifts; it sat at **4.6.1** while `package.json` declared 5.x.
+
+**The markup is Bootstrap 5.** Do not reintroduce v4-only classes: `custom-select` → `form-select`, `form-group` → `mb-3`, `custom-file` → a plain `form-control` file input, `.close` → `.btn-close` (it draws its own glyph — no `&times;` span), `data-dismiss` → v5 spells it `data-bs-dismiss`.
+
+**Bootstrap's JS is deliberately not bundled.** Nothing used it — no `data-bs-*`, no JS API calls, no jQuery; every modal is a React-rendered div driven by state and `onClick`. If you ever need a real Bootstrap JS behaviour, add the import deliberately *and* migrate that markup to `data-bs-*` in the same change.
+
 ### Rules
 
 - ❌ **NEVER add a new `SPComponentLoader.loadScript(<external URL>)` or `loadCss(<external URL>)` call.** Any external script CDN will be CSP-blocked.
@@ -250,6 +267,8 @@ This was fixed in PR #116 (tag `1.0.0.528`) by **vendoring** `lf-ui-components` 
 - ❌ Branching off / PRing to `main` (use `1.x`).
 - ❌ Adding `SPComponentLoader.loadScript(<external URL>)` calls — see the CSP section.
 - ❌ Hard-coded `https://lfxstatic.com/...` URLs in `.ts`/`.tsx` source.
+- ❌ Reintroducing Bootstrap 4 classes (`custom-select`, `form-group`, `custom-file`, `.close`, `data-dismiss`) — the markup is v5. See the Bootstrap subsection above.
+- ❌ Re-committing `bootstrap.min.css` under `src/Assets/CSS/` — it is vendored from npm at build time so the shipped version follows `package.json`.
 - ❌ Building the release `.sppkg` locally for distribution — always use the GitHub Action so the version is auto-stamped.
 - ❌ Committing `lib/`, `temp/`, `sharepoint/solution/*.sppkg` (only the versioned `jekyll_files/docs/assets/*.sppkg` belong in git, and only via the sideload PR).
 - ❌ Bumping `package-solution.json` `version` or `package.json` `version` by hand — CI does this via `sed`.

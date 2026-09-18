@@ -18,7 +18,6 @@ import {
 } from '../ProfileConfigurationComponents';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 const ADD_PROFILE = 'Add Profile';
 const PROFILE_NAME = 'Profile Name';
@@ -242,7 +241,6 @@ export default function ManageConfigurationsPage(
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={() => setError(undefined)}
                 >
                   OK

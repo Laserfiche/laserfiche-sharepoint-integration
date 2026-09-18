@@ -411,7 +411,6 @@ export function RepositoryBrowserToolbar(props: {
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={confirmAlertButton}
                 >
                   {OK}
@@ -682,22 +681,16 @@ function ImportFileModal(props: {
           {!error && (
             <>
               <div className='input-group mb-3'>
-                <div className='custom-file'>
-                  <input
-                    type='file'
-                    className='custom-file-input'
-                    id='importFile'
-                    onChange={setFileToImport}
-                    aria-describedby='inputGroupFileAddon04'
-                    placeholder='Choose file'
-                  />
-                  <label className='custom-file-label' id='importFileName'>
-                    {file?.name ? file.name : 'Choose a file'}
-                  </label>
-                </div>
+                <input
+                  type='file'
+                  className='form-control'
+                  id='importFile'
+                  onChange={setFileToImport}
+                  aria-label='Choose a file to import'
+                />
               </div>
               {validationError}
-              <div className='form-group row mb-3'>
+              <div className='row mb-3'>
                 <label className='col-sm-3 col-form-label'>{NAME}</label>
                 <div className='col-sm-9'>
                   <input
@@ -819,16 +812,13 @@ function CreateFolderModal(props: {
           </h5>
           <button
             type='button'
-            className='close'
-            data-dismiss='modal'
+            className='btn-close'
             aria-label='Close'
             onClick={props.closeCreateFolderModal}
-          >
-            <span aria-hidden='true'>&times;</span>
-          </button>
+          />
         </div>
         <div className='modal-body'>
-          <div className='form-group'>
+          <div className='mb-3'>
             <label>{FOLDER_NAME}</label>
             <input
               type='text'
@@ -846,7 +836,6 @@ function CreateFolderModal(props: {
           <button
             type='button'
             className='lf-button primary-button'
-            data-dismiss='modal'
             onClick={createNewFolderAsync}
           >
             {SUBMIT}
@@ -854,7 +843,6 @@ function CreateFolderModal(props: {
           <button
             type='button'
             className='lf-button sec-button'
-            data-dismiss='modal'
             onClick={closeNewFolderModal}
           >
             {CLOSE}

@@ -4,16 +4,20 @@
 import { UrlUtils } from '@laserfiche/lf-js-utils';
 import { FieldType } from '@laserfiche/lf-repository-api-client-v2';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
-import { SPDEVMODE_LOCAL_STORAGE_KEY } from '../webparts/constants';
+import {
+  SPDEVMODE_LOCAL_STORAGE_KEY,
+  SP_LOCAL_STORAGE_KEY,
+} from '../webparts/constants';
+import { ISPDocumentData } from './Types';
 
 export function getEntryWebAccessUrl(
-  nodeId: string,
+  entryId: string,
   waUrl: string,
   isContainer: boolean,
   repoId?: string,
   customerId?: string
 ): string | undefined {
-  if (!nodeId || nodeId?.length === 0 || !waUrl || waUrl?.length === 0) {
+  if (!entryId || entryId?.length === 0 || !waUrl || waUrl?.length === 0) {
     return undefined;
   }
   const commonQueryParams: UrlUtils.QueryParameter[] = [];
@@ -25,19 +29,26 @@ export function getEntryWebAccessUrl(
   }
   let newUrl: string;
   if (isContainer) {
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', commonQueryParams);
-    newUrl += `#?id=${encodeURIComponent(nodeId)}`;
+    newUrl = UrlUtils.combineURLs(
+      waUrl ?? '',
+      'Browse.aspx',
+      commonQueryParams
+    );
+    newUrl += `#?id=${encodeURIComponent(entryId)}`;
   } else {
     const queryParams: UrlUtils.QueryParameter[] = [
       ...commonQueryParams,
-      ['docid', nodeId],
+      ['id', entryId],
     ];
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
   }
   return newUrl;
 }
 
-export function getSPListURL(context: BaseComponentContext, listName: string): string {
+export function getSPListURL(
+  context: BaseComponentContext,
+  listName: string
+): string {
   return (
     context.pageContext.web.absoluteUrl +
     `/_api/web/lists/GetByTitle('${listName}')`
@@ -69,5 +80,26 @@ export function getCorrespondingTypeFieldName(fieldType: FieldType): string {
       return 'Integer';
     case FieldType.LongInteger:
       return 'Long Integer';
+  }
+}
+
+/**
+ * Reads the SharePoint document data the Send to Laserfiche flow stashes in
+ * local storage. Returns undefined rather than throwing when the slot holds
+ * something that is not valid JSON: this is read during render, so a parse
+ * error here would take down the component tree.
+ */
+export function getSPDocumentDataFromLocalStorage():
+  | ISPDocumentData
+  | undefined {
+  try {
+    const raw = window.localStorage.getItem(SP_LOCAL_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ISPDocumentData) : undefined;
+  } catch (error) {
+    console.warn(
+      `Unable to read ${SP_LOCAL_STORAGE_KEY} from local storage.`,
+      error
+    );
+    return undefined;
   }
 }

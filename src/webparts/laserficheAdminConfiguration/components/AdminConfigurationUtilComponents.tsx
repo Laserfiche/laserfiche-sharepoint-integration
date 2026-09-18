@@ -76,7 +76,6 @@ export const LoginComponent: React.FC<{
 
   const requestedAction = React.useRef<'login' | 'logout'>('login');
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
-  const messageListenerAttached = React.useRef(false);
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
@@ -111,6 +110,18 @@ export const LoginComponent: React.FC<{
     };
 
     void initializeComponentAsync();
+  }, []);
+
+  // Tied to the component's lifetime: registering on click leaked a listener
+  // per mount, because nothing removed it when this component went away.
+  React.useEffect(() => {
+    const handleMessage: (event: MessageEvent) => void = (event) => {
+      handlePopupMessage(event);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
@@ -179,44 +190,38 @@ export const LoginComponent: React.FC<{
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     loginWindowRef.current = loginWindow;
+  }
 
-    // Attached once: registering per click left one handler per click, and each
-    // of those acts on the action its own click asked for, so an old sign-out
-    // handler would still fire on a later sign-in.
-    if (messageListenerAttached.current) {
+  function handlePopupMessage(event: MessageEvent): void {
+    if (event.origin !== window.origin) {
       return;
     }
-    messageListenerAttached.current = true;
-    window.addEventListener('message', (event) => {
-      if (event.origin === window.origin) {
-        if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindowRef.current?.close();
-          loginWindowRef.current = undefined;
-          if (requestedAction.current === 'logout') {
-            // Nothing else tells this page the sign-out happened: the popup
-            // signs out on its own lf-login element, so logoutCompleted does
-            // not necessarily reach the one on this page.
-            props.setLoggedIn(false);
-          }
-        } else if (event.data) {
-          const parsedError: AbortedLoginError = event.data;
-          if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindowRef.current?.close();
-            loginWindowRef.current = undefined;
-            const mes = (
-              <MessageDialog
-                title={SIGN_IN_FAILED}
-                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-                clickOkay={() => {
-                  props.setMessageErrorModal(undefined);
-                }}
-              />
-            );
-            props.setMessageErrorModal(mes);
-          }
-        }
+    if (event.data === LOGIN_WINDOW_SUCCESS) {
+      loginWindowRef.current?.close();
+      loginWindowRef.current = undefined;
+      if (requestedAction.current === 'logout') {
+        // Nothing else tells this page the sign-out happened: the popup
+        // signs out on its own lf-login element, so logoutCompleted does
+        // not necessarily reach the one on this page.
+        props.setLoggedIn(false);
       }
-    });
+    } else if (event.data) {
+      const parsedError: AbortedLoginError = event.data;
+      if (parsedError.ErrorMessage && parsedError.ErrorType) {
+        loginWindowRef.current?.close();
+        loginWindowRef.current = undefined;
+        const mes = (
+          <MessageDialog
+            title={SIGN_IN_FAILED}
+            message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+            clickOkay={() => {
+              props.setMessageErrorModal(undefined);
+            }}
+          />
+        );
+        props.setMessageErrorModal(mes);
+      }
+    }
   }
 
   return (

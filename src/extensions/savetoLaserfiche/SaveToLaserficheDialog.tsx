@@ -270,6 +270,16 @@ function SaveToLaserficheDialog(props: {
     saveToLF: SaveDocumentToLaserfiche
   ): Promise<void> {
     const successSaveToLF = await saveToLF.trySaveDocumentToLaserficheAsync();
+    if (!successSaveToLF) {
+      // The save resolves undefined only when lf-login has no access token by
+      // the time it runs: everything else on this path either returns a
+      // document or throws. Treat it the way the 401/403 branch above does,
+      // rather than reporting a save that never happened and leaving the
+      // dialog on its loading spinner forever.
+      props.isSuccessfulLoggedIn(false);
+      await props.closeClick();
+      return;
+    }
     props.isSuccessfulLoggedIn(true);
     setSuccess(successSaveToLF);
   }

@@ -142,10 +142,10 @@ export function ConfigurationBody(props: {
   return (
     <>
       {/* Do not need document name for now as the document will always be saved with the SharePoint document name until tokens are supported */}
-      {/* <div className={`${styles.formGroupRow} form-group row`}>
+      {/* <div className={`${styles.formGroupRow} row mb-3`}>
         <DocumentName documentName={props.profileConfig?.DocumentName} />
       </div> */}
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <TemplateSelector
           availableLfTemplates={props.availableLfTemplates}
           selectedTemplateName={props.profileConfig?.selectedTemplateName}
@@ -154,7 +154,7 @@ export function ConfigurationBody(props: {
           onChangeTemplate={handleTemplateChange}
         />
       </div>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <label htmlFor='txt3' className='col-sm-3 col-form-label'>
           Laserfiche Destination
         </label>
@@ -174,7 +174,7 @@ export function ConfigurationBody(props: {
           </button>
         </div>
       </div>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <label htmlFor='dwl4' className='col-sm-3 col-form-label'>
           After import
         </label>
@@ -182,7 +182,7 @@ export function ConfigurationBody(props: {
           <select
             onChange={handleActionTypeChange}
             defaultValue={props.profileConfig.Action}
-            className='custom-select'
+            className='form-select'
             id='action'
           >
             <option value={ActionTypes.COPY}>
@@ -419,7 +419,7 @@ export function TemplateSelector(props: {
       </label>
       <div className='col-sm-6'>
         <select
-          className='custom-select'
+          className='form-select'
           id='documentTemplate'
           onChange={(e) => props.onChangeTemplate(e)}
           value={props.selectedTemplateName}
@@ -595,7 +595,7 @@ export function SharePointLaserficheColumnMatching(props: {
             <span className={styles.dataCellWidth}>
               <select
                 name='SharePointField'
-                className='custom-select'
+                className='form-select'
                 value={fieldMapping.spField?.InternalName ?? 'Select'}
                 id={fieldMapping.id}
                 onChange={(e) => handleSpFieldChange(e, fieldMapping)}
@@ -607,7 +607,7 @@ export function SharePointLaserficheColumnMatching(props: {
             <span className={styles.dataCellWidth}>
               <select
                 name='LaserficheField'
-                className='custom-select'
+                className='form-select'
                 value={fieldMapping.lfField?.id ?? 'Select'}
                 id={fieldMapping.id}
                 disabled={fieldMapping.lfField?.isRequired}
@@ -701,13 +701,10 @@ export function DeleteModal(props: {
           </h5>
           <button
             type='button'
-            className='close'
-            data-dismiss='modal'
+            className='btn-close'
             aria-label='Close'
             onClick={props.onCancel}
-          >
-            <span aria-hidden='true'>&times;</span>
-          </button>
+          />
         </div>
         <div className={styles.contentBox}>
           Do you want to permanently delete &quot;
@@ -717,7 +714,6 @@ export function DeleteModal(props: {
           <button
             type='button'
             className='lf-button primary-button'
-            data-dismiss='modal'
             onClick={props.onConfirmDelete}
           >
             {OK}
@@ -725,7 +721,6 @@ export function DeleteModal(props: {
           <button
             type='button'
             className={`lf-button sec-button ${styles.marginLeftButton}`}
-            data-dismiss='modal'
             onClick={props.onCancel}
           >
             {CANCEL}

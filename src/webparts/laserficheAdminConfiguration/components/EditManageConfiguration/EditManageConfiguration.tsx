@@ -20,7 +20,6 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
   // eslint-disable-next-line

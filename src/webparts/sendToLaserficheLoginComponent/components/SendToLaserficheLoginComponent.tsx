@@ -22,11 +22,11 @@ import {
 } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
-import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 import {
   getEntryWebAccessUrl,
   getRegion,
+  getSPDocumentDataFromLocalStorage,
   getSPListURL,
 } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
@@ -79,7 +79,6 @@ export default function SendToLaserficheLoginComponent(
   // current click rather than the one that registered it.
   const requestedAction = React.useRef<'login' | 'logout'>('login');
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
-  const messageListenerAttached = React.useRef(false);
 
   const postToOpenerOnce: (message: unknown) => void = (message) => {
     if (sentPostMessage.current) {
@@ -108,9 +107,7 @@ export default function SendToLaserficheLoginComponent(
 
   const region = getRegion();
 
-  const spFileMetadata = JSON.parse(
-    window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)
-  ) as ISPDocumentData;
+  const spFileMetadata = getSPDocumentDataFromLocalStorage();
 
   let webClientUrl: string | undefined;
   if (loggedIn) {
@@ -153,7 +150,8 @@ export default function SendToLaserficheLoginComponent(
 
   const logoutCompletedInPopup: (ev: Event) => void = (ev: Event) => {
     const errorOccurred = (ev as CustomEvent).detail as
-      AbortedLoginError | undefined;
+      | AbortedLoginError
+      | undefined;
 
     // lf-login also raises this with no detail when it decides nobody is signed
     // in yet, which is the normal opening move of a sign-in. Releasing the popup
@@ -214,6 +212,19 @@ export default function SendToLaserficheLoginComponent(
     void setUpLoginComponentAsync();
 
     return cleanUpFunction;
+  }, []);
+
+  // Kept apart from the effect above, whose cleanup is about the lf-login
+  // element. Tied to the component's lifetime: registering on click leaked a
+  // listener per mount, because nothing removed it when this page went away.
+  React.useEffect(() => {
+    const handleMessage: (event: MessageEvent) => void = (event) => {
+      handlePopupMessage(event);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   async function handleLoginOrLogoutInMainWindowAsync(): Promise<void> {
@@ -423,43 +434,37 @@ export default function SendToLaserficheLoginComponent(
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     loginWindowRef.current = loginWindow;
+  }
 
-    // Attached once: registering per click left one handler per click, and each
-    // of those acts on the action its own click asked for, so an old sign-out
-    // handler would still fire on a later sign-in.
-    if (messageListenerAttached.current) {
+  function handlePopupMessage(event: MessageEvent): void {
+    if (event.origin !== window.origin) {
       return;
     }
-    messageListenerAttached.current = true;
-    window.addEventListener('message', (event) => {
-      if (event.origin === window.origin) {
-        if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindowRef.current?.close();
-          loginWindowRef.current = undefined;
-          if (requestedAction.current === 'logout') {
-            // The popup signs out on its own lf-login element, so
-            // logoutCompleted does not necessarily reach the one on this page.
-            setLoggedIn(false);
-          }
-        } else if (event.data) {
-          const parsedError: AbortedLoginError = event.data;
-          if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindowRef.current?.close();
-            loginWindowRef.current = undefined;
-            const mes = (
-              <MessageDialog
-                title='Sign In Failed'
-                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-                clickOkay={() => {
-                  setMessageErrorModal(undefined);
-                }}
-              />
-            );
-            setMessageErrorModal(mes);
-          }
-        }
+    if (event.data === LOGIN_WINDOW_SUCCESS) {
+      loginWindowRef.current?.close();
+      loginWindowRef.current = undefined;
+      if (requestedAction.current === 'logout') {
+        // The popup signs out on its own lf-login element, so
+        // logoutCompleted does not necessarily reach the one on this page.
+        setLoggedIn(false);
       }
-    });
+    } else if (event.data) {
+      const parsedError: AbortedLoginError = event.data;
+      if (parsedError.ErrorMessage && parsedError.ErrorType) {
+        loginWindowRef.current?.close();
+        loginWindowRef.current = undefined;
+        const mes = (
+          <MessageDialog
+            title='Sign In Failed'
+            message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+            clickOkay={() => {
+              setMessageErrorModal(undefined);
+            }}
+          />
+        );
+        setMessageErrorModal(mes);
+      }
+    }
   }
 
   const redirectURL =

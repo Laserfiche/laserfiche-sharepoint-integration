@@ -24,7 +24,6 @@ import {
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
-require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
@@ -67,7 +66,6 @@ export default function LaserficheRepositoryAccessWebPart(
     JSX.Element | undefined
   >(undefined);
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
-  const messageListenerAttached = React.useRef(false);
   // What the last click asked the popup to do. The popup reports the same
   // success message either way, so this is the only thing that says which.
   const requestedAction = React.useRef<'login' | 'logout'>('login');
@@ -152,6 +150,18 @@ export default function LaserficheRepositoryAccessWebPart(
     void initializeComponentAsync();
   }, []);
 
+  // Tied to the component's lifetime: registering on click leaked a listener
+  // per mount, because nothing removed it when the web part went away.
+  useEffect(() => {
+    const handleMessage: (event: MessageEvent) => void = (event) => {
+      void handlePopupMessageAsync(event);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
   async function pageConfigurationCheck(): Promise<boolean> {
     try {
       const res = await fetch(
@@ -206,15 +216,6 @@ export default function LaserficheRepositoryAccessWebPart(
     const loginWindow = window.open(url, 'loginWindow', 'popup');
     loginWindow.resizeTo(800, 600);
     loginWindowRef.current = loginWindow;
-
-    // Attached once: this used to be registered per click, so a second sign-in
-    // left two handlers processing every message from the popup.
-    if (!messageListenerAttached.current) {
-      messageListenerAttached.current = true;
-      window.addEventListener('message', (event: MessageEvent) => {
-        void handlePopupMessageAsync(event);
-      });
-    }
   }
 
   async function handlePopupMessageAsync(event: MessageEvent): Promise<void> {

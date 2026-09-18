@@ -139,7 +139,6 @@ export function MessageDialog(props: {
           <button
             type='button'
             className='lf-button primary-button'
-            data-dismiss='modal'
             onClick={props.clickOkay}
           >
             Okay

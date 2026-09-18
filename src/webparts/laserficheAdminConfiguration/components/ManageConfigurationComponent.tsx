@@ -279,7 +279,6 @@ export default function ManageConfiguration(
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={onClickConfirmButton}
                 >
                   OK
@@ -310,7 +309,6 @@ export default function ManageConfiguration(
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={onClickErrorButton}
                 >
                   OK

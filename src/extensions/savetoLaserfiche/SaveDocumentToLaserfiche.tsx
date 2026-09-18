@@ -31,7 +31,9 @@ export class SaveDocumentToLaserfiche {
     private validRepoClient: IRepositoryApiClientExInternal
   ) {}
 
-  async trySaveDocumentToLaserficheAsync(): Promise<SavedToLaserficheDocumentData> {
+  async trySaveDocumentToLaserficheAsync(): Promise<
+    SavedToLaserficheDocumentData | undefined
+  > {
     const loginComponent: NgElement & WithProperties<LfLoginComponent> =
       document.querySelector('lf-login');
     const accessToken = loginComponent?.authorization_credentials?.accessToken;
@@ -113,8 +115,8 @@ export class SaveDocumentToLaserfiche {
     webClientUrl: string,
     customerId: string
   ): Promise<SavedToLaserficheDocumentData | undefined> {
-    const metadata: ImportEntryRequestMetadata | undefined = this
-      .spFileMetadata.templateName
+    const metadata: ImportEntryRequestMetadata | undefined = this.spFileMetadata
+      .templateName
       ? this.getRequestMetadata()
       : undefined;
 

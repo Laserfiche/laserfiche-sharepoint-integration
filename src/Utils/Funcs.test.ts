@@ -25,7 +25,11 @@ jest.mock('@laserfiche/lf-js-utils', () => ({
   },
 }));
 
-import { getEntryWebAccessUrl } from './Funcs';
+import {
+  getEntryWebAccessUrl,
+  getSPDocumentDataFromLocalStorage,
+} from './Funcs';
+import { SP_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
 const WA_URL = 'https://app.laserfiche.com/laserfiche';
 const REPO_ID = 'r-26a7e408';
@@ -45,7 +49,7 @@ describe('getEntryWebAccessUrl', () => {
 
     // Assert
     expect(url).toBe(
-      `${WA_URL}/DocView.aspx?repo=${REPO_ID}&customerId=${CUSTOMER_ID}&docid=${ENTRY_ID}`
+      `${WA_URL}/DocView.aspx?repo=${REPO_ID}&customerId=${CUSTOMER_ID}&id=${ENTRY_ID}`
     );
   });
 
@@ -72,7 +76,7 @@ describe('getEntryWebAccessUrl', () => {
 
     // Assert
     expect(documentUrl).toBe(
-      `${WA_URL}/DocView.aspx?repo=${REPO_ID}&docid=${ENTRY_ID}`
+      `${WA_URL}/DocView.aspx?repo=${REPO_ID}&id=${ENTRY_ID}`
     );
     expect(containerUrl).toBe(
       `${WA_URL}/Browse.aspx?repo=${REPO_ID}#?id=${ENTRY_ID}`
@@ -85,7 +89,7 @@ describe('getEntryWebAccessUrl', () => {
     const url = getEntryWebAccessUrl(ENTRY_ID, WA_URL, false, REPO_ID, '');
 
     // Assert
-    expect(url).toBe(`${WA_URL}/DocView.aspx?repo=${REPO_ID}&docid=${ENTRY_ID}`);
+    expect(url).toBe(`${WA_URL}/DocView.aspx?repo=${REPO_ID}&id=${ENTRY_ID}`);
   });
 
   test('includes customerId when there is no repo', () => {
@@ -107,7 +111,7 @@ describe('getEntryWebAccessUrl', () => {
 
     // Assert
     expect(documentUrl).toBe(
-      `${WA_URL}/DocView.aspx?customerId=${CUSTOMER_ID}&docid=${ENTRY_ID}`
+      `${WA_URL}/DocView.aspx?customerId=${CUSTOMER_ID}&id=${ENTRY_ID}`
     );
     expect(containerUrl).toBe(
       `${WA_URL}/Browse.aspx?customerId=${CUSTOMER_ID}#?id=${ENTRY_ID}`
@@ -141,5 +145,56 @@ describe('getEntryWebAccessUrl', () => {
     expect(
       getEntryWebAccessUrl(ENTRY_ID, undefined, false, REPO_ID, CUSTOMER_ID)
     ).toBeUndefined();
+  });
+});
+
+describe('getSPDocumentDataFromLocalStorage', () => {
+  afterEach(() => {
+    window.localStorage.clear();
+    jest.restoreAllMocks();
+  });
+
+  test('returns the parsed document data when the stored value is valid', () => {
+    // Arrange
+    const docData = {
+      fileName: 'invoice.pdf',
+      documentName: 'invoice',
+      action: 'copy',
+      fileUrl: 'https://contoso.sharepoint.com/invoice.pdf',
+      entryId: '1',
+      contextPageAbsoluteUrl: 'https://contoso.sharepoint.com',
+    };
+    window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, JSON.stringify(docData));
+
+    // Act
+    const result = getSPDocumentDataFromLocalStorage();
+
+    // Assert
+    expect(result).toEqual(docData);
+  });
+
+  test('returns undefined when nothing is stored', () => {
+    // Arrange
+
+    // Act
+    const result = getSPDocumentDataFromLocalStorage();
+
+    // Assert
+    expect(result).toBeUndefined();
+  });
+
+  test('returns undefined instead of throwing on malformed JSON', () => {
+    // Arrange
+    // This is read during render, so a SyntaxError here would crash the tree.
+    window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, '{"fileName":');
+    const warn = jest.spyOn(console, 'warn');
+    warn.mockImplementation(() => undefined);
+
+    // Act
+    const result = getSPDocumentDataFromLocalStorage();
+
+    // Assert
+    expect(result).toBeUndefined();
+    expect(warn).toHaveBeenCalled();
   });
 });
