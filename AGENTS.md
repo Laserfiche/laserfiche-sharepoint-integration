@@ -95,10 +95,12 @@ jest.config.cjs                   Jest config with module mappings for SPFx
 # Setup
 npm ci                               # use ci, not install, to lock to package-lock.json
 
-# Dev — local SharePoint Workbench
-gulp trust-dev-cert                  # one-time per machine
+# Dev — HOSTED SharePoint Workbench only
+gulp trust-dev-cert                  # one-time per machine (installs a dev cert)
 # Edit serve.json: replace REPLACE_WITH_YOUR_SHAREPOINT_SITE
-npm run serve
+npm run serve                        # runs gulp via node with an 8GB heap, see below
+# Then open, on a real site:
+#   https://<site>/_layouts/15/workbench.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true
 
 # Build & package (DEV - includeClientSideAssets unbundled)
 npm run build                        # gulp bundle (no --ship)
@@ -116,6 +118,10 @@ npm test                             # jest (v30)
 # Clean
 npm run clean                        # gulp clean (wipes lib/, temp/, sharepoint/solution/)
 ```
+
+**There is no local workbench.** Microsoft removed it in SPFx 1.13 — no `workbench.html` ships in this repo or in `node_modules`, so `https://localhost:4321/temp/workbench.html` returns *Cannot GET*. The `result.set('serve', result.get('serve-deprecated'))` remap in `gulpfile.js` restores the old serve *task*, not the local workbench page. Use the hosted workbench URL above against a real site.
+
+**Why `serve` invokes node directly.** `gulp serve` in watch mode climbs to Node's default ~4GB heap ceiling and dies with `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory` (exit 134) after roughly 15-20 minutes. The script therefore runs `node --max-old-space-size=8192 node_modules/gulp/bin/gulp.js serve` rather than plain `gulp serve`. It is spelled that way, not as a `NODE_OPTIONS=... gulp serve` prefix, because npm runs scripts through `cmd.exe` on Windows, where the POSIX inline-env-var form is a syntax error. Extra flags still pass through: `npm run serve -- --nobrowser`.
 
 **Do NOT build the release `.sppkg` locally for distribution.** Use the [SPFx CI/CD GitHub Action](https://github.com/Laserfiche/laserfiche-sharepoint-integration/actions/workflows/main.yml) so the version number is consistent (`1.0.0.${{github.run_number}}`).
 
