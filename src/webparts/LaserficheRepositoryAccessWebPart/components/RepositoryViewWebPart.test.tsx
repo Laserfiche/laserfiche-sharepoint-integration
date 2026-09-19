@@ -1,7 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => {
+jest.mock('@laserfiche/lf-repository-api-client-v2', () => {
   return {
     EntryType: {
       Folder: 'Folder',
@@ -28,7 +28,7 @@ import RepositoryViewWebPart, {
   openNode,
   RepositoryBrowserToolbar,
 } from './RepositoryViewWebPart';
-import { EntryType } from '@laserfiche/lf-repository-api-client';
+import { EntryType } from '@laserfiche/lf-repository-api-client-v2';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import {
   CANNOT_IMPORT_INTO_RECORD_SERIES,
@@ -65,6 +65,7 @@ describe('RepositoryViewWebPart', () => {
       <RepositoryViewWebPart
         repoClient={repoClient}
         webClientUrl={''}
+        customerId={''}
         loggedIn={false}
       />
     );
@@ -207,6 +208,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -229,6 +231,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -249,6 +252,7 @@ describe('openNode', () => {
   let props: {
     repoClient: IRepositoryApiClientExInternal;
     webClientUrl: string;
+    customerId: string;
     loggedIn: boolean;
   };
 
@@ -259,6 +263,7 @@ describe('openNode', () => {
         getCurrentRepoId: jest.fn().mockResolvedValue('repoId'),
       } as unknown as IRepositoryApiClientExInternal,
       webClientUrl: 'http://webclient.url',
+      customerId: 'customerId',
       loggedIn: true,
     };
   });
@@ -309,7 +314,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });
@@ -335,7 +341,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });

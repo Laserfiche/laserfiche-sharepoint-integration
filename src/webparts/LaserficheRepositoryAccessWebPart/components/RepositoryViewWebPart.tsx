@@ -3,16 +3,15 @@
 
 import { NgElement, WithProperties } from '@angular/elements';
 import {
-  EntryType,
-  PostEntryChildrenRequest,
-  PostEntryChildrenEntryType,
+  CreateEntryRequest,
+  CreateEntryRequestEntryType,
   Entry,
+  EntryType,
   FieldToUpdate,
-  ValueToUpdate,
-  PostEntryWithEdocMetadataRequest,
-  PutFieldValsRequest,
   FileParameter,
-} from '@laserfiche/lf-repository-api-client';
+  ImportEntryRequest,
+  ImportEntryRequestMetadata,
+} from '@laserfiche/lf-repository-api-client-v2';
 import {
   LfRepoTreeNodeService,
   LfFieldsService,
@@ -116,6 +115,7 @@ export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
 export default function RepositoryViewComponent(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
+  customerId: string;
   loggedIn: boolean;
 }): JSX.Element {
   const repositoryBrowser: React.RefObject<
@@ -208,22 +208,17 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
+                customerId={props.customerId}
                 refreshFolderBrowserAsync={refreshFolderBrowserAsync}
               />
-              <div
-                className='lf-folder-browser-sample-container'
-                style={{ height: '400px' }}
-              >
-                <div className='repository-browser'>
-                  <lf-repository-browser
-                    ref={repositoryBrowser}
-                    ok_button_text='Okay'
-                    cancel_button_text='Cancel'
-                    multiple='false'
-                    style={{ height: '420px' }}
-                    isSelectable={isNodeSelectable}
-                  />
-                </div>
+              <div className={styles.repositoryBrowserContainer}>
+                <lf-repository-browser
+                  ref={repositoryBrowser}
+                  ok_button_text='Okay'
+                  cancel_button_text='Cancel'
+                  multiple='false'
+                  isSelectable={isNodeSelectable}
+                />
               </div>
             </>
           )}
@@ -239,6 +234,7 @@ export async function openNode(
   props: {
     repoClient: IRepositoryApiClientExInternal;
     webClientUrl: string;
+    customerId: string;
     loggedIn: boolean;
   }
 ): Promise<void> {
@@ -256,7 +252,8 @@ export async function openNode(
         openedNode.id,
         props.webClientUrl,
         openedNode.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     }
@@ -266,6 +263,7 @@ export async function openNode(
 export function RepositoryBrowserToolbar(props: {
   repoClient: IRepositoryApiClientExInternal;
   webClientUrl: string;
+  customerId: string;
   selectedItem: LfRepoTreeNode;
   parentItem: LfRepoTreeNode;
   loggedIn: boolean;
@@ -291,7 +289,8 @@ export function RepositoryBrowserToolbar(props: {
         props.selectedItem.id,
         props.webClientUrl,
         props.selectedItem.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     } else if (props.parentItem?.id) {
@@ -299,7 +298,8 @@ export function RepositoryBrowserToolbar(props: {
         props.parentItem.id,
         props.webClientUrl,
         props.parentItem.isContainer,
-        repoId
+        repoId,
+        props.customerId
       );
       window.open(webClientNodeUrl);
     } else {
@@ -411,7 +411,6 @@ export function RepositoryBrowserToolbar(props: {
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={confirmAlertButton}
                 >
                   {OK}
@@ -500,16 +499,21 @@ function ImportFileModal(props: {
         setImportFileValidationMessage(fileNameValidation);
         return;
       }
-      const extension = PathUtils.getCleanedExtension(fileData.name);
+      const extension =
+        PathUtils.getCleanedExtension(
+          PathUtils.getFileExtension(fileData.name)
+        ) ?? '';
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBackslash = fileName.includes('\\');
       try {
-        const entryWithPathExists =
+        const entryWithPath =
           await props.repoClient.entriesClient.getEntryByPath({
-            repoId,
+            repositoryId: repoId,
             fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
           });
-        if (entryWithPathExists) {
+        // v2 returns a GetEntryByPathResponse on success, so the response is
+        // always truthy: test the entry itself.
+        if (entryWithPath?.entry) {
           setShowImport(false);
           const confirmUpload = await getConfirmation(
             ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
@@ -553,18 +557,16 @@ function ImportFileModal(props: {
     const fieldValidation = fieldContainer.current?.forceValidation();
     if (fieldValidation) {
       const fieldValues = fieldContainer.current.getFieldValues();
-      const formattedFieldValues:
-        | {
-            [key: string]: FieldToUpdate;
-          }
-        | undefined = {};
+      const formattedFieldValues: FieldToUpdate[] = [];
 
       for (const key in fieldValues) {
         const value = fieldValues[key];
-        formattedFieldValues[key] = new FieldToUpdate({
-          ...value,
-          values: value.values.map((val) => new ValueToUpdate(val)),
-        });
+        formattedFieldValues.push(
+          new FieldToUpdate({
+            name: key,
+            values: value?.values?.map((val) => val.value),
+          })
+        );
       }
 
       const templateValue = getTemplateName();
@@ -574,16 +576,14 @@ function ImportFileModal(props: {
       }
 
       setFileUploadPercentage(80);
-      const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-        new PostEntryWithEdocMetadataRequest({
-          template: templateName,
-          metadata: new PutFieldValsRequest({
-            fields: formattedFieldValues,
-          }),
+      const fieldsmetadata: ImportEntryRequestMetadata =
+        new ImportEntryRequestMetadata({
+          templateName,
+          fields: formattedFieldValues,
         });
+      // v2 has no separate `extension` parameter: the extension has to be part
+      // of the electronic document's file name.
       const fileNameWithExt = fileName + extension;
-      const fileextensionperiod = extension;
-      const fileNameNoPeriod = fileName;
       const parentEntryId = props.parentItem.id;
 
       const file: FileParameter = {
@@ -591,16 +591,21 @@ function ImportFileModal(props: {
         fileName: fileNameWithExt,
       };
       const requestParameters = {
-        repoId,
-        parentEntryId: Number.parseInt(parentEntryId, 10),
-        electronicDocument: file,
-        autoRename: true,
-        fileName: fileNameNoPeriod,
-        request: fieldsmetadata,
-        extension: fileextensionperiod,
+        repositoryId: repoId,
+        entryId: Number.parseInt(parentEntryId, 10),
+        file,
+        request: new ImportEntryRequest({
+          name: fileName,
+          autoRename: true,
+          // v2 defaults this to false, which would store txt/tif/tiff/bmp/pcx/
+          // jpg/jpeg/gif/png files as image pages rather than as the
+          // electronic document. v1 always stored the edoc.
+          importAsElectronicDocument: true,
+          metadata: fieldsmetadata,
+        }),
       };
 
-      await props.repoClient.entriesClient.importDocument(requestParameters);
+      await props.repoClient.entriesClient.importEntry(requestParameters);
       setFileUploadPercentage(100);
       props.closeImportModal();
     } else {
@@ -676,22 +681,16 @@ function ImportFileModal(props: {
           {!error && (
             <>
               <div className='input-group mb-3'>
-                <div className='custom-file'>
-                  <input
-                    type='file'
-                    className='custom-file-input'
-                    id='importFile'
-                    onChange={setFileToImport}
-                    aria-describedby='inputGroupFileAddon04'
-                    placeholder='Choose file'
-                  />
-                  <label className='custom-file-label' id='importFileName'>
-                    {file?.name ? file.name : 'Choose a file'}
-                  </label>
-                </div>
+                <input
+                  type='file'
+                  className='form-control'
+                  id='importFile'
+                  onChange={setFileToImport}
+                  aria-label='Choose a file to import'
+                />
               </div>
               {validationError}
-              <div className='form-group row mb-3'>
+              <div className='row mb-3'>
                 <label className='col-sm-3 col-form-label'>{NAME}</label>
                 <div className='col-sm-9'>
                   <input
@@ -774,22 +773,19 @@ function CreateFolderModal(props: {
         setCreateFolderNameValidationMessage(undefined);
 
         const repoId = await props.repoClient.getCurrentRepoId();
-        const postEntryChildrenRequest: PostEntryChildrenRequest =
-          new PostEntryChildrenRequest({
-            entryType: PostEntryChildrenEntryType.Folder,
-            name: folderName,
-          });
+        const createEntryRequest: CreateEntryRequest = new CreateEntryRequest({
+          entryType: CreateEntryRequestEntryType.Folder,
+          name: folderName,
+        });
         const requestParameters = {
-          repoId,
+          repositoryId: repoId,
           entryId: Number.parseInt(props.parentItem.id, 10),
-          request: postEntryChildrenRequest,
+          request: createEntryRequest,
         };
         try {
           const array = [];
           const newFolderEntry: Entry =
-            await props.repoClient.entriesClient.createOrCopyEntry(
-              requestParameters
-            );
+            await props.repoClient.entriesClient.createEntry(requestParameters);
 
           array.push(newFolderEntry);
           props.closeCreateFolderModal();
@@ -816,16 +812,13 @@ function CreateFolderModal(props: {
           </h5>
           <button
             type='button'
-            className='close'
-            data-dismiss='modal'
+            className='btn-close'
             aria-label='Close'
             onClick={props.closeCreateFolderModal}
-          >
-            <span aria-hidden='true'>&times;</span>
-          </button>
+          />
         </div>
         <div className='modal-body'>
-          <div className='form-group'>
+          <div className='mb-3'>
             <label>{FOLDER_NAME}</label>
             <input
               type='text'
@@ -843,7 +836,6 @@ function CreateFolderModal(props: {
           <button
             type='button'
             className='lf-button primary-button'
-            data-dismiss='modal'
             onClick={createNewFolderAsync}
           >
             {SUBMIT}
@@ -851,7 +843,6 @@ function CreateFolderModal(props: {
           <button
             type='button'
             className='lf-button sec-button'
-            data-dismiss='modal'
             onClick={closeNewFolderModal}
           >
             {CLOSE}

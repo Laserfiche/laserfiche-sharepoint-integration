@@ -1,12 +1,12 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => ({
-  WTemplateInfo: jest.fn().mockImplementation(({ name, displayName }) => ({
+jest.mock('@laserfiche/lf-repository-api-client-v2', () => ({
+  TemplateDefinition: jest.fn().mockImplementation(({ name, displayName }) => ({
     name,
     displayName,
   })),
-  WFieldType: {
+  FieldType: {
     Date: 'Date',
     List: 'List',
     Time: 'Time',
@@ -21,7 +21,7 @@ import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import {
   TemplateDefinitionsClient,
-} from '@laserfiche/lf-repository-api-client';
+} from '@laserfiche/lf-repository-api-client-v2';
 import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 import { HashRouter } from 'react-router-dom';
@@ -38,7 +38,7 @@ describe('ManageConfigurationComponent', () => {
     const repoClient = {
       getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        getTemplateDefinitionsForEach: jest
+        listTemplateDefinitionsForEach: jest
           .fn()
           .mockImplementation(({ callback }) =>
             callback({
@@ -49,7 +49,7 @@ describe('ManageConfigurationComponent', () => {
             })
           ),
 
-        getTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
+        listTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
           value: [
             { name: 'Field1', id: '1', required: true },
             { name: 'Field2', id: '2' },
@@ -102,7 +102,7 @@ describe('ManageConfigurationComponent', () => {
     const repoClient = {
       getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        getTemplateDefinitionsForEach: jest
+        listTemplateDefinitionsForEach: jest
           .fn()
           .mockImplementation(({ callback }) =>
             callback({
@@ -113,7 +113,7 @@ describe('ManageConfigurationComponent', () => {
             })
           ),
 
-        getTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
+        listTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
           value: [
             { name: 'Field1', id: '1' },
             { name: 'Field2', id: '2' },

@@ -1,11 +1,11 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import { IPostEntryWithEdocMetadataRequest } from '@laserfiche/lf-repository-api-client';
+import { IImportEntryRequestMetadata } from '@laserfiche/lf-repository-api-client-v2';
 import { ActionTypes } from '../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 
 export interface ISPDocumentData {
-  metadata?: IPostEntryWithEdocMetadataRequest;
+  metadata?: IImportEntryRequestMetadata;
   fileName: string;
   documentName: string;
   templateName?: string;

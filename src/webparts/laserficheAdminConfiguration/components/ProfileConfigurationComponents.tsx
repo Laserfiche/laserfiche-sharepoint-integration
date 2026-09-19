@@ -4,10 +4,10 @@
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
-  TemplateFieldInfo,
-  WFieldType,
-  WTemplateInfo,
-} from '@laserfiche/lf-repository-api-client';
+  FieldType,
+  TemplateDefinition,
+  TemplateFieldDefinition,
+} from '@laserfiche/lf-repository-api-client-v2';
 import {
   LfRepoTreeNode,
   LfRepoTreeNodeService,
@@ -59,7 +59,7 @@ export interface SPProfileConfigurationData {
 
 export interface MappedFields {
   id: string;
-  lfField: TemplateFieldInfo | undefined;
+  lfField: TemplateFieldDefinition | undefined;
   spField: SPProfileConfigurationData | undefined;
 }
 
@@ -83,7 +83,7 @@ export function ProfileHeader(props: {
 }
 
 export function ConfigurationBody(props: {
-  availableLfTemplates: WTemplateInfo[];
+  availableLfTemplates: TemplateDefinition[];
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
   profileConfig: ProfileConfiguration;
@@ -142,10 +142,10 @@ export function ConfigurationBody(props: {
   return (
     <>
       {/* Do not need document name for now as the document will always be saved with the SharePoint document name until tokens are supported */}
-      {/* <div className={`${styles.formGroupRow} form-group row`}>
+      {/* <div className={`${styles.formGroupRow} row mb-3`}>
         <DocumentName documentName={props.profileConfig?.DocumentName} />
       </div> */}
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <TemplateSelector
           availableLfTemplates={props.availableLfTemplates}
           selectedTemplateName={props.profileConfig?.selectedTemplateName}
@@ -154,7 +154,7 @@ export function ConfigurationBody(props: {
           onChangeTemplate={handleTemplateChange}
         />
       </div>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <label htmlFor='txt3' className='col-sm-3 col-form-label'>
           Laserfiche Destination
         </label>
@@ -174,7 +174,7 @@ export function ConfigurationBody(props: {
           </button>
         </div>
       </div>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <label htmlFor='dwl4' className='col-sm-3 col-form-label'>
           After import
         </label>
@@ -182,7 +182,7 @@ export function ConfigurationBody(props: {
           <select
             onChange={handleActionTypeChange}
             defaultValue={props.profileConfig.Action}
-            className='custom-select'
+            className='form-select'
             id='action'
           >
             <option value={ActionTypes.COPY}>
@@ -401,7 +401,7 @@ export function DocumentName(props: { documentName: string }): JSX.Element {
 }
 
 export function TemplateSelector(props: {
-  availableLfTemplates: WTemplateInfo[];
+  availableLfTemplates: TemplateDefinition[];
   selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
   templateWarning: boolean;
@@ -419,7 +419,7 @@ export function TemplateSelector(props: {
       </label>
       <div className='col-sm-6'>
         <select
-          className='custom-select'
+          className='form-select'
           id='documentTemplate'
           onChange={(e) => props.onChangeTemplate(e)}
           value={props.selectedTemplateName}
@@ -449,7 +449,7 @@ export function TemplateSelector(props: {
 export function SharePointLaserficheColumnMatching(props: {
   profileConfig: ProfileConfiguration;
   availableSPFields: SPProfileConfigurationData[];
-  lfFieldsForSelectedTemplate: TemplateFieldInfo[];
+  lfFieldsForSelectedTemplate: TemplateFieldDefinition[];
   validate: boolean;
   hasError: (hasError: boolean) => void;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
@@ -595,7 +595,7 @@ export function SharePointLaserficheColumnMatching(props: {
             <span className={styles.dataCellWidth}>
               <select
                 name='SharePointField'
-                className='custom-select'
+                className='form-select'
                 value={fieldMapping.spField?.InternalName ?? 'Select'}
                 id={fieldMapping.id}
                 onChange={(e) => handleSpFieldChange(e, fieldMapping)}
@@ -607,7 +607,7 @@ export function SharePointLaserficheColumnMatching(props: {
             <span className={styles.dataCellWidth}>
               <select
                 name='LaserficheField'
-                className='custom-select'
+                className='form-select'
                 value={fieldMapping.lfField?.id ?? 'Select'}
                 id={fieldMapping.id}
                 disabled={fieldMapping.lfField?.isRequired}
@@ -701,13 +701,10 @@ export function DeleteModal(props: {
           </h5>
           <button
             type='button'
-            className='close'
-            data-dismiss='modal'
+            className='btn-close'
             aria-label='Close'
             onClick={props.onCancel}
-          >
-            <span aria-hidden='true'>&times;</span>
-          </button>
+          />
         </div>
         <div className={styles.contentBox}>
           Do you want to permanently delete &quot;
@@ -717,7 +714,6 @@ export function DeleteModal(props: {
           <button
             type='button'
             className='lf-button primary-button'
-            data-dismiss='modal'
             onClick={props.onConfirmDelete}
           >
             {OK}
@@ -725,7 +721,6 @@ export function DeleteModal(props: {
           <button
             type='button'
             className={`lf-button sec-button ${styles.marginLeftButton}`}
-            data-dismiss='modal'
             onClick={props.onCancel}
           >
             {CANCEL}
@@ -779,25 +774,25 @@ export function hasFieldTypeMismatch(mapped: MappedFields): boolean {
   const lfFieldType = mapped.lfField.fieldType;
   const spFieldType = mapped.spField.TypeAsString;
   if (
-    lfFieldType === WFieldType.DateTime ||
-    lfFieldType === WFieldType.Date ||
-    lfFieldType === WFieldType.Time
+    lfFieldType === FieldType.DateTime ||
+    lfFieldType === FieldType.Date ||
+    lfFieldType === FieldType.Time
   ) {
     if (spFieldType !== 'DateTime') {
       return true;
     }
   } else if (
-    lfFieldType === WFieldType.LongInteger ||
-    lfFieldType === WFieldType.ShortInteger
+    lfFieldType === FieldType.LongInteger ||
+    lfFieldType === FieldType.ShortInteger
   ) {
     if (spFieldType !== 'Number') {
       return true;
     }
-  } else if (lfFieldType === WFieldType.Number) {
+  } else if (lfFieldType === FieldType.Number) {
     if (spFieldType !== 'Number' && spFieldType !== 'Currency') {
       return true;
     }
-  } else if (lfFieldType === WFieldType.List) {
+  } else if (lfFieldType === FieldType.List) {
     if (spFieldType !== 'Choice') {
       return true;
     }
