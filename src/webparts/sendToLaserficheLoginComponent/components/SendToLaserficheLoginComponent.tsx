@@ -316,7 +316,7 @@ export default function SendToLaserficheLoginComponent(
   return (
     <React.StrictMode>
       <div className={styles.signInHeader}>
-        <img src={LASERFICHE_ICON_URL} className={styles.laserficheLogo} />
+        <img src={LASERFICHE_ICON_URL} alt='' className={styles.laserficheLogo} />
         <span className={styles.signInHeaderText}>{LASERFICHE}</span>
       </div>
 

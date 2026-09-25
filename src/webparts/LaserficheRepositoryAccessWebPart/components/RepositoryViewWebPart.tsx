@@ -192,7 +192,7 @@ export default function RepositoryViewComponent(props: {
       <div>
         <main className='bg-white'>
           <div style={{ margin: '10px 0px' }}>
-            <img style={{ width: '30px' }} src={laserficheLogoUrl} />
+            <img style={{ width: '30px' }} src={laserficheLogoUrl} alt='' />
             <span className={styles.browserTitle}>{LASERFICHE_REPOSITORY_EXPLORER}</span>
           </div>
           {props.loggedIn && (
@@ -327,7 +327,7 @@ export function RepositoryBrowserToolbar(props: {
             title='Open entry in Laserfiche'
             onClick={openFileOrFolder}
           >
-            <img className={styles.waIcon} src={`${waIconsUrl}#open`} />
+            <img className={styles.waIcon} src={`${waIconsUrl}#open`} alt='' />
           </button>
           <button
             className={styles.lfMaterialIconButton}
@@ -339,21 +339,21 @@ export function RepositoryBrowserToolbar(props: {
             disabled={props?.parentItem?.entryType === EntryType.RecordSeries}
             onClick={openImportFileModal}
           >
-            <img className={styles.waIcon} src={`${waIconsUrl}#upload`} />
+            <img className={styles.waIcon} src={`${waIconsUrl}#upload`} alt='' />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Create folder in Laserfiche'
             onClick={openNewFolderModal}
           >
-            <img className={styles.waIcon} src={`${waIconsUrl}#add-folder`} />
+            <img className={styles.waIcon} src={`${waIconsUrl}#add-folder`} alt='' />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Refresh Laserfiche folder'
             onClick={props.refreshFolderBrowserAsync}
           >
-            <img className={styles.waIcon} src={`${waIconsUrl}#refresh`} />
+            <img className={styles.waIcon} src={`${waIconsUrl}#refresh`} alt='' />
           </button>
         </div>
       </div>

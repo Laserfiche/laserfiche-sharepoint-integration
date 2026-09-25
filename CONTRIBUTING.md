@@ -31,9 +31,10 @@ Search [GitHub Issues](https://github.com/Laserfiche/laserfiche-sharepoint-integ
 3. Make your change test-first (see below), then check that it builds and passes locally:
 
    ```bash
-   npm test          # unit tests
-   npm run test:ct   # component tests (type-checked first)
-   npm run bundle    # release build (fails on any lint warning)
+   npm run format:check   # formatting (Prettier)
+   npm test               # unit tests
+   npm run test:ct        # component tests (type-checked first)
+   npm run bundle         # release build (fails on any lint warning)
    ```
 
 [`AGENTS.md`](./AGENTS.md) covers the project's conventions in more depth: pinned versions, SharePoint's script-loading restrictions, and the test setup.

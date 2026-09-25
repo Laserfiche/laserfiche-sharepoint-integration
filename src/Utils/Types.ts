@@ -20,8 +20,8 @@ export interface ISPDocumentData {
 // folder it was saved into; either link is undefined when it can't be built.
 export interface SavedLaserficheDocument {
   fileName: string;
-  fileLink: string;
-  folderLink: string;
+  fileLink?: string;
+  folderLink?: string;
 }
 
 export interface ProfileMappingConfiguration {

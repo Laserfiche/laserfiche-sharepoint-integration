@@ -30,6 +30,7 @@ import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog, { LaserficheDialogTitle, useConfirm } from './CommonDialogs';
 import {
   COULD_NOT_DETERMINE_CONTENT_TYPE,
+  LASERFICHE,
   THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED,
 } from '../../webparts/strings';
 
@@ -375,7 +376,7 @@ export function GetDocumentDialogData(props: {
       {showLoading && (
         <div className={styles.wrapper}>
           <div className={styles.header}>
-            <LaserficheDialogTitle title='Laserfiche' />
+            <LaserficheDialogTitle title={LASERFICHE} />
 
             <button
               className={styles.lfCloseButton}

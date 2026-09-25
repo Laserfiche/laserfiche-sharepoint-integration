@@ -6,6 +6,25 @@ nav_order: 4
 
 # Laserfiche SharePoint Online Integration Changelog
 
+## Unreleased
+
+### Features
+
+- Uploading a file from the repository explorer now lets you add tags, shows when templates are loading, and keeps OK disabled until required fields are filled in. Afterwards, a dialog links to the new document and to its folder.
+- After saving a document to Laserfiche, the confirmation links to the saved document and to its folder.
+
+### Maintenance
+
+- Updated to SharePoint Framework 1.23.2, the Laserfiche Repository API v2 (704606) and Laserfiche UI Components 21 (710113).
+- Updated the test framework and added component tests. (710120)
+- After updating, users need to sign in to Laserfiche again.
+
+### Fixes
+
+- The repository explorer now shows new folders and uploaded documents without a manual refresh. (709485)
+- Signing in and out from the Laserfiche Sign In page, repository explorer and administrator configuration page now works reliably: Sign in no longer signs you out, and Sign out now signs you out.
+- If your browser blocks the sign-in pop-up, a message now explains how to allow it.
+
 ## 1.0.0.560
 
 ### Maintenance

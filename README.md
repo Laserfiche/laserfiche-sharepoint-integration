@@ -58,8 +58,9 @@ npm run gulp-trust-dev-cert  # one time per machine: trusts the local HTTPS dev 
 | `npm run bundle`                               | Release build (`gulp bundle --ship`). This is what CI runs, and it fails on any lint warning                             |
 | `npm run package` / `npm run package-solution` | Debug / release `.sppkg`, written to `sharepoint/solution/`                                                              |
 | `npm run clean`                                | Removes the build output                                                                                                 |
+| `npm run format` / `npm run format:check`      | Formats the code with Prettier / fails on unformatted files                                                              |
 
-Before opening a PR, run `npm test`, `npm run test:ct` and `npm run bundle`. CI runs all three.
+Before opening a PR, run `npm run format:check`, `npm test`, `npm run test:ct` and `npm run bundle`. CI runs all four.
 
 ## Run locally
 

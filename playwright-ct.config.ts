@@ -32,7 +32,9 @@ export default defineConfig({
   // job-summary-reporter.ts only writes when GITHUB_STEP_SUMMARY is set (CI).
   reporter: [['html'], ['./tests/ct/job-summary-reporter.ts']],
   use: {
-    trace: 'on-first-retry',
+    // Keeps a trace for every failing test, in the report CI uploads on
+    // failure. 'on-first-retry' never recorded one: there are no retries.
+    trace: 'retain-on-failure',
     ctTemplateDir: './tests/ct/playwright',
     ctViteConfig: {
       // Playwright CT always builds with `build.sourcemap: true`, but Vite

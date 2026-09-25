@@ -54,7 +54,6 @@
     "@microsoft/eslint-config-spfx": "1.23.2",
     "@microsoft/eslint-plugin-spfx": "1.23.2",
     "@microsoft/rush-stack-compiler-5.3": "0.1.0",
-    "@microsoft/sp-adaptive-card-extension-base": "1.23.2",
     "@microsoft/sp-build-web": "1.23.2",
     "@microsoft/sp-core-library": "1.23.2",
     "@microsoft/sp-dialog": "1.23.2",
