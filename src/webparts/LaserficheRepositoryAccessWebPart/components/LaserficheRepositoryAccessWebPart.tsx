@@ -4,7 +4,7 @@
 import * as React from 'react';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { LfLoginComponent, LoginState, LoginType } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
-import { getRegion } from '../../../Utils/Funcs';
+import { getRegion, isLfLoginSignedIn } from '../../../Utils/Funcs';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './LaserficheRepositoryAccess.module.scss';
 import { SIGN_IN, SIGN_OUT } from '../../strings';
@@ -93,9 +93,7 @@ export default function LaserficheRepositoryAccessWebPart(
     // found an existing session and changed no storage at all. So reconcile
     // explicitly at the points we know something happened.
     const syncSignedInStateAsync: () => Promise<void> = async () => {
-      const signedIn =
-        loginComponent.current?.state === LoginState.LoggedIn ||
-        !!loginComponent.current?.authorization_credentials;
+      const signedIn = isLfLoginSignedIn(loginComponent.current);
       if (signedIn) {
         await getAndInitializeRepositoryClientAndServicesAsync();
       }

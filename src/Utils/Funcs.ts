@@ -3,6 +3,7 @@
 
 import { UrlUtils } from '@laserfiche/lf-js-utils';
 import { FieldType } from '@laserfiche/lf-repository-api-client-v2';
+import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import {
   LOGIN_WINDOW_HEIGHT_PX,
@@ -80,6 +81,20 @@ export function openLoginWindow(url: string): Window | undefined {
       `popup,width=${width},height=${height},left=${left},top=${top}`
     ) ?? undefined
   );
+}
+
+/**
+ * Whether an lf-login element holds a Laserfiche session. Either sign counts:
+ * the element can restore credentials from local storage before its state
+ * says LoggedIn.
+ *
+ * @param loginElement The lf-login element, or undefined before it renders
+ * @returns true when the element reports LoggedIn or holds credentials
+ */
+export function isLfLoginSignedIn(
+  loginElement: Pick<LfLoginComponent, 'state' | 'authorization_credentials'> | undefined
+): boolean {
+  return loginElement?.state === LoginState.LoggedIn || !!loginElement?.authorization_credentials;
 }
 
 export function getCorrespondingTypeFieldName(fieldType: FieldType): string {

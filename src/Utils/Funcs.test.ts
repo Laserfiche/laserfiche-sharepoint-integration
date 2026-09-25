@@ -4,7 +4,13 @@
 // @laserfiche/lf-js-utils is NOT mocked: these tests assert the URL the
 // Laserfiche web client actually receives, built by the real UrlUtils.
 
-import { getEntryWebAccessUrl, getSPDocumentDataFromLocalStorage, openLoginWindow } from './Funcs';
+import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
+import {
+  getEntryWebAccessUrl,
+  getSPDocumentDataFromLocalStorage,
+  isLfLoginSignedIn,
+  openLoginWindow,
+} from './Funcs';
 import { SP_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
 const WA_URL = 'https://app.laserfiche.com/laserfiche';
@@ -230,5 +236,53 @@ describe('openLoginWindow', () => {
       'loginWindow',
       'popup,width=800,height=600,left=0,top=0'
     );
+  });
+});
+
+describe('isLfLoginSignedIn', () => {
+  test('is true when lf-login reports it is signed in', () => {
+    // Arrange
+    const loginElement = { state: LoginState.LoggedIn } as LfLoginComponent;
+
+    // Act
+    const signedIn = isLfLoginSignedIn(loginElement);
+
+    // Assert
+    expect(signedIn).toBe(true);
+  });
+
+  // lf-login restores credentials from local storage before its state
+  // catches up with them.
+  test('is true when lf-login holds credentials its state does not reflect yet', () => {
+    // Arrange
+    const loginElement = {
+      state: LoginState.LoggedOut,
+      authorization_credentials: { accessToken: 'token' },
+    } as unknown as LfLoginComponent;
+
+    // Act
+    const signedIn = isLfLoginSignedIn(loginElement);
+
+    // Assert
+    expect(signedIn).toBe(true);
+  });
+
+  test('is false when lf-login is signed out and holds no credentials', () => {
+    // Arrange
+    const loginElement = { state: LoginState.LoggedOut } as LfLoginComponent;
+
+    // Act
+    const signedIn = isLfLoginSignedIn(loginElement);
+
+    // Assert
+    expect(signedIn).toBe(false);
+  });
+
+  test('is false before the lf-login element exists', () => {
+    // Act
+    const signedIn = isLfLoginSignedIn(undefined);
+
+    // Assert
+    expect(signedIn).toBe(false);
   });
 });

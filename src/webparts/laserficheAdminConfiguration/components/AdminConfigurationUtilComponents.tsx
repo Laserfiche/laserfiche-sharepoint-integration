@@ -5,7 +5,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
-import { getRegion } from '../../../Utils/Funcs';
+import { getRegion, isLfLoginSignedIn } from '../../../Utils/Funcs';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import {
   LF_INDIGO_PINK_CSS_URL,
@@ -71,6 +71,9 @@ export const LoginComponent: React.FC<{
     loggedIn: props.loggedIn,
     setMessageModal: props.setMessageErrorModal,
     onSignedOut: () => props.setLoggedIn(false),
+    // The popup may have signed in on its own element without touching this
+    // one, so ask directly rather than waiting for an event that may not come.
+    onSignedIn: syncSignedInStateAsync,
   });
 
   React.useEffect(() => {
@@ -93,10 +96,7 @@ export const LoginComponent: React.FC<{
 
         loginComponent.current.addEventListener('loginCompleted', loginCompleted);
         loginComponent.current.addEventListener('logoutCompleted', logoutCompleted);
-        if (loginComponent.current.authorization_credentials) {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          props.setLoggedIn(true);
-        }
+        await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error(`Error initializing configuration page: ${err}`);
@@ -105,6 +105,18 @@ export const LoginComponent: React.FC<{
 
     void initializeComponentAsync();
   }, []);
+
+  // A sign-in can finish without this element ever raising loginCompleted: it
+  // may have restored the session before we subscribed, or the popup may have
+  // found an existing session and changed no storage at all. So reconcile
+  // explicitly at the points we know something happened.
+  async function syncSignedInStateAsync(): Promise<void> {
+    const signedIn = isLfLoginSignedIn(loginComponent.current);
+    if (signedIn) {
+      await getAndInitializeRepositoryClientAndServicesAsync();
+    }
+    props.setLoggedIn(signedIn);
+  }
 
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
     const accessToken = loginComponent?.current?.authorization_credentials?.accessToken;
