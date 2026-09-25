@@ -37,7 +37,7 @@ When you add something reusable, put it in one of these places, not next to its 
 
 - Small, single-purpose functions and components with descriptive names. No dead or commented-out code.
 - Refactor as you go, leaving code you touch cleaner than you found it. Keep refactors behavior-preserving and covered by tests, and keep them separate in intent from feature changes.
-- Match the surrounding code. Prettier (`.prettierrc`) and ESLint (`@microsoft/eslint-config-spfx`) are the source of truth: 2-space indent, single quotes.
+- Match the surrounding code. Prettier (`.prettierrc`) and ESLint (`@microsoft/eslint-config-spfx`) are the source of truth: 2-space indent, single quotes, 100-column lines. Run `npm run format` before committing; CI fails on unformatted files. `.prettierignore` keeps Prettier off `jekyll_files/`, whose Liquid templates it would break.
 - Comments explain _why_, not _what_.
 - Functional React components and hooks. Use class components only where the SPFx base classes require them.
 - Accessibility: decorative images get `alt=''`, and icon-only buttons get a `title` or `aria-label`.
@@ -50,7 +50,7 @@ When you add something reusable, put it in one of these places, not next to its 
   - **Vitest + jsdom** (`src/**/*.test.ts(x)`, next to the source): logic, DOM structure and text.
   - **Playwright component tests** (`tests/ct/*.ct.tsx`): real `File` objects, CSS visibility, focus/keyboard, and `lf-ui-components` custom-element events. Don't add CT coverage just to have it.
 - Keep tests current with the code. Changing a component's markup or flow means updating its tests in the same change. Never skip or delete a failing test to get a change through.
-- **Definition of done:** `npm test`, `npm run test:ct` **and** `npm run bundle` all pass. The bundle (`gulp bundle --ship`) is the stricter SHIP build CI runs: it fails on any lint warning, and it is where TypeScript errors in the Vitest test files surface (Vitest strips types without checking them). `npm run test:ct` type-checks the component tests against `tsconfig.ct.json` before running them.
+- **Definition of done:** `npm run format:check`, `npm test`, `npm run test:ct` **and** `npm run bundle` all pass. The bundle (`gulp bundle --ship`) is the stricter SHIP build CI runs: it fails on any lint warning, and it is where TypeScript errors in the Vitest test files surface (Vitest strips types without checking them). `npm run test:ct` type-checks the component tests against `tsconfig.ct.json` before running them.
 - Delete scratch or diagnostic tests before finishing, and check `git status` for stray files.
 
 ---
@@ -74,6 +74,7 @@ Branch off **`1.x`** and open PRs against it. `main` is abandoned.
 | Testing Library                | RTL **12.1.5**, jest-dom **6.9.1**               | exact pins: the last React-17-compatible versions                                                                                                                                                        |
 | Playwright CT                  | `@playwright/experimental-ct-react17` **1.62.1** | exact pin (experimental package)                                                                                                                                                                         |
 | ESLint                         | 8.57.1                                           |                                                                                                                                                                                                          |
+| Prettier                       | **3.9.9**                                        | exact pin, so the CLI, CI and the VS Code extension (which uses the project's copy) format identically |
 
 ### Commands
 
@@ -81,6 +82,8 @@ Branch off **`1.x`** and open PRs against it. `main` is abandoned.
 npm ci                   # install (never `npm install` for setup)
 npm test                 # Vitest
 npm run test:ct          # type-check (tsconfig.ct.json), then Playwright component tests
+npm run format           # Prettier: rewrite files in place
+npm run format:check     # Prettier: fail on unformatted files (what CI runs)
 npm run build            # gulp build (DEBUG, lenient)
 npm run bundle           # gulp bundle --ship (what CI runs)
 npm run package-solution # .sppkg -> sharepoint/solution/
@@ -112,7 +115,7 @@ SharePoint Online blocks `script-src` to external origins, `lfxstatic.com` inclu
 
 ### CI and release
 
-- `.github/workflows/main.yml` runs on `\d+.x` branches: `npm ci` → `gulp build` → `gulp bundle --ship && gulp package-solution --ship` → `npm test`, plus a parallel `npm run test:ct` job.
+- `.github/workflows/main.yml` runs on `\d+.x` branches: `npm ci` → `npm run format:check` → `gulp build` → `gulp bundle --ship && gulp package-solution --ship` → `npm test`, plus a parallel `npm run test:ct` job.
 - `.github/workflows/jekyll_gh_pages.yml` builds the docs site (`jekyll_files/`) on push to `1.x`, but it deploys to GitHub Pages only on a re-run (`run_attempt != 1`).
 - CI stamps the version `1.0.0.<run_number>`. Never bump `version` in `package.json` or `config/package-solution.json` by hand, and never build a release `.sppkg` locally.
 - Never commit `lib/`, `temp/` or `sharepoint/solution/*.sppkg`.

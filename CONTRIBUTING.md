@@ -44,7 +44,7 @@ Search [GitHub Issues](https://github.com/Laserfiche/laserfiche-sharepoint-integ
 - **Write tests first.** Add a test that fails, make it pass, then refactor. Every bug fix starts with a test that reproduces the bug. Test what users see, not implementation details.
 - **Keep tests current.** When behavior changes, update its tests in the same change. Don't skip or delete a failing test to get a change through.
 - **Keep it clean.** Use small functions and components with clear, informative names. Explain _why_ in comments, not _what_. Leave the code better than you found it.
-- **Follow the formatters.** Prettier and ESLint (the SPFx config) define the code style.
+- **Follow the formatters.** Prettier and ESLint (the SPFx config) define the code style. Run `npm run format` before you commit.
 
 ## <a name="submit-pr"></a> Submitting a Pull Request
 
@@ -53,6 +53,6 @@ Search [GitHub Issues](https://github.com/Laserfiche/laserfiche-sharepoint-integ
 - Link the issue the PR addresses.
 - Include tests for the change. If part of it can only be verified in SharePoint, describe the manual steps you ran.
 - Update the documentation (`jekyll_files/`, the README or `AGENTS.md`) if the change affects it.
-- CI runs the release build, unit tests and component tests. All must pass before a PR can be merged.
+- CI runs a formatting check, the release build, unit tests and component tests. All must pass before a PR can be merged.
 
 After you submit, the project's core members will review the code.

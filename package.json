@@ -17,6 +17,8 @@
     "test": "vitest run",
     "test:ct": "npm run typecheck:ct && playwright test --config=playwright-ct.config.ts",
     "typecheck:ct": "tsc --noEmit -p tsconfig.ct.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "serve": "node --max-old-space-size=8192 node_modules/gulp/bin/gulp.js serve",
     "gulp-trust-dev-cert": "gulp trust-dev-cert",
     "serve-docs": "bundle exec jekyll serve"
@@ -76,6 +78,7 @@
     "gulp": "~4.0.2",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "26.1.0",
+    "prettier": "3.9.9",
     "typescript": "~5.3.3",
     "url-loader": "^4.1.1",
     "vitest": "^5.0.1"
