@@ -1,0 +1,8 @@
+# Commits that only reformat code. GitHub's blame view skips them automatically;
+# for local blame, run once: git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Each hash must be the commit as it exists on 1.x. If the PR that added one was
+# squash- or rebase-merged, replace it with the hash that landed.
+
+# Format the codebase with Prettier (3.9.9, 100 columns)
+ce4f844f27c9cd076ca4b5a571a80406098236b1
