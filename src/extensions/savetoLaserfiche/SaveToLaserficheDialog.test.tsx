@@ -206,6 +206,17 @@ afterEach(() => {
 });
 
 describe('SaveToLaserficheDialog', () => {
+  // lf-login only creates the provider it refreshes tokens with once it knows
+  // its login type. Without one, a token that expires mid-save signs the user
+  // out instead of being refreshed.
+  test('renders lf-login as a Laserfiche Cloud sign-in, so it can refresh an expired token', async () => {
+    const { domElement } = renderDialog();
+    setLoginToken(domElement, undefined);
+
+    expect(domElement.querySelector('lf-login')).toHaveAttribute('login_type', 'Cloud');
+    await flushEffects();
+  });
+
   test('missing authorization_credentials reports failed login and closes without touching the repository client', async () => {
     const { domElement, closeParent, isSuccessfulLoggedIn } = renderDialog();
     setLoginToken(domElement, undefined);

@@ -1,11 +1,11 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import type { MockInstance } from 'vitest';
 import * as React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { LoggedOutMessageWrapper, LoginComponent } from './AdminConfigurationUtilComponents';
-import { PLEASE_LOGIN_TO_LASERFICHE } from '../../strings';
+import { LASERFICHE_SIGNIN_PAGE_NAME, LOGIN_WINDOW_SUCCESS } from '../../constants';
+import { PLEASE_LOGIN_TO_LASERFICHE, SIGN_OUT } from '../../strings';
 // By path, not by package name: vitest.config.mts's alias would resolve the
 // bare specifier to this same file, but tsc would resolve the real package.
 import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
@@ -51,10 +51,6 @@ describe('LoggedOutMessageWrapper', () => {
 });
 
 describe('LoginComponent', () => {
-  function messageCalls(spy: MockInstance): unknown[][] {
-    return spy.mock.calls.filter((call) => call[0] === 'message');
-  }
-
   function renderLoginComponent(): ReturnType<typeof render> {
     return render(
       <LoginComponent
@@ -67,45 +63,51 @@ describe('LoginComponent', () => {
     );
   }
 
-  test('removes its popup message listener on unmount', () => {
-    // Arrange
-    const addSpy = vi.spyOn(window, 'addEventListener');
-    const removeSpy = vi.spyOn(window, 'removeEventListener');
-    const { unmount } = renderLoginComponent();
-    const added = messageCalls(addSpy);
-    expect(added).toHaveLength(1);
-
+  // lf-login only creates the provider it refreshes tokens with once it knows
+  // its login type. Without one, an expired token signs the user out instead.
+  test('renders lf-login as a Laserfiche Cloud sign-in, so it can refresh an expired token', () => {
     // Act
-    unmount();
+    const { container } = renderLoginComponent();
 
     // Assert
-    // The same reference must come back off the window, or the handler leaks
-    // and a remount stacks another one on top of it.
-    const removed = messageCalls(removeSpy);
-    expect(removed).toHaveLength(1);
-    expect(removed[0][1]).toBe(added[0][1]);
-
-    addSpy.mockRestore();
-    removeSpy.mockRestore();
+    expect(container.querySelector('lf-login')).toHaveAttribute('login_type', 'Cloud');
   });
 
-  test('does not accumulate listeners across remounts', () => {
+  // The popup signs out on its own lf-login element, so nothing else tells
+  // this page that the user signed out.
+  test('a sign-out in the popup signs the page out', async () => {
     // Arrange
-    const addSpy = vi.spyOn(window, 'addEventListener');
-    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({ value: [{ Title: LASERFICHE_SIGNIN_PAGE_NAME }] }),
+    }) as unknown as typeof fetch;
+    const openSpy = vi
+      .spyOn(window, 'open')
+      .mockReturnValue({ close: vi.fn() } as unknown as Window);
+    const setLoggedIn = vi.fn();
+    render(
+      <LoginComponent
+        loggedIn={true}
+        setLoggedIn={setLoggedIn}
+        setMessageErrorModal={vi.fn()}
+        ensureRepoClientInitializedAsync={vi.fn()}
+        context={mockWebPartContext}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: SIGN_OUT }));
+    await waitFor(() => expect(openSpy).toHaveBeenCalledTimes(1));
 
     // Act
-    renderLoginComponent().unmount();
-    renderLoginComponent().unmount();
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent('message', { origin: window.origin, data: LOGIN_WINDOW_SUCCESS })
+      );
+    });
 
     // Assert
-    const added = messageCalls(addSpy);
-    const removed = messageCalls(removeSpy);
-    expect(added).toHaveLength(2);
-    expect(removed).toHaveLength(2);
+    expect(setLoggedIn).toHaveBeenCalledWith(false);
 
-    addSpy.mockRestore();
-    removeSpy.mockRestore();
+    openSpy.mockRestore();
+    delete (globalThis as { fetch?: unknown }).fetch;
   });
 
   // Lets the mount effect get past its (mocked) loadScript await and register

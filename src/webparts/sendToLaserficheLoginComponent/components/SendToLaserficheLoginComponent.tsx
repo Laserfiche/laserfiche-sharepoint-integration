@@ -14,7 +14,6 @@ import {
   clientId,
   repositoryScopes,
   LASERFICHE_ICON_URL,
-  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -28,12 +27,10 @@ import {
   getEntryWebAccessUrl,
   getRegion,
   getSPDocumentDataFromLocalStorage,
-  getSPListURL,
-  openLoginWindow,
 } from '../../../Utils/Funcs';
+import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './SendToLaserficheLoginComponent.module.scss';
-import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
-import { LASERFICHE, POPUP_BLOCKED } from '../../strings';
+import { LASERFICHE, SIGN_IN, SIGN_OUT } from '../../strings';
 
 const CANCEL = 'Cancel';
 // How long the popup waits for the component to finish exchanging the
@@ -46,39 +43,6 @@ const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';
 const FOR_MORE_INFO_VISIT = 'For more information visit';
 
-// SPFx records the gulp serve manifest URL here once a page is loaded with
-// debugManifestsFile, and keeps using it for the rest of the session.
-const SPFX_DEBUG_SESSION_STORAGE_KEY = 'spfx-debug';
-
-// The sign-in popup gets a URL of our own making, so nothing carries the local
-// debug build into it. A popup inherits the opener's session storage, but that
-// on its own is not enough: it asks for the localhost manifests and fails with
-// "Error loading debug manifests". Repeating the parameters in the popup URL is
-// what actually loads them, so forward them whenever the opener is itself
-// running against a debug manifest. Returns '' in a normal deployment, where
-// the key is absent, leaving the popup URL untouched.
-function debugManifestsQueryString(): string {
-  try {
-    const debugSettings = sessionStorage.getItem(SPFX_DEBUG_SESSION_STORAGE_KEY);
-    if (!debugSettings) {
-      return '';
-    }
-    const manifestsFileUrl: string | undefined = JSON.parse(debugSettings).manifestsFileUrl;
-    if (!manifestsFileUrl) {
-      return '';
-    }
-    return `&debugManifestsFile=${encodeURIComponent(
-      manifestsFileUrl
-    )}&loadSPFX=true&debug=true&noredir=true`;
-  } catch {
-    // Session storage can throw, and the entry is not ours to assume is valid
-    // JSON. Debug parameters are a developer convenience, so fall back to the
-    // plain URL rather than break sign-in over them.
-    return '';
-  }
-}
-
-const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ): JSX.Element {
@@ -97,11 +61,12 @@ export default function SendToLaserficheLoginComponent(
 
   const logoutRequested = React.useRef(false);
 
-  // Which action this page's own button asked the popup for, and the popup it
-  // opened. Both are refs so the message handler, attached once, reads the
-  // current click rather than the one that registered it.
-  const requestedAction = React.useRef<'login' | 'logout'>('login');
-  const loginWindowRef = React.useRef<Window | undefined>(undefined);
+  const signInOrOutAsync = useSignInPopup({
+    context: props.context,
+    loggedIn,
+    setMessageModal: setMessageErrorModal,
+    onSignedOut: () => setLoggedIn(false),
+  });
 
   const postToOpenerOnce: (message: unknown) => void = (message) => {
     if (sentPostMessage.current) {
@@ -219,19 +184,6 @@ export default function SendToLaserficheLoginComponent(
     void setUpLoginComponentAsync();
 
     return cleanUpFunction;
-  }, []);
-
-  // Kept apart from the effect above, whose cleanup is about the lf-login
-  // element. Tied to the component's lifetime: registering on click leaked a
-  // listener per mount, because nothing removed it when this page went away.
-  React.useEffect(() => {
-    const handleMessage: (event: MessageEvent) => void = (event) => {
-      handlePopupMessage(event);
-    };
-    window.addEventListener('message', handleMessage);
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
   }, []);
 
   async function handleLoginOrLogoutInMainWindowAsync(): Promise<void> {
@@ -359,107 +311,6 @@ export default function SendToLaserficheLoginComponent(
     Navigation.navigate(path, true);
   }
 
-  async function pageConfigurationCheck(): Promise<boolean> {
-    try {
-      const res = await fetch(`${getSPListURL(props.context, 'Site Pages')}/items`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      const sitePages = await res.json();
-      for (let o = 0; o < sitePages.value.length; o++) {
-        const pageName = sitePages.value[o].Title;
-        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
-          return true;
-        }
-      }
-    } catch (error) {
-      console.warn(
-        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
-        error
-      );
-      return false;
-    }
-    return false;
-  }
-
-  async function clickLogin(): Promise<void> {
-    // The popup cannot tell a sign-in apart from a sign-out by looking at its
-    // own element state, so say which one this click means. Without it the
-    // popup takes the click for a sign-in, reports success and signs nobody
-    // out, which is what made "Sign out" here do nothing.
-    const action = loggedIn ? 'logout' : 'login';
-    requestedAction.current = action;
-    const url =
-      props.context.pageContext.web.absoluteUrl +
-      `/SitePages/LaserficheSignIn.aspx?autologin&action=${action}` +
-      debugManifestsQueryString();
-    const hasSignIn = await pageConfigurationCheck();
-    if (!hasSignIn) {
-      const mes = (
-        <MessageDialog
-          title='Sign In Failed'
-          message={needLaserficheSignInPage}
-          clickOkay={() => {
-            setMessageErrorModal(undefined);
-          }}
-        />
-      );
-      setMessageErrorModal(mes);
-      return;
-    }
-
-    const loginWindow = openLoginWindow(url);
-    if (!loginWindow) {
-      // A blocked pop-up returns null, so bail out instead of throwing.
-      const mes = (
-        <MessageDialog
-          title='Sign In Failed'
-          message={POPUP_BLOCKED}
-          clickOkay={() => {
-            setMessageErrorModal(undefined);
-          }}
-        />
-      );
-      setMessageErrorModal(mes);
-      return;
-    }
-    loginWindowRef.current = loginWindow;
-  }
-
-  function handlePopupMessage(event: MessageEvent): void {
-    if (event.origin !== window.origin) {
-      return;
-    }
-    if (event.data === LOGIN_WINDOW_SUCCESS) {
-      loginWindowRef.current?.close();
-      loginWindowRef.current = undefined;
-      if (requestedAction.current === 'logout') {
-        // The popup signs out on its own lf-login element, so
-        // logoutCompleted does not necessarily reach the one on this page.
-        setLoggedIn(false);
-      }
-    } else if (event.data) {
-      const parsedError: AbortedLoginError = event.data;
-      if (parsedError.ErrorMessage && parsedError.ErrorType) {
-        loginWindowRef.current?.close();
-        loginWindowRef.current = undefined;
-        const mes = (
-          <MessageDialog
-            title='Sign In Failed'
-            message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-            clickOkay={() => {
-              setMessageErrorModal(undefined);
-            }}
-          />
-        );
-        setMessageErrorModal(mes);
-      }
-    }
-  }
-
   const redirectURL = window.location.origin + window.location.pathname + '?autologin';
 
   return (
@@ -483,10 +334,10 @@ export default function SendToLaserficheLoginComponent(
         />
         <div className={styles.buttonRow}>
           <button
-            onClick={clickLogin}
+            onClick={signInOrOutAsync}
             className={`lf-button login-button ${loggedIn ? 'sec-button' : 'primary-button'}`}
           >
-            {loggedIn ? 'Sign out' : 'Sign in'}
+            {loggedIn ? SIGN_OUT : SIGN_IN}
           </button>
           {spFileMetadata?.fileUrl && (
             <button className='lf-button sec-button' onClick={redirect}>

@@ -67,18 +67,11 @@ function getLfLogin(container: HTMLElement): FakeLfLogin {
   return container.querySelector('lf-login') as unknown as FakeLfLogin;
 }
 
-function mockFetchSitePages(hasSignInPage: boolean): Mock {
-  const mockFetch = vi.fn().mockResolvedValue({
-    json: () =>
-      Promise.resolve({
-        value: hasSignInPage
-          ? [{ Title: LASERFICHE_SIGNIN_PAGE_NAME }]
-          : [{ Title: 'SomeOtherPage' }],
-      }),
-  });
+function mockSignInPageExists(): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (globalThis as any).fetch = mockFetch;
-  return mockFetch;
+  (globalThis as any).fetch = vi.fn().mockResolvedValue({
+    json: () => Promise.resolve({ value: [{ Title: LASERFICHE_SIGNIN_PAGE_NAME }] }),
+  });
 }
 
 // Flushes the microtask queue a handful of times. Used instead of waitFor()
@@ -177,36 +170,11 @@ describe('SendToLaserficheLoginComponent - main window path', () => {
   });
 });
 
-describe('SendToLaserficheLoginComponent - clickLogin', () => {
-  test('shows a "Sign In Failed" dialog mentioning the missing page, and does not open a popup, when the SharePoint page is absent', async () => {
-    mockFetchSitePages(false);
-    window.open = vi.fn();
-
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    const signInButton = await screen.findByRole('button', {
-      name: 'Sign in',
-    });
-    fireEvent.click(signInButton);
-
-    // A plain substring-matcher function instead of `new RegExp(...)` from a
-    // template string -- LASERFICHE_SIGNIN_PAGE_NAME is a fixed constant, not
-    // untrusted input, but @rushstack/security/no-unsafe-regexp can't tell
-    // that, and this sidesteps it without a suppression. `content` here is
-    // RTL's own direct-text-only extraction (not `element.textContent`,
-    // which would also pull in ancestors and risk a multiple-matches error);
-    // the rendered message has more text after "SharePoint page" (see
-    // needLaserficheSignInPage in the source), so this checks for the
-    // substring rather than equality.
-    expect(
-      await screen.findByText((content) =>
-        content.includes(`Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page`)
-      )
-    ).toBeInTheDocument();
-    expect(window.open).not.toHaveBeenCalled();
-  });
-
+// The sign-in popup flow itself is specified in src/Utils/useSignInPopup.test.tsx;
+// these check this page's use of it.
+describe('SendToLaserficheLoginComponent - sign-in button', () => {
   test('opens the popup with a login URL when the sign-in page exists', async () => {
-    mockFetchSitePages(true);
+    mockSignInPageExists();
     window.open = vi.fn().mockReturnValue({ close: vi.fn() });
 
     render(<SendToLaserficheLoginComponent context={mockContext} />);
@@ -222,7 +190,7 @@ describe('SendToLaserficheLoginComponent - clickLogin', () => {
   });
 
   test('opens the popup with a logout URL when already signed in', async () => {
-    mockFetchSitePages(true);
+    mockSignInPageExists();
     window.open = vi.fn().mockReturnValue({ close: vi.fn() });
 
     const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
@@ -236,103 +204,11 @@ describe('SendToLaserficheLoginComponent - clickLogin', () => {
     const [url] = (window.open as Mock).mock.calls[0];
     expect(url).toContain('action=logout');
   });
-
-  test('shows a pop-up-blocked "Sign In Failed" dialog instead of throwing when window.open returns null', async () => {
-    mockFetchSitePages(true);
-    window.open = vi.fn().mockReturnValue(null);
-
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    const signInButton = await screen.findByRole('button', {
-      name: 'Sign in',
-    });
-    fireEvent.click(signInButton);
-
-    expect(await screen.findByText(/pop-ups/i)).toBeInTheDocument();
-  });
-
-  test('adds debug manifest query params to the popup URL when spfx-debug session storage holds valid JSON', async () => {
-    mockFetchSitePages(true);
-    window.open = vi.fn().mockReturnValue({ close: vi.fn() });
-    const manifestsFileUrl = 'https://localhost:4321/temp/build/manifests.js';
-    sessionStorage.setItem('spfx-debug', JSON.stringify({ manifestsFileUrl }));
-
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    const signInButton = await screen.findByRole('button', {
-      name: 'Sign in',
-    });
-    fireEvent.click(signInButton);
-
-    await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
-    const [url] = (window.open as Mock).mock.calls[0];
-    const expectedDebugParams = `&debugManifestsFile=${encodeURIComponent(
-      manifestsFileUrl
-    )}&loadSPFX=true&debug=true&noredir=true`;
-    expect(url).toContain(expectedDebugParams);
-  });
-
-  test('falls back cleanly with no debug params when spfx-debug session storage holds malformed JSON', async () => {
-    mockFetchSitePages(true);
-    window.open = vi.fn().mockReturnValue({ close: vi.fn() });
-    sessionStorage.setItem('spfx-debug', '{not valid json');
-
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    const signInButton = await screen.findByRole('button', {
-      name: 'Sign in',
-    });
-    fireEvent.click(signInButton);
-
-    await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
-    const [url] = (window.open as Mock).mock.calls[0];
-    expect(url).not.toContain('debugManifestsFile');
-    expect(url).not.toContain('loadSPFX');
-  });
 });
 
-describe('SendToLaserficheLoginComponent - handlePopupMessage', () => {
-  test('ignores a message from a different origin', async () => {
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    await screen.findByRole('button', { name: 'Sign in' });
-
-    act(() => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          origin: 'https://evil.example.com',
-          data: LOGIN_WINDOW_SUCCESS,
-        })
-      );
-    });
-
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
-    expect(screen.queryByText(/Sign In Failed/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Sign in failed/)).not.toBeInTheDocument();
-  });
-
-  test('closes the popup when the real success message arrives after a login click', async () => {
-    mockFetchSitePages(true);
-    const fakePopup = { close: vi.fn() };
-    window.open = vi.fn().mockReturnValue(fakePopup);
-
-    render(<SendToLaserficheLoginComponent context={mockContext} />);
-    const signInButton = await screen.findByRole('button', {
-      name: 'Sign in',
-    });
-    fireEvent.click(signInButton);
-    await waitFor(() => expect(window.open).toHaveBeenCalledTimes(1));
-
-    act(() => {
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          origin: window.origin,
-          data: LOGIN_WINDOW_SUCCESS,
-        })
-      );
-    });
-
-    expect(fakePopup.close).toHaveBeenCalledTimes(1);
-  });
-
+describe('SendToLaserficheLoginComponent - popup replies', () => {
   test('flips loggedIn to false when the success message arrives after a logout click', async () => {
-    mockFetchSitePages(true);
+    mockSignInPageExists();
     const fakePopup = { close: vi.fn() };
     window.open = vi.fn().mockReturnValue(fakePopup);
 
@@ -357,7 +233,7 @@ describe('SendToLaserficheLoginComponent - handlePopupMessage', () => {
   });
 
   test('shows a sign-in-failed dialog with the error details and closes the popup', async () => {
-    mockFetchSitePages(true);
+    mockSignInPageExists();
     const fakePopup = { close: vi.fn() };
     window.open = vi.fn().mockReturnValue(fakePopup);
 

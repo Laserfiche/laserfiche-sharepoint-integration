@@ -12,6 +12,7 @@ export const MANAGE_CONFIGURATIONS_PAGE_TITLE =
 export const SIGN_IN = 'Sign in';
 export const SIGN_OUT = 'Sign out';
 export const SIGN_IN_FAILED = 'Sign in failed';
+export const SIGN_IN_FAILED_PLEASE_TRY_AGAIN_DETAILS = 'Sign in failed, please try again. Details:';
 export const POPUP_BLOCKED =
   'Unable to open the Laserfiche sign in window. Please allow pop-ups for this site and try again.';
 

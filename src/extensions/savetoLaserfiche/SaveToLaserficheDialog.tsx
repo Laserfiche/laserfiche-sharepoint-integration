@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
 import {
@@ -210,6 +210,7 @@ function SaveToLaserficheDialog(props: {
         redirect_behavior='Replace'
         client_id={clientId}
         scope={repositoryScopes}
+        login_type={LoginType.Cloud}
         ref={loginComponent}
       />
       <div className={`${styles.header}${showSaveTo ? '' : ` ${styles.hideImport}`}`}>
