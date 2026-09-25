@@ -2,30 +2,22 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import {
-  LfLoginComponent,
-  AbortedLoginError,
-} from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
-import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
-import { getRegion, getSPListURL } from '../../../Utils/Funcs';
+import { formatErrorForLog, isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
+import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
-  ZONE_JS_URL,
   LF_UI_COMPONENTS_URL,
-  LASERFICHE_SIGNIN_PAGE_NAME,
-  LOGIN_WINDOW_SUCCESS,
-  clientId,
 } from '../../constants';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
   PLEASE_LOGIN_TO_LASERFICHE,
   YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART,
   FOR_MORE_INFO_VISIT,
-  SIGN_IN_FAILED,
-  needLaserficheSignInPage,
   SIGN_OUT,
   SIGN_IN,
 } from '../../strings';
@@ -38,16 +30,13 @@ const LoggedOutMessage: React.FC = () => {
       {`${PLEASE_LOGIN_TO_LASERFICHE}`}
       <div className='pt-2'>
         {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-        <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
-        .
+        <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>.
       </div>
     </div>
   );
 };
 
-export const LoggedOutMessageWrapper: React.FC<{ loggedIn: boolean }> = (
-  props
-) => {
+export const LoggedOutMessageWrapper: React.FC<{ loggedIn: boolean }> = (props) => {
   return <>{!props.loggedIn ? <LoggedOutMessage /> : props.children}</>;
 };
 
@@ -66,20 +55,33 @@ export const LoginComponent: React.FC<{
   setMessageErrorModal: (val: JSX.Element | undefined) => void;
   ensureRepoClientInitializedAsync: () => Promise<void>;
 }> = (props) => {
-  const region = getRegion();
-
   const redirectPage = window.location.origin + window.location.pathname;
 
-  const loginComponent: React.RefObject<
-    NgElement & WithProperties<LfLoginComponent>
-  > = React.createRef();
+  // useRef, not createRef: createRef hands back a new ref on every render and
+  // React nulls the old one, so the listeners the mount effect registers would
+  // read a dead ref after any re-render and skip initializing the repo client.
+  const loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>> =
+    React.useRef();
+
+  const signInOrOutAsync = useSignInPopup({
+    context: props.context,
+    loggedIn: props.loggedIn,
+    setMessageModal: props.setMessageErrorModal,
+    onSignedOut: () => props.setLoggedIn(false),
+    // The popup may have signed in on its own element without touching this
+    // one, so ask directly rather than waiting for an event that may not come.
+    onSignedIn: syncSignedInStateAsync,
+  });
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
+      // Unmounted while the script was loading: nothing left to set up.
+      if (!loginComponent.current) {
+        return;
+      }
       try {
         const loginCompleted: () => Promise<void> = async () => {
           await getAndInitializeRepositoryClientAndServicesAsync();
@@ -89,30 +91,32 @@ export const LoginComponent: React.FC<{
           props.setLoggedIn(false);
         };
 
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
-        if (loginComponent.current.authorization_credentials) {
-          await getAndInitializeRepositoryClientAndServicesAsync();
-          props.setLoggedIn(true);
-        }
+        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+        loginComponent.current.addEventListener('logoutCompleted', logoutCompleted);
+        await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error initializing configuration page: ${err}`);
+        console.error(`Error initializing configuration page: ${formatErrorForLog(err)}`);
       }
     };
 
     void initializeComponentAsync();
   }, []);
 
+  // A sign-in can finish without this element ever raising loginCompleted: it
+  // may have restored the session before we subscribed, or the popup may have
+  // found an existing session and changed no storage at all. So reconcile
+  // explicitly at the points we know something happened.
+  async function syncSignedInStateAsync(): Promise<void> {
+    const signedIn = isLfLoginSignedIn(loginComponent.current);
+    if (signedIn) {
+      await getAndInitializeRepositoryClientAndServicesAsync();
+    }
+    props.setLoggedIn(signedIn);
+  }
+
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
-    const accessToken =
-      loginComponent?.current?.authorization_credentials?.accessToken;
+    const accessToken = loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
       await props.ensureRepoClientInitializedAsync();
     } else {
@@ -120,94 +124,12 @@ export const LoginComponent: React.FC<{
     }
   }
 
-  async function pageConfigurationCheck(): Promise<boolean> {
-    try {
-      const res = await fetch(
-        `${getSPListURL(props.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      const sitePages = await res.json();
-      for (let o = 0; o < sitePages.value.length; o++) {
-        const pageName = sitePages.value[o].Title;
-        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
-          return true;
-        }
-      }
-    } catch (error) {
-      console.warn(
-        `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
-        error
-      );
-      return false;
-    }
-    return false;
-  }
-
-  async function clickLogin(): Promise<void> {
-    const url =
-      props.context.pageContext.web.absoluteUrl +
-      '/SitePages/LaserficheSignIn.aspx?autologin';
-    const hasSignIn = await pageConfigurationCheck();
-    if (!hasSignIn) {
-      const mes = (
-        <MessageDialog
-          title={SIGN_IN_FAILED}
-          message={needLaserficheSignInPage}
-          clickOkay={() => {
-            props.setMessageErrorModal(undefined);
-          }}
-        />
-      );
-      props.setMessageErrorModal(mes);
-      return;
-    }
-    const loginWindow = window.open(url, 'loginWindow', 'popup');
-    loginWindow.resizeTo(800, 600);
-    window.addEventListener('message', (event) => {
-      if (event.origin === window.origin) {
-        if (event.data === LOGIN_WINDOW_SUCCESS) {
-          loginWindow.close();
-        } else if (event.data) {
-          const parsedError: AbortedLoginError = event.data;
-          if (parsedError.ErrorMessage && parsedError.ErrorType) {
-            loginWindow.close();
-            const mes = (
-              <MessageDialog
-                title={SIGN_IN_FAILED}
-                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
-                clickOkay={() => {
-                  props.setMessageErrorModal(undefined);
-                }}
-              />
-            );
-            props.setMessageErrorModal(mes);
-          }
-        }
-      }
-    });
-  }
-
   return (
     <div className={styles.loginButton}>
-      <lf-login
-        redirect_uri={redirectPage}
-        authorize_url_host_name={region}
-        redirect_behavior='Replace'
-        client_id={clientId}
-        ref={loginComponent}
-        hidden
-      />
+      <LaserficheLogin ref={loginComponent} redirectUri={redirectPage} />
       <button
-        onClick={clickLogin}
-        className={`lf-button login-button ${
-          props.loggedIn ? 'sec-button' : 'primary-button'
-        }`}
+        onClick={signInOrOutAsync}
+        className={`lf-button login-button ${props.loggedIn ? 'sec-button' : 'primary-button'}`}
       >
         {props.loggedIn ? SIGN_OUT : SIGN_IN}
       </button>

@@ -1,0 +1,12 @@
+# Prettier 3 also skips everything in .gitignore (lib/, temp/, the generated
+# src/**/*.module.scss.ts, ...), so only tracked files that must stay as-is go here.
+
+# Jekyll docs site: Liquid templates and the vendored just-the-docs theme.
+# Prettier's HTML formatter rewrites Liquid tags ({% ... %}) and breaks the site.
+jekyll_files/
+
+# Pasted verbatim into Microsoft Partner Center, where its line breaks matter.
+microsoft_marketplace_submission_docs/
+
+# Written by npm.
+package-lock.json

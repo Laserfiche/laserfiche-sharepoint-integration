@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import * as React from 'react';
-require('./../../../../Assets/CSS/commonStyles.css');
-require('../../../../Assets/CSS/bootstrap.min.css');
+import './../../../../Assets/CSS/commonStyles.css';
+import '../../../../Assets/CSS/bootstrap.min.css';
 
 const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';
@@ -21,15 +21,11 @@ export default function HomePage(): JSX.Element {
       <main className='bg-white shadow-sm'>
         <p className='adminContent'>
           {`${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-          <a href='https://www.laserfiche.com/products/pricing'>
-            laserfiche.com
-          </a>
+          <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
           {`.`}
         </p>
         <p className='adminContent'>
-          {
-            USE_LASERFICHE_ADMIN_PAGE_TO_EDIT_SP_LF_CONFIG_SIGN_IN_AND_SELECT_TASK_TO_COMPLETE
-          }
+          {USE_LASERFICHE_ADMIN_PAGE_TO_EDIT_SP_LF_CONFIG_SIGN_IN_AND_SELECT_TASK_TO_COMPLETE}
         </p>
         <p className='adminContent'>
           For more information, see the{' '}

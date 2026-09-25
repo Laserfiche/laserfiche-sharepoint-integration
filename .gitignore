@@ -35,3 +35,9 @@ output.css
 
 # locally generated documentation
 jekyll_files/_site/
+
+# Playwright component tests
+/test-results/
+/playwright-report/
+/blob-report/
+tests/ct/playwright/.cache/

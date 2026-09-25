@@ -11,19 +11,21 @@ import { ILaserficheAdminConfigurationProps } from './components/ILaserficheAdmi
 
 export default class LaserficheAdminConfigurationWebPart extends BaseClientSideWebPart<{}> {
   public render(): void {
-    const element: React.ReactElement<ILaserficheAdminConfigurationProps> =
-      React.createElement(LaserficheAdminConfiguration, {
+    const element: React.ReactElement<ILaserficheAdminConfigurationProps> = React.createElement(
+      LaserficheAdminConfiguration,
+      {
         context: this.context,
-      });
+      }
+    );
 
     ReactDom.render(element, this.domElement);
   }
 
-  protected onDispose(): void {
+  protected override onDispose(): void {
     ReactDom.unmountComponentAtNode(this.domElement);
   }
 
-  protected get dataVersion(): Version {
+  protected override get dataVersion(): Version {
     return Version.parse('1.0');
   }
 }

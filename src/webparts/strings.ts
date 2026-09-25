@@ -3,8 +3,7 @@
 
 import { LASERFICHE_SIGNIN_PAGE_NAME } from './constants';
 
-export const PLEASE_SIGNIN_TO_MANAGE_CONFIGURATIONS =
-  'Please sign in to manage configurations';
+export const PLEASE_SIGNIN_TO_MANAGE_CONFIGURATIONS = 'Please sign in to manage configurations';
 export const TEMPLATE_NO_LONGER_VALID_METADATA_WILL_NOT_BE_SAVED =
   'Template is no longer valid for the selected repository. Metadata will not be saved.';
 export const PROFILE_NAME = 'Profile Name';
@@ -13,6 +12,9 @@ export const MANAGE_CONFIGURATIONS_PAGE_TITLE =
 export const SIGN_IN = 'Sign in';
 export const SIGN_OUT = 'Sign out';
 export const SIGN_IN_FAILED = 'Sign in failed';
+export const SIGN_IN_FAILED_PLEASE_TRY_AGAIN_DETAILS = 'Sign in failed, please try again. Details:';
+export const POPUP_BLOCKED =
+  'Unable to open the Laserfiche sign in window. Please allow pop-ups for this site and try again.';
 
 export const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
@@ -22,8 +24,7 @@ export const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}
 export const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user and SharePoint site administrator to manage profile configurations and mappings.';
 
-export const PLEASE_LOGIN_TO_LASERFICHE =
-  'Please sign in to Laserfiche to use this web part.';
+export const PLEASE_LOGIN_TO_LASERFICHE = 'Please sign in to Laserfiche to use this web part.';
 export const FOR_MORE_INFO_VISIT = 'For more information visit';
 
 export const SELECT_FOLDER = 'Select Folder';
@@ -54,13 +55,11 @@ export const DELETE_CONFIRMATION = 'Delete Confirmation';
 export const OK = 'Ok';
 export const LASERFICHE_REPOSITORY_EXPLORER = 'Laserfiche Repository Explorer';
 
-export const CANNOT_IMPORT_INTO_RECORD_SERIES =
-  'Cannot import into a Record Series';
+export const CANNOT_IMPORT_INTO_RECORD_SERIES = 'Cannot import into a Record Series';
 export const UPLOAD_FILE_TO_LASERFICHE = 'Upload file to Laserfiche';
 export const UPLOAD_FILE_TO_LASERFICHE_TITLE = 'Upload File to Laserfiche';
 
-export const PLEASE_SELECT_FILE_FOLDER_TO_OPEN =
-  'Please select file/folder to open';
+export const PLEASE_SELECT_FILE_FOLDER_TO_OPEN = 'Please select file/folder to open';
 
 export const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME =
   'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
@@ -79,10 +78,18 @@ export const PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME =
   'Profile with this name already exists, please provide different name';
 export const THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED =
   'There was an issue determining the content type of the selected item. The default mapping will be used if it exists.';
-export const COULD_NOT_DETERMINE_CONTENT_TYPE =
-  'Could not determine content type';
+export const COULD_NOT_DETERMINE_CONTENT_TYPE = 'Could not determine content type';
 
 export const DOCUMENT_ALREADY_EXISTS = 'Document already exists';
 export const GO_BACK = 'Go back';
 
 export const CONTINUE = 'Continue';
+
+export const UNKNOWN_ERROR = 'An unknown error occurred.';
+export const UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS = 'Unable to load templates and fields.';
+export const LOADING = 'Loading...';
+
+export const LASERFICHE = 'Laserfiche';
+export const SAVED_A_COPY_TO_LASERFICHE =
+  'Saved a copy to Laserfiche. To keep editing, open or check out from Web Client.';
+export const SHOW_IN_FOLDER = 'Show in folder';

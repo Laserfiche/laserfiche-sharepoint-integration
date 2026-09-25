@@ -1,13 +1,9 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import {
-  SPHttpClient,
-  SPHttpClientResponse,
-  ISPHttpClientOptions,
-} from '@microsoft/sp-http';
+import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { LASERFICHE_ADMIN_CONFIGURATION_NAME } from '../webparts/constants';
-import { getSPListURL } from './Funcs';
+import { formatErrorForLog, getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 
 const targetRoleDefinitionName = 'Read';
@@ -16,14 +12,8 @@ export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
     context: BaseComponentContext
   ): Promise<void> {
-    const listUrl: string = getSPListURL(
-      context,
-      LASERFICHE_ADMIN_CONFIGURATION_NAME
-    );
-    const response = await context.spHttpClient.get(
-      listUrl,
-      SPHttpClient.configurations.v1
-    );
+    const listUrl: string = getSPListURL(context, LASERFICHE_ADMIN_CONFIGURATION_NAME);
+    const response = await context.spHttpClient.get(listUrl, SPHttpClient.configurations.v1);
     if (response.status === 200) {
       return;
     }
@@ -46,8 +36,7 @@ export class CreateConfigurations {
     formDigestValue: string
   ): Promise<string> {
     try {
-      const url: string =
-        context.pageContext.web.absoluteUrl + '/_api/web/lists';
+      const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
       const listDefinition = {
         Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
         Description: 'My description',
@@ -68,7 +57,7 @@ export class CreateConfigurations {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(
-        `Error when creating LaserficheAdminConfiguration List: ${err}`
+        `Error when creating LaserficheAdminConfiguration List: ${formatErrorForLog(err)}`
       );
     }
   }
@@ -83,11 +72,7 @@ export class CreateConfigurations {
     const targetRoleDefinitionId =
       await CreateConfigurations.getTargetRoleDefinitionIdAsync(context);
 
-    await CreateConfigurations.breakRoleInheritanceOfListAsync(
-      context,
-      formDigestValue,
-      listTitle
-    );
+    await CreateConfigurations.breakRoleInheritanceOfListAsync(context, formDigestValue, listTitle);
 
     await CreateConfigurations.deleteCurrentRoleForGroupAsync(
       context,
@@ -105,9 +90,7 @@ export class CreateConfigurations {
     );
   }
 
-  private static async getMembersGroupIdAsync(
-    context: BaseComponentContext
-  ): Promise<string> {
+  private static async getMembersGroupIdAsync(context: BaseComponentContext): Promise<string> {
     const membersGroupName = `${context.pageContext.web.title} Members`;
 
     const res: Response = await fetch(
@@ -215,20 +198,14 @@ export class CreateConfigurations {
     );
   }
 
-  private static async getFormDigestValueAsync(
-    context: BaseComponentContext
-  ): Promise<string> {
+  private static async getFormDigestValueAsync(context: BaseComponentContext): Promise<string> {
     try {
-      const res = await fetch(
-        context.pageContext.web.absoluteUrl + '/_api/contextinfo',
-        {
-          method: 'POST',
-          headers: { accept: 'application/json;odata=verbose' },
-        }
-      );
+      const res = await fetch(context.pageContext.web.absoluteUrl + '/_api/contextinfo', {
+        method: 'POST',
+        headers: { accept: 'application/json;odata=verbose' },
+      });
       const contextInfo = await res.json();
-      const FormDigestValue =
-        contextInfo.d.GetContextWebInformation.FormDigestValue;
+      const FormDigestValue = contextInfo.d.GetContextWebInformation.FormDigestValue;
       return FormDigestValue;
     } catch {
       // TODO handle
