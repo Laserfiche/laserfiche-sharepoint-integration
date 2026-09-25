@@ -11,7 +11,6 @@ import {
   FileParameter,
   ImportEntryRequest,
   ImportEntryRequestMetadata,
-  SetTagsRequest,
 } from '@laserfiche/lf-repository-api-client-v2';
 import {
   LfRepoTreeNodeService,
@@ -666,6 +665,9 @@ function ImportFileModal(props: {
       const fieldsmetadata: ImportEntryRequestMetadata = new ImportEntryRequestMetadata({
         templateName,
         fields: formattedFieldValues,
+        // Part of the import rather than a separate call afterwards, so a tag
+        // the repository rejects fails the upload instead of being dropped.
+        tags: selectedTagNames.length > 0 ? selectedTagNames : undefined,
       });
       // v2 has no separate `extension` parameter: the extension has to be part
       // of the electronic document's file name.
@@ -692,7 +694,6 @@ function ImportFileModal(props: {
       };
 
       const importedEntry = await props.repoClient.entriesClient.importEntry(requestParameters);
-      await safeSetTagsAsync(repoId, importedEntry.id, selectedTagNames);
       setFileUploadPercentage(100);
       await tryRefreshFolderBrowserAsync(props.refreshFolderBrowserAsync);
       props.onImported({
@@ -715,29 +716,6 @@ function ImportFileModal(props: {
     } else {
       setFileUploadPercentage(0);
       setImportFileValidationMessage(requiredFieldsValidation);
-    }
-  }
-
-  // Tag-setting failure must not fail/rollback an import that already
-  // succeeded -- log and move on, same as errors are swallowed elsewhere in
-  // this modal's import flow.
-  async function safeSetTagsAsync(
-    repoId: string,
-    entryId: number | undefined,
-    tags: string[]
-  ): Promise<void> {
-    if (!entryId || tags.length === 0) {
-      return;
-    }
-    try {
-      await props.repoClient.entriesClient.setTags({
-        repositoryId: repoId,
-        entryId,
-        request: new SetTagsRequest({ tags }),
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error('Error setting tags:', err);
     }
   }
 

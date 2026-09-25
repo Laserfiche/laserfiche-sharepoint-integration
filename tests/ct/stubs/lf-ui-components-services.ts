@@ -26,16 +26,22 @@ export class LfFieldsService {
 
 // Lists tags through the repo client it's given (the CT harness's fake
 // tagDefinitionsClient), so a test proves the dialog handed the real client to
-// the tags service.
+// the tags service. Maps them the way the real service does: displayName falls
+// back to the tag's name when the repository has no localized one.
 export class LfRepoTagsService {
   constructor(private repoClient: IRepositoryApiClientExInternal) {}
 
-  async getTagDefinitions(): Promise<Array<{ displayName: string }>> {
-    const tags: Array<{ displayName: string }> = [];
+  async getTagDefinitions(): Promise<Array<{ name: string; displayName: string }>> {
+    const tags: Array<{ name: string; displayName: string }> = [];
     await this.repoClient.tagDefinitionsClient.listTagDefinitionsForEach({
       repositoryId: await this.repoClient.getCurrentRepoId(),
       callback: async (response) => {
-        tags.push(...(response.value ?? []).map((tag) => ({ displayName: tag.name ?? '' })));
+        tags.push(
+          ...(response.value ?? []).map((tag) => ({
+            name: tag.name ?? '',
+            displayName: tag.displayName ?? tag.name ?? '',
+          }))
+        );
         return true;
       },
     });

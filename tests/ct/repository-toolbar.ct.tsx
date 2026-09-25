@@ -384,7 +384,10 @@ test.describe('ImportFileModal', () => {
     await expect(tags.getByText('No tags available')).toBeHidden();
   });
 
-  test('selected tags are applied to the imported entry', async ({ mount, page }) => {
+  // The repository assigns tags by name; a display name can be localized and
+  // differ from it. They travel in the import request itself, so a tag the
+  // repository rejects fails the upload visibly instead of being dropped.
+  test('selected tags are sent by name with the import', async ({ mount, page }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
@@ -406,32 +409,32 @@ test.describe('ImportFileModal', () => {
     await page.locator('lf-tags').evaluate(
       (
         el: HTMLElement & {
-          emitSelectedTagsChanged: (tags: Array<{ displayName: string }>) => void;
+          emitSelectedTagsChanged: (tags: Array<{ name: string; displayName: string }>) => void;
         }
-      ) => el.emitSelectedTagsChanged([{ displayName: 'Contract' }, { displayName: 'Reviewed' }])
+      ) =>
+        el.emitSelectedTagsChanged([
+          { name: 'Contract', displayName: 'Contrat' },
+          { name: 'Reviewed', displayName: 'Révisé' },
+        ])
     );
     await page.getByRole('button', { name: 'OK' }).click();
 
     await expect
       .poll(async () => {
         const calls = await page.evaluate(() => window.__repoClientCalls ?? []);
-        return calls.some((c) => c.method === 'setTags');
+        return calls.some((c) => c.method === 'importEntry');
       })
       .toBe(true);
 
     const calls = await page.evaluate(() => window.__repoClientCalls ?? []);
-    const setTagsCall = calls.find((c) => c.method === 'setTags');
-    const args = setTagsCall.args[0] as {
-      repositoryId: string;
-      entryId: number;
-      request: { tags: string[] };
-    };
-    expect(args.repositoryId).toBe('repo-1');
-    expect(args.entryId).toBe(100);
-    expect(args.request.tags).toEqual(['Contract', 'Reviewed']);
+    const importCall = calls.find((c) => c.method === 'importEntry');
+    const metadata = (importCall.args[0] as { request: { metadata: { tags?: string[] } } }).request
+      .metadata;
+    expect(metadata.tags).toEqual(['Contract', 'Reviewed']);
+    expect(calls.some((c) => c.method === 'setTags')).toBe(false);
   });
 
-  test('no tags selected means setTags is never called', async ({ mount, page }) => {
+  test('no tags selected sends no tags with the import', async ({ mount, page }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
@@ -449,7 +452,10 @@ test.describe('ImportFileModal', () => {
       .toBe(true);
 
     const calls = await page.evaluate(() => window.__repoClientCalls ?? []);
-    expect(calls.some((c) => c.method === 'setTags')).toBe(false);
+    const importCall = calls.find((c) => c.method === 'importEntry');
+    const metadata = (importCall.args[0] as { request: { metadata: { tags?: string[] } } }).request
+      .metadata;
+    expect(metadata.tags).toBeUndefined();
   });
 
   test('a slow template list load shows a Loading... spinner beside the Template header until the list arrives', async ({

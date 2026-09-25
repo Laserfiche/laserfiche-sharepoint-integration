@@ -15,9 +15,11 @@ export function LfTagsPicker(props: {
   const host = React.useRef<HTMLDivElement>();
 
   React.useEffect(() => {
+    // The repository assigns tags by name. displayName is the localized label
+    // the picker shows, and can differ from it.
     const onSelectedTagsChanged: EventListener = (event: Event) => {
       props.onSelectedTagNamesChange(
-        (event as CustomEvent<LfTagDefinition[]>).detail.map((tag) => tag.displayName)
+        (event as CustomEvent<LfTagDefinition[]>).detail.map((tag) => tag.name)
       );
     };
 

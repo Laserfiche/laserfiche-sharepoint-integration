@@ -161,14 +161,20 @@ class FakeLfLogin extends HTMLElement {
   }
 }
 
+// The parts of LfTagDefinition the fakes below use: the repository assigns a
+// tag by `name`, and lists it by its (possibly localized) `displayName`.
+interface FakeTagDefinition {
+  name: string;
+  displayName: string;
+}
+
 // Fakes <lf-tags>, used by LfTagsPicker.tsx via a `tagsService` property,
 // plus the selectedTagsChanged event. Like the real component (whose
 // ngAfterViewInit runs synchronously when Angular Elements attaches it), it
 // reads tagsService only on its first attach, so a service assigned after
 // that is never asked for tags and the list shows "No tags available".
 class FakeLfTags extends HTMLElement {
-  public tagsService: { getTagDefinitions(): Promise<Array<{ displayName: string }>> } | undefined =
-    undefined;
+  public tagsService: { getTagDefinitions(): Promise<FakeTagDefinition[]> } | undefined = undefined;
   private initialized = false;
 
   connectedCallback(): void {
@@ -183,7 +189,7 @@ class FakeLfTags extends HTMLElement {
     void this.tagsService.getTagDefinitions().then((tags) => this.renderTags(tags));
   }
 
-  private renderTags(tags: Array<{ displayName: string }>): void {
+  private renderTags(tags: FakeTagDefinition[]): void {
     const list = document.createElement('ul');
     const names = tags.length > 0 ? tags.map((tag) => tag.displayName) : ['No tags available'];
     for (const name of names) {
@@ -194,7 +200,7 @@ class FakeLfTags extends HTMLElement {
     this.replaceChildren(list);
   }
 
-  emitSelectedTagsChanged(tags: Array<{ displayName: string }>): void {
+  emitSelectedTagsChanged(tags: FakeTagDefinition[]): void {
     this.dispatchEvent(new CustomEvent('selectedTagsChanged', { detail: tags }));
   }
 }
