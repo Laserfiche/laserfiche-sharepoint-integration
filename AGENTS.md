@@ -91,6 +91,8 @@ npm run package-solution # .sppkg -> sharepoint/solution/
 npm run serve            # hosted workbench only; there is no local workbench
 ```
 
+`.npmrc`'s `min-release-age=3` keeps `npm install` and `npm update` from resolving a version published less than 3 days ago, but only on npm 11.10 or later. Node 22's bundled npm 10.9 ignores it, and `npm ci` never resolves versions, so don't count on it in CI.
+
 For manual checks against the hosted workbench (`https://<site>/_layouts/15/workbench.aspx?debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js&debug=true&noredir=true`), use a real browser such as Claude in Chrome. Sandboxed agent browser panes block the tenant from reaching `localhost`.
 
 ### SharePoint CSP: never load external scripts
