@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
-import { clientId, repositoryScopes } from '../webparts/constants';
+import { clientId, loginIdentifier, repositoryScopes } from '../webparts/constants';
 import { getRegion } from './Funcs';
 
 /**
@@ -30,6 +30,7 @@ export const LaserficheLogin = React.forwardRef<
       client_id={clientId}
       scope={repositoryScopes}
       login_type={LoginType.Cloud}
+      login_identifier={loginIdentifier}
       hidden
     />
   );

@@ -6,7 +6,7 @@ import { render } from '@testing-library/react';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { LaserficheLogin } from './LaserficheLogin';
-import { clientId, repositoryScopes } from '../webparts/constants';
+import { clientId, loginIdentifier, repositoryScopes } from '../webparts/constants';
 
 const REDIRECT_URI = 'https://contoso.sharepoint.com/SitePages/LaserficheSignIn.aspx?autologin';
 
@@ -37,6 +37,26 @@ describe('LaserficheLogin', () => {
 
     // Assert
     expect(container.querySelector('lf-login')).toHaveAttribute('login_type', 'Cloud');
+  });
+
+  // lf-login keeps its session in local storage under login_identifier. Left
+  // unset, lf-login 21 uses '', a slot every lf-login app on the tenant shares.
+  test("keeps its session under this app's own identifier", () => {
+    // Act
+    const { container } = render(<LaserficheLogin redirectUri={REDIRECT_URI} />);
+
+    // Assert
+    expect(container.querySelector('lf-login')).toHaveAttribute(
+      'login_identifier',
+      loginIdentifier
+    );
+  });
+
+  // lf-login 16 kept sessions under the client id. Those sessions carry no
+  // scopes, and the v2 repository API rejects them with 403.
+  test('does not pick up sessions stored by releases before the v2 API', () => {
+    // Assert
+    expect(loginIdentifier).not.toBe(clientId);
   });
 
   // Laserfiche employees use the clouddev environment when spDevMode is on.

@@ -11,6 +11,15 @@ export const clientId = '8ee987ea-a0b1-4ca2-85c4-a79b335cd214';
 // the app registration grants.
 export const repositoryScopes = 'repository.Read repository.Write';
 
+// lf-login keeps its session in local storage under this identifier. Left
+// unset, lf-login 21 uses '' (its client_id default is read before client_id
+// is set), a slot every lf-login 21 app on the tenant would share. It
+// deliberately differs from the client id, which lf-login 16 used: sessions
+// stored by those releases carry no scopes, and the v2 repository API rejects
+// them with 403, so users sign in afresh instead. Change it again whenever
+// repositoryScopes changes, for the same reason.
+export const loginIdentifier = `${clientId}.repository-v2`;
+
 export const LASERFICHE_ADMIN_CONFIGURATION_NAME = 'LaserficheAdminConfiguration';
 export const MANAGE_MAPPING = 'ManageMapping';
 export const MANAGE_CONFIGURATIONS = 'ManageConfigurations';
