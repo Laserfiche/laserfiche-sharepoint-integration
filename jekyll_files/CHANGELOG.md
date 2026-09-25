@@ -17,6 +17,7 @@ nav_order: 4
 
 - Updated to SharePoint Framework 1.23.2, the Laserfiche Repository API v2 (704606) and Laserfiche UI Components 21 (710113).
 - Updated the test framework and added component tests. (710120)
+- Security updates: error messages written to the browser console can no longer add extra log lines. (702044)
 - After updating, users need to sign in to Laserfiche again.
 
 ### Fixes

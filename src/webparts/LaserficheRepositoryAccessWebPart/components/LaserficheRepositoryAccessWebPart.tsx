@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
-import { isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { formatErrorForLog, isLfLoginSignedIn } from '../../../Utils/Funcs';
 import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './LaserficheRepositoryAccess.module.scss';
@@ -116,7 +116,7 @@ export default function LaserficheRepositoryAccessWebPart(
         await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Unable to initialize repository explorer: ${err}`);
+        console.error(`Unable to initialize repository explorer: ${formatErrorForLog(err)}`);
       }
     };
 

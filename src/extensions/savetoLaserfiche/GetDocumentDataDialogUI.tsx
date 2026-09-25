@@ -25,7 +25,7 @@ import {
   TemplateFieldDefinition,
 } from '@laserfiche/lf-repository-api-client-v2';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
-import { getSPListURL } from '../../Utils/Funcs';
+import { formatErrorForLog, getSPListURL } from '../../Utils/Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog, { LaserficheDialogTitle, useConfirm } from './CommonDialogs';
 import {
@@ -115,7 +115,7 @@ export function GetDocumentDialogData(props: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(<div>{`Error saving: ${err.message}`}</div>);
-      console.error(err);
+      console.error(`Error saving: ${formatErrorForLog(err)}`);
     }
   }
 

@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { IAdminPageProps } from './IAdminPageProps';
 import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
+import { formatErrorForLog } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import '../../../../Assets/CSS/bootstrap.min.css';
 import './../../../../Assets/CSS/commonStyles.css';
@@ -13,7 +14,7 @@ import './../../../../Assets/CSS/commonStyles.css';
 export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
     CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch((err: Error) => {
-      console.warn(`Error: ${err.message}`);
+      console.warn(`Error: ${formatErrorForLog(err)}`);
     });
   }, []);
 

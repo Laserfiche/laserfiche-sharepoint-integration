@@ -20,6 +20,7 @@ import {
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../strings';
+import { formatErrorForLog } from '../../../Utils/Funcs';
 
 export default function ManageConfiguration(
   props: React.PropsWithChildren<IManageConfigurationProps>
@@ -97,7 +98,7 @@ export default function ManageConfiguration(
         setAvailableSPFields(spColumns);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error initializing configuration component: ${err}`);
+        console.error(`Error initializing configuration component: ${formatErrorForLog(err)}`);
       }
     };
     if (props.repoClient) {

@@ -12,7 +12,7 @@ import {
   SIGN_IN_FAILED_PLEASE_TRY_AGAIN_DETAILS,
   needLaserficheSignInPage,
 } from '../webparts/strings';
-import { getSPListURL, openLoginWindow } from './Funcs';
+import { formatErrorForLog, getSPListURL, openLoginWindow } from './Funcs';
 
 type SignInAction = 'login' | 'logout';
 
@@ -78,8 +78,7 @@ async function isSignInPageConfiguredAsync(context: BaseComponentContext): Promi
     }
   } catch (error) {
     console.warn(
-      `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`,
-      error
+      `Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists: ${formatErrorForLog(error)}`
     );
     return false;
   }

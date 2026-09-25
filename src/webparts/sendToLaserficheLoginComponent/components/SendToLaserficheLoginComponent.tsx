@@ -20,7 +20,11 @@ import {
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
-import { getEntryWebAccessUrl, getSPDocumentDataFromLocalStorage } from '../../../Utils/Funcs';
+import {
+  formatErrorForLog,
+  getEntryWebAccessUrl,
+  getSPDocumentDataFromLocalStorage,
+} from '../../../Utils/Funcs';
 import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './SendToLaserficheLoginComponent.module.scss';
@@ -168,7 +172,7 @@ export default function SendToLaserficheLoginComponent(
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Unable to initialize sign-in page: ${err}`);
+        console.error(`Unable to initialize sign-in page: ${formatErrorForLog(err)}`);
       }
     };
 

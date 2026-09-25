@@ -8,7 +8,7 @@ import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 import { LASERFICHE_ADMIN_CONFIGURATION_NAME, MANAGE_CONFIGURATIONS } from '../../../constants';
-import { getSPListURL } from '../../../../Utils/Funcs';
+import { formatErrorForLog, getSPListURL } from '../../../../Utils/Funcs';
 import { DeleteModal, ProfileConfiguration } from '../ProfileConfigurationComponents';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import '../../../../Assets/CSS/bootstrap.min.css';
@@ -34,7 +34,7 @@ export default function ManageConfigurationsPage(
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error: ${err.message}`);
+        console.error(`Error: ${formatErrorForLog(err)}`);
       }
     };
     void updateConfigurationsAsync();
@@ -90,7 +90,7 @@ export default function ManageConfigurationsPage(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(`Error when removing configuration: ${err.message}`);
-      console.error(err);
+      console.error(`Error when removing configuration: ${formatErrorForLog(err)}`);
     }
   }
 

@@ -11,16 +11,20 @@ vi.mock('../../../extensions/savetoLaserfiche/SaveToLaserficheDialog', () => ({
     return { show: vi.fn().mockResolvedValue(undefined), successful: true };
   }),
 }));
-vi.mock('../../../Utils/Funcs', async (importOriginal) => ({
-  getEntryWebAccessUrl: vi.fn().mockReturnValue('https://webclient.example.com'),
-  getRegion: vi.fn().mockReturnValue('a.clouddev.laserfiche.com'),
-  getSPDocumentDataFromLocalStorage: vi.fn(), // configure return value per test
-  getSPListURL: vi
-    .fn()
-    .mockReturnValue("https://contoso.sharepoint.com/_api/web/lists/getbytitle('Site Pages')"),
-  // The real one, so the popup tests below can keep asserting on window.open.
-  openLoginWindow: (await importOriginal<typeof import('../../../Utils/Funcs')>()).openLoginWindow,
-}));
+vi.mock('../../../Utils/Funcs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../Utils/Funcs')>();
+  return {
+    formatErrorForLog: actual.formatErrorForLog,
+    getEntryWebAccessUrl: vi.fn().mockReturnValue('https://webclient.example.com'),
+    getRegion: vi.fn().mockReturnValue('a.clouddev.laserfiche.com'),
+    getSPDocumentDataFromLocalStorage: vi.fn(), // configure return value per test
+    getSPListURL: vi
+      .fn()
+      .mockReturnValue("https://contoso.sharepoint.com/_api/web/lists/getbytitle('Site Pages')"),
+    // The real one, so the popup tests below can keep asserting on window.open.
+    openLoginWindow: actual.openLoginWindow,
+  };
+});
 
 import type { Mock } from 'vitest';
 import * as React from 'react';

@@ -3,7 +3,7 @@
 
 import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { LASERFICHE_ADMIN_CONFIGURATION_NAME } from '../webparts/constants';
-import { getSPListURL } from './Funcs';
+import { formatErrorForLog, getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 
 const targetRoleDefinitionName = 'Read';
@@ -56,7 +56,9 @@ export class CreateConfigurations {
       return listTitle;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error(`Error when creating LaserficheAdminConfiguration List: ${err}`);
+      console.error(
+        `Error when creating LaserficheAdminConfiguration List: ${formatErrorForLog(err)}`
+      );
     }
   }
 

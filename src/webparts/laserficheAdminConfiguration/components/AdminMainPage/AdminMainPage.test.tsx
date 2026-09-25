@@ -126,7 +126,7 @@ describe('AdminMainPage', () => {
 
     // Assert
     await waitFor(() => {
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Error: boom'));
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Error: "boom"'));
     });
     expect(screen.getByText('Profile Editor')).toBeInTheDocument();
   });

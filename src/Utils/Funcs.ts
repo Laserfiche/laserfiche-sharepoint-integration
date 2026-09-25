@@ -142,6 +142,19 @@ export function getErrorDetails(error: unknown): string | undefined {
 }
 
 /**
+ * Formats a thrown value for the browser console. Its details can carry text
+ * from a server response or local storage, so they are JSON-encoded: a line
+ * break comes out as `\r` or `\n` rather than starting a forged log line
+ * (CWE-117). `JSON.stringify` is also a CWE-117 cleanser Veracode recognizes.
+ *
+ * @param error The thrown value, of unknown shape
+ * @returns The value's details as a quoted, single-line JSON string
+ */
+export function formatErrorForLog(error: unknown): string {
+  return JSON.stringify(getErrorDetails(error) ?? String(error));
+}
+
+/**
  * Reads the SharePoint document data the Send to Laserfiche flow stashes in
  * local storage. Returns undefined rather than throwing when the slot holds
  * something that is not valid JSON: this is read during render, so a parse
@@ -152,7 +165,9 @@ export function getSPDocumentDataFromLocalStorage(): ISPDocumentData | undefined
     const raw = window.localStorage.getItem(SP_LOCAL_STORAGE_KEY);
     return raw ? (JSON.parse(raw) as ISPDocumentData) : undefined;
   } catch (error) {
-    console.warn(`Unable to read ${SP_LOCAL_STORAGE_KEY} from local storage.`, error);
+    console.warn(
+      `Unable to read ${SP_LOCAL_STORAGE_KEY} from local storage: ${formatErrorForLog(error)}`
+    );
     return undefined;
   }
 }

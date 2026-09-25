@@ -12,7 +12,8 @@ vi.mock('@laserfiche/lf-repository-api-client-v2', () => {
   };
 });
 
-vi.mock('../../../Utils/Funcs', () => ({
+vi.mock('../../../Utils/Funcs', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../Utils/Funcs')>()),
   getEntryWebAccessUrl: vi.fn(),
 }));
 
@@ -78,6 +79,51 @@ describe('RepositoryViewWebPart', () => {
         EntryType.RecordSeries,
       ]);
     });
+  });
+
+  // The repository browser's load errors can carry text from a server
+  // response, and a line break in one would start a forged console line.
+  test('logs a failed repository browser load on one console line', async () => {
+    // Arrange
+    (LfRepoTreeNodeService as Mock).mockImplementation(function () {
+      return {};
+    });
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { container, rerender } = render(
+      <RepositoryViewWebPart
+        repoClient={repoClient}
+        webClientUrl=''
+        customerId=''
+        loggedIn={true}
+      />
+    );
+    const repositoryBrowser = container.querySelector('lf-repository-browser') as HTMLElement & {
+      initAsync: Mock;
+    };
+    repositoryBrowser.initAsync.mockRejectedValue(
+      new Error('Access denied\r\nINFO Forged log entry')
+    );
+
+    // Act
+    // A new repository client (as after signing in) loads the browser again.
+    rerender(
+      <RepositoryViewWebPart
+        repoClient={{ ...repoClient }}
+        webClientUrl=''
+        customerId=''
+        loggedIn={true}
+      />
+    );
+
+    // Assert
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Access denied\\r\\nINFO Forged log entry')
+      );
+    });
+    const logged = consoleErrorSpy.mock.calls.flat().map(String).join(' ');
+    expect(logged).not.toMatch(/[\r\n]/);
+    consoleErrorSpy.mockRestore();
   });
 
   test('isNodeSelectable should return true for Folder node', async () => {

@@ -6,6 +6,7 @@
 
 import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import {
+  formatErrorForLog,
   getEntryWebAccessUrl,
   getSPDocumentDataFromLocalStorage,
   isLfLoginSignedIn,
@@ -92,6 +93,37 @@ describe('getEntryWebAccessUrl', () => {
   });
 });
 
+describe('formatErrorForLog', () => {
+  // Error messages can carry text from a server response, and a line break in
+  // one would start a forged console line.
+  test('escapes line breaks so the error stays on one log line', () => {
+    // Act
+    const logged = formatErrorForLog(new Error('Access denied\r\nINFO Forged log entry'));
+
+    // Assert
+    expect(logged).toBe('"Access denied\\r\\nINFO Forged log entry"');
+  });
+
+  test('logs the same details the user is shown', () => {
+    // Arrange
+    const problemDetails = { title: 'Entry not found.', message: 'HTTP 404' };
+
+    // Act
+    const logged = formatErrorForLog(problemDetails);
+
+    // Assert
+    expect(logged).toBe('"Entry not found."');
+  });
+
+  test('describes a thrown value that has no details', () => {
+    // Act
+    const logged = formatErrorForLog(undefined);
+
+    // Assert
+    expect(logged).toBe('"undefined"');
+  });
+});
+
 describe('getSPDocumentDataFromLocalStorage', () => {
   afterEach(() => {
     window.localStorage.clear();
@@ -140,6 +172,21 @@ describe('getSPDocumentDataFromLocalStorage', () => {
     // Assert
     expect(result).toBeUndefined();
     expect(warn).toHaveBeenCalled();
+  });
+
+  // The stored value can be written by any script on the SharePoint origin,
+  // and the browser's parse error quotes it.
+  test('logs a malformed stored value on one line', () => {
+    // Arrange
+    window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, '{"fileName":\r\nINFO Forged log entry');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    // Act
+    getSPDocumentDataFromLocalStorage();
+
+    // Assert
+    const logged = warn.mock.calls.flat().map(String).join(' ');
+    expect(logged).not.toMatch(/[\r\n]/);
   });
 });
 

@@ -27,7 +27,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { ChangeEvent } from 'react';
-import { getEntryWebAccessUrl, getErrorDetails } from '../../../Utils/Funcs';
+import { formatErrorForLog, getEntryWebAccessUrl, getErrorDetails } from '../../../Utils/Funcs';
 import { SavedLaserficheDocument } from '../../../Utils/Types';
 import styles from './LaserficheRepositoryAccess.module.scss';
 import {
@@ -172,7 +172,7 @@ export default function RepositoryViewComponent(props: {
           await repoBrowser?.refreshAsync();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
-          console.error(err);
+          console.error(`Unable to initialize repository browser: ${formatErrorForLog(err)}`);
         }
       } else {
         console.debug('Unable to initialize tree, lfRepoTreeService is undefined');
@@ -426,7 +426,7 @@ async function tryRefreshFolderBrowserAsync(
   try {
     await refreshFolderBrowserAsync();
   } catch (err) {
-    console.error('Unable to refresh the folder list:', err);
+    console.error(`Unable to refresh the folder list: ${formatErrorForLog(err)}`);
   }
 }
 
@@ -541,7 +541,7 @@ function ImportFileModal(props: {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(err);
+        console.error(`${UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS} ${formatErrorForLog(err)}`);
         setImportFileValidationMessage(
           `${UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS} ${getErrorDetails(err) ?? UNKNOWN_ERROR}`
         );
@@ -631,7 +631,7 @@ function ImportFileModal(props: {
     } catch (err: any) {
       setFileUploadPercentage(0);
       setError(getErrorDetails(err) ?? UNKNOWN_ERROR);
-      console.error(error);
+      console.error(`Error uploading: ${formatErrorForLog(err)}`);
     }
   };
 

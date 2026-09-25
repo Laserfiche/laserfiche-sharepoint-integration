@@ -11,7 +11,7 @@ import { ProfileHeader, validateNewConfiguration } from '../ProfileConfiguration
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { ProfileConfiguration } from '../ProfileConfigurationComponents';
 import { LASERFICHE_ADMIN_CONFIGURATION_NAME, MANAGE_CONFIGURATIONS } from '../../../constants';
-import { getSPListURL } from '../../../../Utils/Funcs';
+import { formatErrorForLog, getSPListURL } from '../../../../Utils/Funcs';
 import '../../../../Assets/CSS/bootstrap.min.css';
 import './../../../../Assets/CSS/commonStyles.css';
 
@@ -64,7 +64,7 @@ export default function EditManageConfiguration(props: IEditManageConfigurationP
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error initializing edit configuration page: ${err}`);
+        console.error(`Error initializing edit configuration page: ${formatErrorForLog(err)}`);
       }
     };
     void initializeComponentAsync();

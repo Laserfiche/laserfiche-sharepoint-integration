@@ -5,7 +5,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
-import { isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { formatErrorForLog, isLfLoginSignedIn } from '../../../Utils/Funcs';
 import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import {
@@ -96,7 +96,7 @@ export const LoginComponent: React.FC<{
         await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error initializing configuration page: ${err}`);
+        console.error(`Error initializing configuration page: ${formatErrorForLog(err)}`);
       }
     };
 

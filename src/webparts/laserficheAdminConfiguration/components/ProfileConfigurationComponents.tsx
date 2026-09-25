@@ -13,7 +13,7 @@ import { LfRepositoryBrowserComponent } from '@laserfiche/types-lf-ui-components
 import * as React from 'react';
 import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import { getCorrespondingTypeFieldName } from '../../../Utils/Funcs';
+import { formatErrorForLog, getCorrespondingTypeFieldName } from '../../../Utils/Funcs';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import {
   ADD_FIELD,
@@ -262,7 +262,7 @@ export function RepositoryBrowserModal(props: {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error(`Unable to initialize repository browser: ${err}`);
+      console.error(`Unable to initialize repository browser: ${formatErrorForLog(err)}`);
     }
   }
 

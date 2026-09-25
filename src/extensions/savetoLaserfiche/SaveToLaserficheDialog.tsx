@@ -4,6 +4,7 @@
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
+import { formatErrorForLog } from '../../Utils/Funcs';
 import { ISPDocumentData } from '../../Utils/Types';
 import { LF_UI_COMPONENTS_URL, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 import LoadingDialog, {
@@ -175,11 +176,11 @@ function SaveToLaserficheDialog(props: {
                   <div>{`Verify that an entry with ID "${props.spFileMetadata.entryId}" exists and that you have access to it.`}</div>
                 </>
               );
-              console.error(err);
+              console.error(`Error saving: ${formatErrorForLog(err)}`);
             } else {
               props.isSuccessfulLoggedIn(true);
               setError(<span>{err.message}</span>);
-              console.error(err);
+              console.error(`Error saving: ${formatErrorForLog(err)}`);
             }
           }
         } else {
@@ -188,7 +189,7 @@ function SaveToLaserficheDialog(props: {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(`Error initializing dialog: ${err}`);
+        console.error(`Error initializing dialog: ${formatErrorForLog(err)}`);
       }
     };
 

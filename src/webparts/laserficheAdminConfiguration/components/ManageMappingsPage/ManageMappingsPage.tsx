@@ -12,7 +12,7 @@ import {
   MANAGE_CONFIGURATIONS,
   MANAGE_MAPPING,
 } from '../../../constants';
-import { getSPListURL } from '../../../../Utils/Funcs';
+import { formatErrorForLog, getSPListURL } from '../../../../Utils/Funcs';
 import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import '../../../../Assets/CSS/bootstrap.min.css';
@@ -51,7 +51,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps): JSX
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error(`Error getting mappings: ${err.message}`);
+      console.error(`Error getting mappings: ${formatErrorForLog(err)}`);
     }
   }
 
