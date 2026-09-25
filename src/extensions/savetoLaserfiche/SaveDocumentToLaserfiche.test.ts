@@ -17,9 +17,7 @@ vi.mock('@laserfiche/lf-repository-api-client-v2', () => ({
 }));
 
 vi.mock('../../Utils/Funcs', () => ({
-  getEntryWebAccessUrl: vi
-    .fn()
-    .mockReturnValue('https://webclient.example.com/entry/123'),
+  getEntryWebAccessUrl: vi.fn().mockReturnValue('https://webclient.example.com/entry/123'),
 }));
 
 import type { Mock } from 'vitest';
@@ -29,9 +27,7 @@ import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/compone
 import { SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 import { getEntryWebAccessUrl } from '../../Utils/Funcs';
 
-function makeSpFileMetadata(
-  overrides: Partial<ISPDocumentData> = {}
-): ISPDocumentData {
+function makeSpFileMetadata(overrides: Partial<ISPDocumentData> = {}): ISPDocumentData {
   return {
     fileName: 'Invoice.pdf',
     documentName: '',
@@ -52,12 +48,8 @@ function makeValidRepoClient(
   return {
     getCurrentRepoId: vi.fn().mockResolvedValue('repo-1'),
     entriesClient: {
-      importEntry: vi
-        .fn()
-        .mockResolvedValue(overrides.importEntryResult ?? { id: 42 }),
-      getEntry: vi
-        .fn()
-        .mockResolvedValue(overrides.getEntryResult ?? { name: 'final-name.pdf' }),
+      importEntry: vi.fn().mockResolvedValue(overrides.importEntryResult ?? { id: 42 }),
+      getEntry: vi.fn().mockResolvedValue(overrides.getEntryResult ?? { name: 'final-name.pdf' }),
     },
   };
 }
@@ -79,10 +71,7 @@ describe('SaveDocumentToLaserfiche', () => {
   describe('trySaveDocumentToLaserficheAsync', () => {
     test('resolves undefined and never fetches when there is no access token', async () => {
       const spFileMetadata = makeSpFileMetadata();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const getFileDataSpy = vi.spyOn(instance, 'GetFileData');
 
       const result = await instance.trySaveDocumentToLaserficheAsync();
@@ -100,14 +89,9 @@ describe('SaveDocumentToLaserfiche', () => {
         webClientUrl: 'https://webclient.example.com',
       };
       loginEl.account_id = 'customer-1';
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        undefined as any
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, undefined as any);
 
-      await expect(
-        instance.trySaveDocumentToLaserficheAsync()
-      ).rejects.toThrow(
+      await expect(instance.trySaveDocumentToLaserficheAsync()).rejects.toThrow(
         'You are not signed in or there was an issue retrieving data from SharePoint. Please try again.'
       );
     });
@@ -119,10 +103,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'my file.pdf',
         fileUrl: '/sites/site1/Shared Documents/my file.pdf',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const blob = { size: 123 };
       (globalThis.fetch as Mock).mockResolvedValue({
         blob: vi.fn().mockResolvedValue(blob),
@@ -130,9 +111,7 @@ describe('SaveDocumentToLaserfiche', () => {
 
       const result = await instance.GetFileData();
 
-      const expectedUrl =
-        window.location.origin +
-        '/sites/site1/Shared Documents/my%20file.pdf';
+      const expectedUrl = window.location.origin + '/sites/site1/Shared Documents/my%20file.pdf';
       expect(globalThis.fetch).toHaveBeenCalledWith(expectedUrl, {
         method: 'GET',
         headers: {
@@ -145,10 +124,7 @@ describe('SaveDocumentToLaserfiche', () => {
 
     test('clears SharePoint local storage and rethrows when fetch fails', async () => {
       const spFileMetadata = makeSpFileMetadata();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const error = new Error('network down');
       (globalThis.fetch as Mock).mockRejectedValue(error);
 
@@ -160,10 +136,7 @@ describe('SaveDocumentToLaserfiche', () => {
   describe('saveFileToLaserficheAsync', () => {
     test('routes to sendToLaserficheWithMappingAsync when lfProfile is set', async () => {
       const spFileMetadata = makeSpFileMetadata({ lfProfile: 'Profile1' });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const withMappingSpy = vi
         .spyOn(instance, 'sendToLaserficheWithMappingAsync')
         .mockResolvedValue({
@@ -193,23 +166,15 @@ describe('SaveDocumentToLaserfiche', () => {
 
     test('routes to sendToLaserficheNoMappingAsync when lfProfile is unset', async () => {
       const spFileMetadata = makeSpFileMetadata({ lfProfile: undefined });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
-      const withMappingSpy = vi.spyOn(
-        instance,
-        'sendToLaserficheWithMappingAsync'
-      );
-      const noMappingSpy = vi
-        .spyOn(instance, 'sendToLaserficheNoMappingAsync')
-        .mockResolvedValue({
-          fileLink: 'link2',
-          folderLink: 'folder2',
-          pathBack: 'back2',
-          fileName: 'name2',
-          action: ActionTypes.COPY,
-        });
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
+      const withMappingSpy = vi.spyOn(instance, 'sendToLaserficheWithMappingAsync');
+      const noMappingSpy = vi.spyOn(instance, 'sendToLaserficheNoMappingAsync').mockResolvedValue({
+        fileLink: 'link2',
+        folderLink: 'folder2',
+        pathBack: 'back2',
+        fileName: 'name2',
+        action: ActionTypes.COPY,
+      });
       const fileData = {} as any;
 
       const result = await instance.saveFileToLaserficheAsync(
@@ -218,25 +183,15 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      expect(noMappingSpy).toHaveBeenCalledWith(
-        fileData,
-        'https://webclient.example.com',
-        'cust1'
-      );
+      expect(noMappingSpy).toHaveBeenCalledWith(fileData, 'https://webclient.example.com', 'cust1');
       expect(withMappingSpy).not.toHaveBeenCalled();
       expect(result?.fileName).toBe('name2');
     });
 
     test('resolves undefined without routing when spFileData is falsy', async () => {
       const spFileMetadata = makeSpFileMetadata({ lfProfile: 'Profile1' });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
-      const withMappingSpy = vi.spyOn(
-        instance,
-        'sendToLaserficheWithMappingAsync'
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
+      const withMappingSpy = vi.spyOn(instance, 'sendToLaserficheWithMappingAsync');
       const noMappingSpy = vi.spyOn(instance, 'sendToLaserficheNoMappingAsync');
 
       const result = await instance.saveFileToLaserficheAsync(
@@ -272,9 +227,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'repo-1',
         'cust1'
       );
-      expect(result?.folderLink).toBe(
-        'https://webclient.example.com/entry/123'
-      );
+      expect(result?.folderLink).toBe('https://webclient.example.com/entry/123');
     });
 
     test('uses the SP file name without extension when documentName is empty', async () => {
@@ -283,10 +236,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -294,8 +244,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
       expect(entryRequest.request.name).toBe('Invoice');
       expect(entryRequest.file.fileName).toBe('Invoice.pdf');
       expect(entryRequest.request.importAsElectronicDocument).toBe(true);
@@ -308,10 +257,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -319,8 +265,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
       expect(entryRequest.request.name).toBe('Signed Contract');
       expect(entryRequest.file.fileName).toBe('Signed Contract.pdf');
     });
@@ -331,10 +276,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -342,8 +284,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
       expect(entryRequest.request.name).toBe('Invoice-Archive');
       expect(entryRequest.file.fileName).toBe('Invoice-Archive.pdf');
     });
@@ -351,10 +292,7 @@ describe('SaveDocumentToLaserfiche', () => {
     test('omits metadata when templateName is unset', async () => {
       const spFileMetadata = makeSpFileMetadata({ templateName: undefined });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -362,8 +300,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
       expect(entryRequest.request.metadata).toBeUndefined();
     });
 
@@ -382,10 +319,7 @@ describe('SaveDocumentToLaserfiche', () => {
         },
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -393,11 +327,8 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
-      expect(entryRequest.request.metadata.templateName).toBe(
-        'Invoice Template'
-      );
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
+      expect(entryRequest.request.metadata.templateName).toBe('Invoice Template');
       expect(entryRequest.request.metadata.fields).toEqual([
         { name: 'Field1', values: ['v1'] },
         { name: 'Field2', values: ['v2', 'v3'] },
@@ -407,10 +338,7 @@ describe('SaveDocumentToLaserfiche', () => {
     test('clears local storage after a COPY without any extra network calls', async () => {
       const spFileMetadata = makeSpFileMetadata({ action: ActionTypes.COPY });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -429,10 +357,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: true,
         statusText: 'OK',
@@ -458,32 +383,27 @@ describe('SaveDocumentToLaserfiche', () => {
         contextPageAbsoluteUrl: 'https://contoso.sharepoint.com/sites/site1',
       });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
-      (globalThis.fetch as Mock).mockImplementation(
-        (url: string, init?: RequestInit) => {
-          if (init?.method === 'DELETE') {
-            return Promise.resolve({ ok: true, statusText: 'OK' });
-          }
-          if (url.includes('/_api/contextinfo')) {
-            return Promise.resolve({
-              ok: true,
-              json: () =>
-                Promise.resolve({
-                  d: {
-                    GetContextWebInformation: { FormDigestValue: 'digest-123' },
-                  },
-                }),
-            });
-          }
-          if (url.includes('/Files/add(')) {
-            return Promise.resolve({ ok: true, statusText: 'OK' });
-          }
-          return Promise.reject(new Error(`Unexpected fetch call: ${url}`));
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
+      (globalThis.fetch as Mock).mockImplementation((url: string, init?: RequestInit) => {
+        if (init?.method === 'DELETE') {
+          return Promise.resolve({ ok: true, statusText: 'OK' });
         }
-      );
+        if (url.includes('/_api/contextinfo')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                d: {
+                  GetContextWebInformation: { FormDigestValue: 'digest-123' },
+                },
+              }),
+          });
+        }
+        if (url.includes('/Files/add(')) {
+          return Promise.resolve({ ok: true, statusText: 'OK' });
+        }
+        return Promise.reject(new Error(`Unexpected fetch call: ${url}`));
+      });
 
       await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -491,8 +411,8 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const addLinkCall = (globalThis.fetch as Mock).mock.calls.find(
-        ([url]: string[]) => url.includes('/Files/add(')
+      const addLinkCall = (globalThis.fetch as Mock).mock.calls.find(([url]: string[]) =>
+        url.includes('/Files/add(')
       );
       expect(addLinkCall).toBeDefined();
       const [addLinkUrl, addLinkInit] = addLinkCall as [string, RequestInit];
@@ -513,13 +433,8 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
       });
       const validRepoClient = makeValidRepoClient();
-      validRepoClient.entriesClient.getEntry.mockRejectedValue(
-        new Error('not found')
-      );
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      validRepoClient.entriesClient.getEntry.mockRejectedValue(new Error('not found'));
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       const result = await instance.sendToLaserficheWithMappingAsync(
         {} as any,
@@ -535,10 +450,7 @@ describe('SaveDocumentToLaserfiche', () => {
       const validRepoClient = makeValidRepoClient();
       const error = new Error('import failed');
       validRepoClient.entriesClient.importEntry.mockRejectedValue(error);
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await expect(
         instance.sendToLaserficheWithMappingAsync(
@@ -555,10 +467,7 @@ describe('SaveDocumentToLaserfiche', () => {
     test('always sends the hardcoded parent entry id of 1', async () => {
       const spFileMetadata = makeSpFileMetadata({ entryId: '999' });
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheNoMappingAsync(
         {} as any,
@@ -566,8 +475,7 @@ describe('SaveDocumentToLaserfiche', () => {
         'cust1'
       );
 
-      const entryRequest = validRepoClient.entriesClient.importEntry.mock
-        .calls[0][0];
+      const entryRequest = validRepoClient.entriesClient.importEntry.mock.calls[0][0];
       expect(entryRequest.entryId).toBe(1);
     });
 
@@ -591,21 +499,14 @@ describe('SaveDocumentToLaserfiche', () => {
         'repo-1',
         'cust1'
       );
-      expect(result?.folderLink).toBe(
-        'https://webclient.example.com/entry/123'
-      );
+      expect(result?.folderLink).toBe('https://webclient.example.com/entry/123');
     });
 
     test('keeps the full file name including extension when tryUpdateFileNameAsync fails', async () => {
       const spFileMetadata = makeSpFileMetadata({ fileName: 'Invoice.pdf' });
       const validRepoClient = makeValidRepoClient();
-      validRepoClient.entriesClient.getEntry.mockRejectedValue(
-        new Error('not found')
-      );
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      validRepoClient.entriesClient.getEntry.mockRejectedValue(new Error('not found'));
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       const result = await instance.sendToLaserficheNoMappingAsync(
         {} as any,
@@ -619,10 +520,7 @@ describe('SaveDocumentToLaserfiche', () => {
     test('clears local storage on success', async () => {
       const spFileMetadata = makeSpFileMetadata();
       const validRepoClient = makeValidRepoClient();
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await instance.sendToLaserficheNoMappingAsync(
         {} as any,
@@ -638,17 +536,10 @@ describe('SaveDocumentToLaserfiche', () => {
       const validRepoClient = makeValidRepoClient();
       const error = new Error('import failed');
       validRepoClient.entriesClient.importEntry.mockRejectedValue(error);
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        validRepoClient
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, validRepoClient);
 
       await expect(
-        instance.sendToLaserficheNoMappingAsync(
-          {} as any,
-          'https://webclient.example.com',
-          'cust1'
-        )
+        instance.sendToLaserficheNoMappingAsync({} as any, 'https://webclient.example.com', 'cust1')
       ).rejects.toBe(error);
       expect(removeItemMock).toHaveBeenCalledWith(SP_LOCAL_STORAGE_KEY);
     });
@@ -660,10 +551,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Forbidden',
@@ -682,10 +570,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
         contextPageAbsoluteUrl: 'https://contoso.sharepoint.com/sites/site1',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const replaceSpy = vi
         .spyOn(instance, 'replaceFileWithLinkAsync')
         .mockResolvedValue(undefined);
@@ -694,14 +579,9 @@ describe('SaveDocumentToLaserfiche', () => {
         statusText: 'OK',
       });
 
-      await instance.deleteSPFileAndReplaceWithLinkAsync(
-        'https://webclient.example.com/entry/123'
-      );
+      await instance.deleteSPFileAndReplaceWithLinkAsync('https://webclient.example.com/entry/123');
 
-      expect(replaceSpy).toHaveBeenCalledWith(
-        'Invoice',
-        'https://webclient.example.com/entry/123'
-      );
+      expect(replaceSpy).toHaveBeenCalledWith('Invoice', 'https://webclient.example.com/entry/123');
     });
 
     test('throws and clears local storage without replacing when delete fails', async () => {
@@ -709,10 +589,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileName: 'Invoice.pdf',
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       const replaceSpy = vi.spyOn(instance, 'replaceFileWithLinkAsync');
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: false,
@@ -720,12 +597,8 @@ describe('SaveDocumentToLaserfiche', () => {
       });
 
       await expect(
-        instance.deleteSPFileAndReplaceWithLinkAsync(
-          'https://webclient.example.com/entry/123'
-        )
-      ).rejects.toThrow(
-        'An error occurred while replacing file with link: Forbidden'
-      );
+        instance.deleteSPFileAndReplaceWithLinkAsync('https://webclient.example.com/entry/123')
+      ).rejects.toThrow('An error occurred while replacing file with link: Forbidden');
       expect(replaceSpy).not.toHaveBeenCalled();
       expect(removeItemMock).toHaveBeenCalledWith(SP_LOCAL_STORAGE_KEY);
     });
@@ -736,23 +609,15 @@ describe('SaveDocumentToLaserfiche', () => {
       const spFileMetadata = makeSpFileMetadata({
         contextPageAbsoluteUrl: 'https://contoso.sharepoint.com/sites/site1',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Unauthorized',
       });
 
       await expect(
-        instance.replaceFileWithLinkAsync(
-          'Invoice',
-          'https://webclient.example.com/entry/123'
-        )
-      ).rejects.toThrow(
-        'An error occurred while replacing file with link: Unauthorized'
-      );
+        instance.replaceFileWithLinkAsync('Invoice', 'https://webclient.example.com/entry/123')
+      ).rejects.toThrow('An error occurred while replacing file with link: Unauthorized');
     });
   });
 
@@ -763,10 +628,7 @@ describe('SaveDocumentToLaserfiche', () => {
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
         contextPageAbsoluteUrl: 'https://contoso.sharepoint.com/sites/site1',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: true,
         statusText: 'OK',
@@ -798,24 +660,15 @@ describe('SaveDocumentToLaserfiche', () => {
         fileUrl: '/sites/site1/Shared Documents/Invoice.pdf',
         contextPageAbsoluteUrl: 'https://contoso.sharepoint.com/sites/site1',
       });
-      const instance = new SaveDocumentToLaserfiche(
-        spFileMetadata,
-        makeValidRepoClient()
-      );
+      const instance = new SaveDocumentToLaserfiche(spFileMetadata, makeValidRepoClient());
       (globalThis.fetch as Mock).mockResolvedValue({
         ok: false,
         statusText: 'Forbidden',
       });
 
       await expect(
-        instance.createLinkAsync(
-          'Invoice',
-          'https://webclient.example.com/entry/123',
-          'digest-123'
-        )
-      ).rejects.toThrow(
-        'An error occurred while replacing file with link: Forbidden'
-      );
+        instance.createLinkAsync('Invoice', 'https://webclient.example.com/entry/123', 'digest-123')
+      ).rejects.toThrow('An error occurred while replacing file with link: Forbidden');
     });
   });
 });

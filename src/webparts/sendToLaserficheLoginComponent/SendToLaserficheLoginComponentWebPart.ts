@@ -10,12 +10,9 @@ import SendToLaserficheLoginComponent from './components/SendToLaserficheLoginCo
 
 export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<{}> {
   public render(): void {
-    const element: React.ReactElement = React.createElement(
-      SendToLaserficheLoginComponent,
-      {
-        context: this.context,
-      }
-    );
+    const element: React.ReactElement = React.createElement(SendToLaserficheLoginComponent, {
+      context: this.context,
+    });
 
     ReactDom.render(element, this.domElement);
   }

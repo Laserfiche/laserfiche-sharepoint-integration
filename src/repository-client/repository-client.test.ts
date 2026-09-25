@@ -61,10 +61,7 @@ describe('RepositoryClientExInternal', () => {
       const request: RequestInit = {};
 
       // Act
-      const result = await instance.beforeFetchRequestAsync(
-        'https://api.example.com',
-        request
-      );
+      const result = await instance.beforeFetchRequestAsync('https://api.example.com', request);
 
       // Assert
       expect(result).toEqual({ regionalDomain: 'a.laserfiche.com' });
@@ -170,9 +167,7 @@ describe('RepositoryClientExInternal', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       instance.repoClient = {
         repositoriesClient: {
-          listRepositories: vi
-            .fn()
-            .mockResolvedValue({ value: [{ id: 'repo-1' }] }),
+          listRepositories: vi.fn().mockResolvedValue({ value: [{ id: 'repo-1' }] }),
         },
       } as any;
 
@@ -193,9 +188,7 @@ describe('RepositoryClientExInternal', () => {
       } as any;
 
       // Act / Assert
-      await expect(instance.getCurrentRepo()).rejects.toThrow(
-        'Current repoId undefined.'
-      );
+      await expect(instance.getCurrentRepo()).rejects.toThrow('Current repoId undefined.');
     });
 
     test('rejects when repoClient is undefined', async () => {
@@ -203,9 +196,7 @@ describe('RepositoryClientExInternal', () => {
       instance.repoClient = undefined as unknown as IRepositoryApiClientExInternal;
 
       // Act / Assert
-      await expect(instance.getCurrentRepo()).rejects.toThrow(
-        'repoClient undefined.'
-      );
+      await expect(instance.getCurrentRepo()).rejects.toThrow('repoClient undefined.');
     });
   });
 
@@ -215,9 +206,7 @@ describe('RepositoryClientExInternal', () => {
       const partialRepoClient = {
         repositoriesClient: { listRepositories: vi.fn() },
       };
-      (
-        RepositoryApiClient.createFromHttpRequestHandler as Mock
-      ).mockReturnValue(partialRepoClient);
+      (RepositoryApiClient.createFromHttpRequestHandler as Mock).mockReturnValue(partialRepoClient);
 
       // Act
       const result = await instance.createRepositoryClientAsync();
@@ -234,12 +223,10 @@ describe('RepositoryClientExInternal', () => {
   describe('getCurrentRepoId caching', () => {
     test('only calls listRepositories once across two calls', async () => {
       // Arrange
-      const listRepositories = vi
-        .fn()
-        .mockResolvedValue({ value: [{ id: 'repo-1' }] });
-      (
-        RepositoryApiClient.createFromHttpRequestHandler as Mock
-      ).mockReturnValue({ repositoriesClient: { listRepositories } });
+      const listRepositories = vi.fn().mockResolvedValue({ value: [{ id: 'repo-1' }] });
+      (RepositoryApiClient.createFromHttpRequestHandler as Mock).mockReturnValue({
+        repositoriesClient: { listRepositories },
+      });
       const client = await instance.createRepositoryClientAsync();
 
       // Act
@@ -254,12 +241,10 @@ describe('RepositoryClientExInternal', () => {
 
     test('calls listRepositories again after clearCurrentRepo', async () => {
       // Arrange
-      const listRepositories = vi
-        .fn()
-        .mockResolvedValue({ value: [{ id: 'repo-1' }] });
-      (
-        RepositoryApiClient.createFromHttpRequestHandler as Mock
-      ).mockReturnValue({ repositoriesClient: { listRepositories } });
+      const listRepositories = vi.fn().mockResolvedValue({ value: [{ id: 'repo-1' }] });
+      (RepositoryApiClient.createFromHttpRequestHandler as Mock).mockReturnValue({
+        repositoriesClient: { listRepositories },
+      });
       const client = await instance.createRepositoryClientAsync();
       await client.getCurrentRepoId();
 

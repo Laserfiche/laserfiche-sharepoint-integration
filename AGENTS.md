@@ -74,7 +74,7 @@ Branch off **`1.x`** and open PRs against it. `main` is abandoned.
 | Testing Library                | RTL **12.1.5**, jest-dom **6.9.1**               | exact pins: the last React-17-compatible versions                                                                                                                                                        |
 | Playwright CT                  | `@playwright/experimental-ct-react17` **1.62.1** | exact pin (experimental package)                                                                                                                                                                         |
 | ESLint                         | 8.57.1                                           |                                                                                                                                                                                                          |
-| Prettier                       | **3.9.9**                                        | exact pin, so the CLI, CI and the VS Code extension (which uses the project's copy) format identically |
+| Prettier                       | **3.9.9**                                        | exact pin, so the CLI, CI and the VS Code extension (which uses the project's copy) format identically                                                                                                   |
 
 ### Commands
 

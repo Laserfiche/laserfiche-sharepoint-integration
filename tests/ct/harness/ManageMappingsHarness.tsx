@@ -15,7 +15,12 @@ export type MappingsScenario = 'with-existing-mapping' | 'empty';
 function existingMappingsJson(scenario: MappingsScenario): string {
   if (scenario === 'with-existing-mapping') {
     return JSON.stringify([
-      { id: 'm1', SharePointContentType: 'Invoice', LaserficheContentType: 'ProfileA', toggle: true },
+      {
+        id: 'm1',
+        SharePointContentType: 'Invoice',
+        LaserficheContentType: 'ProfileA',
+        toggle: true,
+      },
     ]);
   }
   return JSON.stringify([]);
@@ -28,11 +33,12 @@ export default function ManageMappingsHarness(props: { scenario?: MappingsScenar
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = typeof input === 'string' ? input : input.toString();
     if (url.includes('_api/web/contenttypes')) {
-      return new Response(
-        JSON.stringify({ value: CONTENT_TYPES.map((name) => ({ Name: name })) })
-      );
+      return new Response(JSON.stringify({ value: CONTENT_TYPES.map((name) => ({ Name: name })) }));
     }
-    if (url.includes(`Title%20eq%20'ManageConfigurations'`) || url.includes(`Title eq 'ManageConfigurations'`)) {
+    if (
+      url.includes(`Title%20eq%20'ManageConfigurations'`) ||
+      url.includes(`Title eq 'ManageConfigurations'`)
+    ) {
       return new Response(
         JSON.stringify({
           value: [
@@ -55,7 +61,11 @@ export default function ManageMappingsHarness(props: { scenario?: MappingsScenar
   const context = {
     pageContext: { web: { absoluteUrl: 'https://contoso.sharepoint.com/sites/Test' } },
     spHttpClient: {
-      post: async (url: string, _config: unknown, options: { body: unknown }): Promise<Response> => {
+      post: async (
+        url: string,
+        _config: unknown,
+        options: { body: unknown }
+      ): Promise<Response> => {
         window.__postCalls = window.__postCalls ?? [];
         window.__postCalls.push({ url, body: options.body });
         return new Response(JSON.stringify({}));

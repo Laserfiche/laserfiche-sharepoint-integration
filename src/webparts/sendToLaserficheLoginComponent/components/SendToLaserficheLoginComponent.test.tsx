@@ -17,13 +17,9 @@ vi.mock('../../../Utils/Funcs', async (importOriginal) => ({
   getSPDocumentDataFromLocalStorage: vi.fn(), // configure return value per test
   getSPListURL: vi
     .fn()
-    .mockReturnValue(
-      "https://contoso.sharepoint.com/_api/web/lists/getbytitle('Site Pages')"
-    ),
+    .mockReturnValue("https://contoso.sharepoint.com/_api/web/lists/getbytitle('Site Pages')"),
   // The real one, so the popup tests below can keep asserting on window.open.
-  openLoginWindow: (
-    await importOriginal<typeof import('../../../Utils/Funcs')>()
-  ).openLoginWindow,
+  openLoginWindow: (await importOriginal<typeof import('../../../Utils/Funcs')>()).openLoginWindow,
 }));
 
 import type { Mock } from 'vitest';
@@ -118,30 +114,19 @@ describe('SendToLaserficheLoginComponent - main window path', () => {
   test('renders not-signed-in copy with a link to laserfiche.com and a "Sign in" button when logged out with no pending file', async () => {
     render(<SendToLaserficheLoginComponent context={mockContext} />);
 
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
     expect(
-      await screen.findByRole('button', { name: 'Sign in' })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'You are not signed in. You can sign in using the following button.'
-      )
+      screen.getByText('You are not signed in. You can sign in using the following button.')
     ).toBeInTheDocument();
     const link = screen.getByRole('link', { name: 'laserfiche.com' });
-    expect(link).toHaveAttribute(
-      'href',
-      'https://www.laserfiche.com/products/pricing'
-    );
+    expect(link).toHaveAttribute('href', 'https://www.laserfiche.com/products/pricing');
   });
 
   test('renders welcome copy with a repository link and a "Sign out" button when already logged in', async () => {
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     getLfLogin(container).state = 'LoggedIn';
 
-    expect(
-      await screen.findByRole('button', { name: 'Sign out' })
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign out' })).toBeInTheDocument();
     expect(screen.getByText(/Welcome to Laserfiche/)).toBeInTheDocument();
     const link = screen.getByRole('link', {
       name: 'your Laserfiche repository',
@@ -179,16 +164,13 @@ describe('SendToLaserficheLoginComponent - main window path', () => {
       fileUrl: '/sites/x/Shared Documents/Report.pdf',
       fileName: 'Report.pdf',
     });
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     getLfLogin(container).state = 'LoggedIn';
 
     await waitFor(() => {
       expect(SaveToLaserficheCustomDialog).toHaveBeenCalledTimes(1);
     });
-    const dialogInstance = (SaveToLaserficheCustomDialog as unknown as Mock)
-      .mock.results[0].value;
+    const dialogInstance = (SaveToLaserficheCustomDialog as unknown as Mock).mock.results[0].value;
     await waitFor(() => {
       expect(dialogInstance.show).toHaveBeenCalledTimes(1);
     });
@@ -243,9 +225,7 @@ describe('SendToLaserficheLoginComponent - clickLogin', () => {
     mockFetchSitePages(true);
     window.open = vi.fn().mockReturnValue({ close: vi.fn() });
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     getLfLogin(container).state = 'LoggedIn';
     const signOutButton = await screen.findByRole('button', {
       name: 'Sign out',
@@ -274,10 +254,7 @@ describe('SendToLaserficheLoginComponent - clickLogin', () => {
     mockFetchSitePages(true);
     window.open = vi.fn().mockReturnValue({ close: vi.fn() });
     const manifestsFileUrl = 'https://localhost:4321/temp/build/manifests.js';
-    sessionStorage.setItem(
-      'spfx-debug',
-      JSON.stringify({ manifestsFileUrl })
-    );
+    sessionStorage.setItem('spfx-debug', JSON.stringify({ manifestsFileUrl }));
 
     render(<SendToLaserficheLoginComponent context={mockContext} />);
     const signInButton = await screen.findByRole('button', {
@@ -359,9 +336,7 @@ describe('SendToLaserficheLoginComponent - handlePopupMessage', () => {
     const fakePopup = { close: vi.fn() };
     window.open = vi.fn().mockReturnValue(fakePopup);
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     getLfLogin(container).state = 'LoggedIn';
     const signOutButton = await screen.findByRole('button', {
       name: 'Sign out',
@@ -378,9 +353,7 @@ describe('SendToLaserficheLoginComponent - handlePopupMessage', () => {
       );
     });
 
-    expect(
-      await screen.findByRole('button', { name: 'Sign in' })
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   test('shows a sign-in-failed dialog with the error details and closes the popup', async () => {
@@ -406,9 +379,7 @@ describe('SendToLaserficheLoginComponent - handlePopupMessage', () => {
 
     expect(fakePopup.close).toHaveBeenCalledTimes(1);
     expect(
-      await screen.findByText(
-        'Sign in failed, please try again. Details: details here'
-      )
+      await screen.findByText('Sign in failed, please try again. Details: details here')
     ).toBeInTheDocument();
   });
 });
@@ -440,16 +411,12 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
   }
 
   test('reports success to the opener without touching the login button when already logged in and not asked to log out', async () => {
-    setPopupUrl(
-      '/SitePages/LaserficheSignIn.aspx?autologin&action=login'
-    );
+    setPopupUrl('/SitePages/LaserficheSignIn.aspx?autologin&action=login');
     const fakeOpener = { postMessage: vi.fn() };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).opener = fakeOpener;
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container);
     lfLogin.state = 'LoggedIn';
     const loginButton = document.createElement('button');
@@ -461,25 +428,18 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
     await waitFor(() => {
       expect(fakeOpener.postMessage).toHaveBeenCalledTimes(1);
     });
-    expect(fakeOpener.postMessage).toHaveBeenCalledWith(
-      LOGIN_WINDOW_SUCCESS,
-      window.origin
-    );
+    expect(fakeOpener.postMessage).toHaveBeenCalledWith(LOGIN_WINDOW_SUCCESS, window.origin);
     // Regression pin: a sign-in request against an element that is already
     // logged in must not sign the user back out by clicking the button.
     expect(clickSpy).not.toHaveBeenCalled();
   });
 
   test('clicks the login-button element to sign out when the popup was asked to log out', async () => {
-    setPopupUrl(
-      '/SitePages/LaserficheSignIn.aspx?autologin&action=logout'
-    );
+    setPopupUrl('/SitePages/LaserficheSignIn.aspx?autologin&action=logout');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).opener = { postMessage: vi.fn() };
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container);
     lfLogin.state = 'LoggedIn';
     const loginButton = document.createElement('button');
@@ -494,9 +454,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
   });
 
   test('starts the login flow when landing on the popup fresh (not returning from the sign-in page)', async () => {
-    setPopupUrl(
-      '/SitePages/LaserficheSignIn.aspx?autologin&action=login'
-    );
+    setPopupUrl('/SitePages/LaserficheSignIn.aspx?autologin&action=login');
     Object.defineProperty(document, 'referrer', {
       value: '',
       configurable: true,
@@ -504,9 +462,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).opener = { postMessage: vi.fn() };
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container); // state stays default 'LoggedOut'
 
     await waitFor(() => {
@@ -516,9 +472,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
 
   test('waits for the token exchange and reports a timeout to the opener if it never completes', async () => {
     vi.useFakeTimers();
-    setPopupUrl(
-      '/SitePages/LaserficheSignIn.aspx?autologin&action=login'
-    );
+    setPopupUrl('/SitePages/LaserficheSignIn.aspx?autologin&action=login');
     Object.defineProperty(document, 'referrer', {
       value: 'https://accounts.laserfiche.com/signin',
       configurable: true,
@@ -527,9 +481,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).opener = fakeOpener;
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container);
 
     await flushMicrotasks();
@@ -547,9 +499,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
 
   test('reports success instead of a timeout when loginCompleted fires before the timer, and does not double-post afterward', async () => {
     vi.useFakeTimers();
-    setPopupUrl(
-      '/SitePages/LaserficheSignIn.aspx?autologin&action=login'
-    );
+    setPopupUrl('/SitePages/LaserficheSignIn.aspx?autologin&action=login');
     Object.defineProperty(document, 'referrer', {
       value: 'https://accounts.laserfiche.com/signin',
       configurable: true,
@@ -558,9 +508,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).opener = fakeOpener;
 
-    const { container } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container);
 
     await flushMicrotasks();
@@ -570,10 +518,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
     });
 
     expect(fakeOpener.postMessage).toHaveBeenCalledTimes(1);
-    expect(fakeOpener.postMessage).toHaveBeenCalledWith(
-      LOGIN_WINDOW_SUCCESS,
-      window.origin
-    );
+    expect(fakeOpener.postMessage).toHaveBeenCalledWith(LOGIN_WINDOW_SUCCESS, window.origin);
 
     act(() => {
       vi.advanceTimersByTime(30000);
@@ -587,9 +532,7 @@ describe('SendToLaserficheLoginComponent - popup window path', () => {
 
 describe('SendToLaserficheLoginComponent - unmount', () => {
   test('removes its lf-login listeners on unmount', async () => {
-    const { container, unmount } = render(
-      <SendToLaserficheLoginComponent context={mockContext} />
-    );
+    const { container, unmount } = render(<SendToLaserficheLoginComponent context={mockContext} />);
     const lfLogin = getLfLogin(container);
     await flushMicrotasks();
     const removeSpy = vi.spyOn(lfLogin, 'removeEventListener');

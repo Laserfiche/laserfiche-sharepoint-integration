@@ -12,11 +12,6 @@
   /* src files come in through the tests' imports, but ambient declarations
      (asset modules, custom-element JSX typings) are never imported, so they
      have to be listed. */
-  "include": [
-    "tests/ct/**/*.ts",
-    "tests/ct/**/*.tsx",
-    "playwright-ct.config.ts",
-    "src/**/*.d.ts"
-  ],
+  "include": ["tests/ct/**/*.ts", "tests/ct/**/*.tsx", "playwright-ct.config.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "lib", "temp", "dist"]
 }

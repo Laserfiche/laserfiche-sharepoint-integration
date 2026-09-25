@@ -12,11 +12,9 @@ import './../../../../Assets/CSS/commonStyles.css';
 
 export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
-    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch(
-      (err: Error) => {
-        console.warn(`Error: ${err.message}`);
-      }
-    );
+    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch((err: Error) => {
+      console.warn(`Error: ${err.message}`);
+    });
   }, []);
 
   const linkData: LinkInfo[] = [

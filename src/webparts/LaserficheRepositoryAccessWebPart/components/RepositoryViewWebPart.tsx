@@ -97,16 +97,13 @@ const cols: ColumnDef[] = [
 const fileValidation = 'Please select the file to upload';
 const fileSizeValidation = 'Please select a file below 100MB in size';
 const fileNameValidation = 'Please provide a valid filename';
-const fileNameWithBacklash =
-  'Please provide a valid filename without backslash';
+const fileNameWithBacklash = 'Please provide a valid filename without backslash';
 const folderValidation = 'Please provide a folder name';
 const folderBackslashNameValidation = 'Entry names cannot contain backslash';
 const folderExists = 'Object already exists';
 const requiredFieldsValidation = 'Please provide values for all required fields';
 
-export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
-  node: LfRepoTreeNode
-) => {
+export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (node: LfRepoTreeNode) => {
   if (
     node?.entryType === EntryType.Folder ||
     node?.entryType === EntryType.Document ||
@@ -114,12 +111,9 @@ export const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
   ) {
     return true;
   } else if (
-    (node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Folder) ||
-    (node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.Document) ||
-    (node?.entryType === EntryType.Shortcut &&
-      node?.targetType === EntryType.RecordSeries)
+    (node?.entryType === EntryType.Shortcut && node?.targetType === EntryType.Folder) ||
+    (node?.entryType === EntryType.Shortcut && node?.targetType === EntryType.Document) ||
+    (node?.entryType === EntryType.Shortcut && node?.targetType === EntryType.RecordSeries)
   ) {
     return true;
   } else {
@@ -138,19 +132,13 @@ export default function RepositoryViewComponent(props: {
   > = React.useRef<NgElement & WithProperties<LfRepositoryBrowserComponent>>();
   let lfRepoTreeService: LfRepoTreeNodeService;
 
-  const [parentItem, setParentItem] = React.useState<
-    LfRepoTreeNode | undefined
-  >(undefined);
-  const [selectedItem, setSelectedItem] = React.useState<
-    LfRepoTreeNode | undefined
-  >(undefined);
+  const [parentItem, setParentItem] = React.useState<LfRepoTreeNode | undefined>(undefined);
+  const [selectedItem, setSelectedItem] = React.useState<LfRepoTreeNode | undefined>(undefined);
 
   React.useEffect(() => {
     const onEntrySelected: EventListener = (event: Event) => {
       const customEvent = event as CustomEvent<LfRepoTreeNode[] | undefined>;
-      const selectedNode = customEvent.detail
-        ? customEvent.detail[0]
-        : undefined;
+      const selectedNode = customEvent.detail ? customEvent.detail[0] : undefined;
       setSelectedItem(selectedNode);
     };
 
@@ -188,9 +176,7 @@ export default function RepositoryViewComponent(props: {
           console.error(err);
         }
       } else {
-        console.debug(
-          'Unable to initialize tree, lfRepoTreeService is undefined'
-        );
+        console.debug('Unable to initialize tree, lfRepoTreeService is undefined');
       }
     };
     if (props.repoClient) {
@@ -207,13 +193,8 @@ export default function RepositoryViewComponent(props: {
       <div>
         <main className='bg-white'>
           <div style={{ margin: '10px 0px' }}>
-            <img
-              style={{ width: '30px' }}
-              src={laserficheLogoUrl}
-            />
-            <span className={styles.browserTitle}>
-              {LASERFICHE_REPOSITORY_EXPLORER}
-            </span>
+            <img style={{ width: '30px' }} src={laserficheLogoUrl} />
+            <span className={styles.browserTitle}>{LASERFICHE_REPOSITORY_EXPLORER}</span>
           </div>
           {props.loggedIn && (
             <>
@@ -254,9 +235,7 @@ export async function openNode(
   }
 ): Promise<void> {
   const entryType =
-    openedNode.entryType === EntryType.Shortcut
-      ? openedNode.targetType
-      : openedNode.entryType;
+    openedNode.entryType === EntryType.Shortcut ? openedNode.targetType : openedNode.entryType;
   if (entryType === EntryType.Folder || entryType === EntryType.RecordSeries) {
     setParentItem(openedNode);
   } else {
@@ -329,9 +308,9 @@ export function RepositoryBrowserToolbar(props: {
     setShowAlertModal(false);
   };
 
-  const showUploadedDocument: (
+  const showUploadedDocument: (savedDocument: SavedLaserficheDocument) => void = (
     savedDocument: SavedLaserficheDocument
-  ) => void = (savedDocument: SavedLaserficheDocument) => {
+  ) => {
     setShowUploadModal(false);
     setUploadedDocument(savedDocument);
   };
@@ -349,10 +328,7 @@ export function RepositoryBrowserToolbar(props: {
             title='Open entry in Laserfiche'
             onClick={openFileOrFolder}
           >
-            <img
-              className={styles.waIcon}
-              src={`${waIconsUrl}#open`}
-            />
+            <img className={styles.waIcon} src={`${waIconsUrl}#open`} />
           </button>
           <button
             className={styles.lfMaterialIconButton}
@@ -364,40 +340,26 @@ export function RepositoryBrowserToolbar(props: {
             disabled={props?.parentItem?.entryType === EntryType.RecordSeries}
             onClick={openImportFileModal}
           >
-            <img
-              className={styles.waIcon}
-              src={`${waIconsUrl}#upload`}
-            />
+            <img className={styles.waIcon} src={`${waIconsUrl}#upload`} />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Create folder in Laserfiche'
             onClick={openNewFolderModal}
           >
-            <img
-              className={styles.waIcon}
-              src={`${waIconsUrl}#add-folder`}
-            />
+            <img className={styles.waIcon} src={`${waIconsUrl}#add-folder`} />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Refresh Laserfiche folder'
             onClick={props.refreshFolderBrowserAsync}
           >
-            <img
-              className={styles.waIcon}
-              src={`${waIconsUrl}#refresh`}
-            />
+            <img className={styles.waIcon} src={`${waIconsUrl}#refresh`} />
           </button>
         </div>
       </div>
       {showUploadModal && (
-        <div
-          className={styles.modal}
-          id='uploadModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='uploadModal' data-backdrop='static' data-keyboard='false'>
           {showUploadModal && (
             <ImportFileModal
               repoClient={props.repoClient}
@@ -426,12 +388,7 @@ export function RepositoryBrowserToolbar(props: {
         </div>
       )}
       {showCreateModal && (
-        <div
-          className={styles.modal}
-          id='createModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='createModal' data-backdrop='static' data-keyboard='false'>
           <CreateFolderModal
             repoClient={props.repoClient}
             closeCreateFolderModal={() => setShowCreateModal(false)}
@@ -441,19 +398,10 @@ export function RepositoryBrowserToolbar(props: {
         </div>
       )}
       {showAlertModal && (
-        <div
-          className={styles.modal}
-          id='AlertModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='AlertModal' data-backdrop='static' data-keyboard='false'>
           <div className='modal-dialog'>
-            <div
-              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-            >
-              <div className='modal-body'>
-                {PLEASE_SELECT_FILE_FOLDER_TO_OPEN}
-              </div>
+            <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
+              <div className='modal-body'>{PLEASE_SELECT_FILE_FOLDER_TO_OPEN}</div>
               <div className='modal-footer'>
                 <button
                   type='button'
@@ -478,8 +426,7 @@ function trackTemplatesLoading(
   service: LfFieldsService,
   onLoadingChange: (loading: boolean) => void
 ): LfFieldsService {
-  const getAvailableTemplatesAsync =
-    service.getAvailableTemplatesAsync.bind(service);
+  const getAvailableTemplatesAsync = service.getAvailableTemplatesAsync.bind(service);
   service.getAvailableTemplatesAsync = async () => {
     onLoadingChange(true);
     try {
@@ -494,12 +441,8 @@ function trackTemplatesLoading(
 // <lf-field-container> renders its "Template" section label inside its first
 // mat-panel-title, so the templates-loading spinner is portaled in there to
 // sit beside that label.
-function findTemplateHeader(
-  fieldContainer: HTMLElement | undefined
-): HTMLElement | undefined {
-  return (
-    fieldContainer?.querySelector<HTMLElement>('mat-panel-title') ?? undefined
-  );
+function findTemplateHeader(fieldContainer: HTMLElement | undefined): HTMLElement | undefined {
+  return fieldContainer?.querySelector<HTMLElement>('mat-panel-title') ?? undefined;
 }
 
 function ImportFileModal(props: {
@@ -512,28 +455,24 @@ function ImportFileModal(props: {
   onImported: (savedDocument: SavedLaserficheDocument) => void;
   refreshFolderBrowserAsync: () => Promise<void>;
 }): JSX.Element {
-  const fieldContainer: React.RefObject<
-    NgElement & WithProperties<LfFieldContainerComponent>
-  > = React.useRef();
+  const fieldContainer: React.RefObject<NgElement & WithProperties<LfFieldContainerComponent>> =
+    React.useRef();
 
-  const [importFileValidationMessage, setImportFileValidationMessage] =
-    React.useState<string | undefined>(undefined);
+  const [importFileValidationMessage, setImportFileValidationMessage] = React.useState<
+    string | undefined
+  >(undefined);
   const [fileUploadPercentage, setFileUploadPercentage] = React.useState(0);
   const [file, setFile] = React.useState<File | undefined>(undefined);
   const [fileName, setFileName] = React.useState<string | undefined>(undefined);
-  const [adhocDialogOpened, setAdhocDialogOpened] =
-    React.useState<boolean>(false);
+  const [adhocDialogOpened, setAdhocDialogOpened] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | undefined>(undefined);
   // No template is pre-selected on open (initAsync is called without a
   // templateIdentifier below), so there's nothing to be invalid about until
   // the user picks a template/field -- true is a safe default.
   const [fieldsAreValid, setFieldsAreValid] = React.useState<boolean>(true);
   const [selectedTagNames, setSelectedTagNames] = React.useState<string[]>([]);
-  const [templatesLoading, setTemplatesLoading] =
-    React.useState<boolean>(false);
-  const [templateHeader, setTemplateHeader] = React.useState<
-    HTMLElement | undefined
-  >(undefined);
+  const [templatesLoading, setTemplatesLoading] = React.useState<boolean>(false);
+  const [templateHeader, setTemplateHeader] = React.useState<HTMLElement | undefined>(undefined);
 
   const [showImport, setShowImport] = React.useState<boolean>(true);
   const [getConfirmation, Confirmation] = useConfirm();
@@ -567,9 +506,7 @@ function ImportFileModal(props: {
     // modal closed) must not touch the spinner.
     let cancelled = false;
     setTemplatesLoading(false);
-    const setTemplatesLoadingIfCurrent: (loading: boolean) => void = (
-      loading: boolean
-    ) => {
+    const setTemplatesLoadingIfCurrent: (loading: boolean) => void = (loading: boolean) => {
       if (!cancelled) {
         setTemplatesLoading(loading);
       }
@@ -579,20 +516,14 @@ function ImportFileModal(props: {
       try {
         fieldContainer.current.addEventListener('dialogOpened', onDialogOpened);
         fieldContainer.current.addEventListener('dialogClosed', onDialogClosed);
-        fieldContainer.current.addEventListener(
-          'fieldValuesChanged',
-          onFieldValuesChanged
-        );
+        fieldContainer.current.addEventListener('fieldValuesChanged', onFieldValuesChanged);
         fieldContainer.current.addEventListener(
           'templateSelectedChanged',
           onTemplateSelectedChanged
         );
 
         await fieldContainer.current.initAsync(
-          trackTemplatesLoading(
-            new LfFieldsService(props.repoClient),
-            setTemplatesLoadingIfCurrent
-          )
+          trackTemplatesLoading(new LfFieldsService(props.repoClient), setTemplatesLoadingIfCurrent)
         );
         if (!cancelled) {
           setTemplateHeader(findTemplateHeader(fieldContainer.current));
@@ -601,9 +532,7 @@ function ImportFileModal(props: {
       } catch (err: any) {
         console.error(err);
         setImportFileValidationMessage(
-          `${UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS} ${
-            getErrorDetails(err) ?? UNKNOWN_ERROR
-          }`
+          `${UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS} ${getErrorDetails(err) ?? UNKNOWN_ERROR}`
         );
       }
     };
@@ -612,18 +541,9 @@ function ImportFileModal(props: {
     }
     return () => {
       cancelled = true;
-      fieldContainer.current?.removeEventListener(
-        'dialogOpened',
-        onDialogOpened
-      );
-      fieldContainer.current?.removeEventListener(
-        'dialogClosed',
-        onDialogClosed
-      );
-      fieldContainer.current?.removeEventListener(
-        'fieldValuesChanged',
-        onFieldValuesChanged
-      );
+      fieldContainer.current?.removeEventListener('dialogOpened', onDialogOpened);
+      fieldContainer.current?.removeEventListener('dialogClosed', onDialogClosed);
+      fieldContainer.current?.removeEventListener('fieldValuesChanged', onFieldValuesChanged);
       fieldContainer.current?.removeEventListener(
         'templateSelectedChanged',
         onTemplateSelectedChanged
@@ -658,17 +578,14 @@ function ImportFileModal(props: {
         return;
       }
       const extension =
-        PathUtils.getCleanedExtension(
-          PathUtils.getFileExtension(fileData.name)
-        ) ?? '';
+        PathUtils.getCleanedExtension(PathUtils.getFileExtension(fileData.name)) ?? '';
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBackslash = fileName.includes('\\');
       try {
-        const entryWithPath =
-          await props.repoClient.entriesClient.getEntryByPath({
-            repositoryId: repoId,
-            fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
-          });
+        const entryWithPath = await props.repoClient.entriesClient.getEntryByPath({
+          repositoryId: repoId,
+          fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
+        });
         // v2 returns a GetEntryByPathResponse on success, so the response is
         // always truthy: test the entry itself.
         if (entryWithPath?.entry) {
@@ -734,11 +651,10 @@ function ImportFileModal(props: {
       }
 
       setFileUploadPercentage(80);
-      const fieldsmetadata: ImportEntryRequestMetadata =
-        new ImportEntryRequestMetadata({
-          templateName,
-          fields: formattedFieldValues,
-        });
+      const fieldsmetadata: ImportEntryRequestMetadata = new ImportEntryRequestMetadata({
+        templateName,
+        fields: formattedFieldValues,
+      });
       // v2 has no separate `extension` parameter: the extension has to be part
       // of the electronic document's file name.
       const fileNameWithExt = fileName + extension;
@@ -763,8 +679,7 @@ function ImportFileModal(props: {
         }),
       };
 
-      const importedEntry =
-        await props.repoClient.entriesClient.importEntry(requestParameters);
+      const importedEntry = await props.repoClient.entriesClient.importEntry(requestParameters);
       await safeSetTagsAsync(repoId, importedEntry.id, selectedTagNames);
       setFileUploadPercentage(100);
       await props.refreshFolderBrowserAsync();
@@ -853,11 +768,7 @@ function ImportFileModal(props: {
   ) : undefined;
 
   const templatesSpinner = (
-    <DelayedSpinner
-      loading={templatesLoading}
-      label={LOADING}
-      className='ms-2 flex-shrink-0'
-    />
+    <DelayedSpinner loading={templatesLoading} label={LOADING} className='ms-2 flex-shrink-0' />
   );
 
   return (
@@ -906,9 +817,7 @@ function ImportFileModal(props: {
               </div>
               {validationError}
               <div className='row mb-3'>
-                <label className='col-sm-3 col-form-label lf-text-label'>
-                  {NAME}
-                </label>
+                <label className='col-sm-3 col-form-label lf-text-label'>{NAME}</label>
                 <div className='col-sm-9'>
                   <input
                     type='text'
@@ -941,11 +850,7 @@ function ImportFileModal(props: {
               )}
             </>
           )}
-          {error && (
-            <span
-              style={{ justifyContent: 'center' }}
-            >{`Error uploading: ${error}`}</span>
-          )}
+          {error && <span style={{ justifyContent: 'center' }}>{`Error uploading: ${error}`}</span>}
         </div>
         <div hidden={!showImport} className={`modal-footer ${styles.footer}`}>
           <button
@@ -956,18 +861,11 @@ function ImportFileModal(props: {
           >
             {OK}
           </button>
-          <button
-            type='button'
-            className='lf-button sec-button'
-            onClick={closeImportFileModal}
-          >
+          <button type='button' className='lf-button sec-button' onClick={closeImportFileModal}>
             {CANCEL}
           </button>
         </div>
-        <Confirmation
-          cancelButtonText={GO_BACK}
-          headerText={DOCUMENT_ALREADY_EXISTS}
-        />
+        <Confirmation cancelButtonText={GO_BACK} headerText={DOCUMENT_ALREADY_EXISTS} />
       </div>
     </div>
   );
@@ -980,10 +878,9 @@ function CreateFolderModal(props: {
   refreshFolderBrowserAsync: () => Promise<void>;
 }): JSX.Element {
   const [folderName, setFolderName] = React.useState('');
-  const [
-    createFolderNameValidationMessage,
-    setCreateFolderNameValidationMessage,
-  ] = React.useState<string | undefined>(undefined);
+  const [createFolderNameValidationMessage, setCreateFolderNameValidationMessage] = React.useState<
+    string | undefined
+  >(undefined);
 
   const closeNewFolderModal: () => void = () => {
     setCreateFolderNameValidationMessage(undefined);
@@ -1061,18 +958,10 @@ function CreateFolderModal(props: {
           </div>
         </div>
         <div className='modal-footer'>
-          <button
-            type='button'
-            className='lf-button primary-button'
-            onClick={createNewFolderAsync}
-          >
+          <button type='button' className='lf-button primary-button' onClick={createNewFolderAsync}>
             {SUBMIT}
           </button>
-          <button
-            type='button'
-            className='lf-button sec-button'
-            onClick={closeNewFolderModal}
-          >
+          <button type='button' className='lf-button sec-button' onClick={closeNewFolderModal}>
             {CLOSE}
           </button>
         </div>

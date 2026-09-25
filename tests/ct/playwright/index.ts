@@ -167,9 +167,8 @@ class FakeLfLogin extends HTMLElement {
 // reads tagsService only on its first attach, so a service assigned after
 // that is never asked for tags and the list shows "No tags available".
 class FakeLfTags extends HTMLElement {
-  public tagsService:
-    | { getTagDefinitions(): Promise<Array<{ displayName: string }>> }
-    | undefined = undefined;
+  public tagsService: { getTagDefinitions(): Promise<Array<{ displayName: string }>> } | undefined =
+    undefined;
   private initialized = false;
 
   connectedCallback(): void {
@@ -196,9 +195,7 @@ class FakeLfTags extends HTMLElement {
   }
 
   emitSelectedTagsChanged(tags: Array<{ displayName: string }>): void {
-    this.dispatchEvent(
-      new CustomEvent('selectedTagsChanged', { detail: tags })
-    );
+    this.dispatchEvent(new CustomEvent('selectedTagsChanged', { detail: tags }));
   }
 }
 

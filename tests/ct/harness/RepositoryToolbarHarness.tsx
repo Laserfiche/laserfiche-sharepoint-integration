@@ -48,8 +48,8 @@ export default function RepositoryToolbarHarness(
   return (
     <RepositoryBrowserToolbar
       repoClient={repoClient}
-      webClientUrl="https://webclient.example.com"
-      customerId="customer-1"
+      webClientUrl='https://webclient.example.com'
+      customerId='customer-1'
       selectedItem={selectedItem}
       parentItem={parentItem}
       loggedIn={true}

@@ -44,25 +44,20 @@ export default function LaserficheRepositoryAccessWebPart(
 ): JSX.Element {
   const [webClientUrl, setWebClientUrl] = React.useState('');
   const [customerId, setCustomerId] = React.useState('');
-  const loginComponent: React.RefObject<
-    NgElement & WithProperties<LfLoginComponent>
-  > = React.useRef();
+  const loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>> =
+    React.useRef();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const [repoClient, setRepoClient] = useState<
-    IRepositoryApiClientExInternal | undefined
-  >(undefined);
-  const [messageErrorModal, setMessageErrorModal] = useState<
-    JSX.Element | undefined
-  >(undefined);
+  const [repoClient, setRepoClient] = useState<IRepositoryApiClientExInternal | undefined>(
+    undefined
+  );
+  const [messageErrorModal, setMessageErrorModal] = useState<JSX.Element | undefined>(undefined);
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
   // What the last click asked the popup to do. The popup reports the same
   // success message either way, so this is the only thing that says which.
   const requestedAction = React.useRef<'login' | 'logout'>('login');
   // Assigned inside the effect so the popup handler can reconcile the signed-in
   // state without duplicating the repository client setup.
-  const syncSignedInState = React.useRef<(() => Promise<void>) | undefined>(
-    undefined
-  );
+  const syncSignedInState = React.useRef<(() => Promise<void>) | undefined>(undefined);
 
   const region = getRegion();
 
@@ -72,26 +67,21 @@ export default function LaserficheRepositoryAccessWebPart(
     const ensureRepoClientInitializedAsync: () => Promise<void> = async () => {
       if (!repoClient) {
         const repoClientCreator = new RepositoryClientExInternal();
-        const repoClient =
-          await repoClientCreator.createRepositoryClientAsync();
+        const repoClient = await repoClientCreator.createRepositoryClientAsync();
         setRepoClient(repoClient);
       }
     };
 
-    const getAndInitializeRepositoryClientAndServicesAsync: () => Promise<void> =
-      async () => {
-        const accessToken =
-          loginComponent?.current?.authorization_credentials?.accessToken;
-        setWebClientUrl(
-          loginComponent?.current?.account_endpoints.webClientUrl
-        );
-        setCustomerId(loginComponent?.current?.account_id);
-        if (accessToken) {
-          await ensureRepoClientInitializedAsync();
-        } else {
-          // user is not logged in
-        }
-      };
+    const getAndInitializeRepositoryClientAndServicesAsync: () => Promise<void> = async () => {
+      const accessToken = loginComponent?.current?.authorization_credentials?.accessToken;
+      setWebClientUrl(loginComponent?.current?.account_endpoints.webClientUrl);
+      setCustomerId(loginComponent?.current?.account_id);
+      if (accessToken) {
+        await ensureRepoClientInitializedAsync();
+      } else {
+        // user is not logged in
+      }
+    };
 
     // A sign-in can finish without this element ever raising loginCompleted: it
     // may have restored the session before we subscribed, or the popup may have
@@ -121,14 +111,8 @@ export default function LaserficheRepositoryAccessWebPart(
           setLoggedIn(false);
         };
 
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
+        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+        loginComponent.current.addEventListener('logoutCompleted', logoutCompleted);
         await syncSignedInStateAsync();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
@@ -153,16 +137,13 @@ export default function LaserficheRepositoryAccessWebPart(
 
   async function pageConfigurationCheck(): Promise<boolean> {
     try {
-      const res = await fetch(
-        `${getSPListURL(props.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await fetch(`${getSPListURL(props.context, 'Site Pages')}/items`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
@@ -279,9 +260,7 @@ export default function LaserficheRepositoryAccessWebPart(
           />
           <button
             onClick={clickLogin}
-            className={`lf-button login-button ${
-              loggedIn ? 'sec-button' : 'primary-button'
-            }`}
+            className={`lf-button login-button ${loggedIn ? 'sec-button' : 'primary-button'}`}
           >
             {loggedIn ? 'Sign out' : 'Sign in'}
           </button>
@@ -305,9 +284,7 @@ export default function LaserficheRepositoryAccessWebPart(
         {!loggedIn && (
           <span>
             {`${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-            <a href='https://www.laserfiche.com/products/pricing'>
-              laserfiche.com
-            </a>
+            <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
             {`. ${ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY}`}
           </span>
         )}

@@ -72,8 +72,7 @@ describe('GetDocumentDataDialog', () => {
                                 Title: 'Title',
                                 TypeAsString: 'string',
                                 InternalName: 'Title',
-                                EntityPropertyName:
-                                  'Title',
+                                EntityPropertyName: 'Title',
                               },
                             },
                           ],
@@ -123,9 +122,7 @@ describe('GetDocumentDataDialog', () => {
 
     let spDocData: ISPDocumentData;
 
-    window.fetch = vi
-      .fn()
-      .mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
+    window.fetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
     Object.defineProperty(window, 'localStorage', {
       value: {
         setItem: vi.fn().mockImplementation((key, value) => {
@@ -168,8 +165,7 @@ describe('GetDocumentDataDialog', () => {
               ok: true,
               json: () =>
                 Promise.resolve({
-                  OData__x005f_x0040_x005f__x005f_x0021_x005f_TestSpecial:
-                    'Document Title',
+                  OData__x005f_x0040_x005f__x005f_x0021_x005f_TestSpecial: 'Document Title',
                   Author: 'John Doe',
                   Created: '2021-01-01T00:00:00Z',
                 }),
@@ -197,8 +193,7 @@ describe('GetDocumentDataDialog', () => {
                                 Title: 'Title',
                                 TypeAsString: 'string',
                                 InternalName: '_x0040__x0021_TestSpecial',
-                                EntityPropertyName:
-                                  'OData__x0040__x0021_TestSpecial',
+                                EntityPropertyName: 'OData__x0040__x0021_TestSpecial',
                               },
                             },
                           ],
@@ -248,9 +243,7 @@ describe('GetDocumentDataDialog', () => {
 
     let spDocData: ISPDocumentData;
 
-    window.fetch = vi
-      .fn()
-      .mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
+    window.fetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
     Object.defineProperty(window, 'localStorage', {
       value: {
         setItem: vi.fn().mockImplementation((key, value) => {

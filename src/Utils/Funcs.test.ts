@@ -4,11 +4,7 @@
 // @laserfiche/lf-js-utils is NOT mocked: these tests assert the URL the
 // Laserfiche web client actually receives, built by the real UrlUtils.
 
-import {
-  getEntryWebAccessUrl,
-  getSPDocumentDataFromLocalStorage,
-  openLoginWindow,
-} from './Funcs';
+import { getEntryWebAccessUrl, getSPDocumentDataFromLocalStorage, openLoginWindow } from './Funcs';
 import { SP_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
 const WA_URL = 'https://app.laserfiche.com/laserfiche';
@@ -19,13 +15,7 @@ const ENTRY_ID = '1862863';
 describe('getEntryWebAccessUrl', () => {
   test('includes repo and customerId for a document', () => {
     // Act
-    const url = getEntryWebAccessUrl(
-      ENTRY_ID,
-      WA_URL,
-      false,
-      REPO_ID,
-      CUSTOMER_ID
-    );
+    const url = getEntryWebAccessUrl(ENTRY_ID, WA_URL, false, REPO_ID, CUSTOMER_ID);
 
     // Assert
     expect(url).toBe(
@@ -35,13 +25,7 @@ describe('getEntryWebAccessUrl', () => {
 
   test('includes repo and customerId for a container', () => {
     // Act
-    const url = getEntryWebAccessUrl(
-      ENTRY_ID,
-      WA_URL,
-      true,
-      REPO_ID,
-      CUSTOMER_ID
-    );
+    const url = getEntryWebAccessUrl(ENTRY_ID, WA_URL, true, REPO_ID, CUSTOMER_ID);
 
     // Assert
     expect(url).toBe(
@@ -55,12 +39,8 @@ describe('getEntryWebAccessUrl', () => {
     const containerUrl = getEntryWebAccessUrl(ENTRY_ID, WA_URL, true, REPO_ID);
 
     // Assert
-    expect(documentUrl).toBe(
-      `${WA_URL}/DocView.aspx?repo=${REPO_ID}&id=${ENTRY_ID}`
-    );
-    expect(containerUrl).toBe(
-      `${WA_URL}/Browse.aspx?repo=${REPO_ID}#?id=${ENTRY_ID}`
-    );
+    expect(documentUrl).toBe(`${WA_URL}/DocView.aspx?repo=${REPO_ID}&id=${ENTRY_ID}`);
+    expect(containerUrl).toBe(`${WA_URL}/Browse.aspx?repo=${REPO_ID}#?id=${ENTRY_ID}`);
   });
 
   // account_id is '' on the login component until the user signs in.
@@ -74,28 +54,12 @@ describe('getEntryWebAccessUrl', () => {
 
   test('includes customerId when there is no repo', () => {
     // Act
-    const documentUrl = getEntryWebAccessUrl(
-      ENTRY_ID,
-      WA_URL,
-      false,
-      undefined,
-      CUSTOMER_ID
-    );
-    const containerUrl = getEntryWebAccessUrl(
-      ENTRY_ID,
-      WA_URL,
-      true,
-      undefined,
-      CUSTOMER_ID
-    );
+    const documentUrl = getEntryWebAccessUrl(ENTRY_ID, WA_URL, false, undefined, CUSTOMER_ID);
+    const containerUrl = getEntryWebAccessUrl(ENTRY_ID, WA_URL, true, undefined, CUSTOMER_ID);
 
     // Assert
-    expect(documentUrl).toBe(
-      `${WA_URL}/DocView.aspx?customerId=${CUSTOMER_ID}&id=${ENTRY_ID}`
-    );
-    expect(containerUrl).toBe(
-      `${WA_URL}/Browse.aspx?customerId=${CUSTOMER_ID}#?id=${ENTRY_ID}`
-    );
+    expect(documentUrl).toBe(`${WA_URL}/DocView.aspx?customerId=${CUSTOMER_ID}&id=${ENTRY_ID}`);
+    expect(containerUrl).toBe(`${WA_URL}/Browse.aspx?customerId=${CUSTOMER_ID}#?id=${ENTRY_ID}`);
   });
 
   test('omits the query string when there is no repo or customerId', () => {
@@ -116,15 +80,9 @@ describe('getEntryWebAccessUrl', () => {
 
   test('returns undefined when the entry id or web client URL is missing', () => {
     // Act / Assert
-    expect(
-      getEntryWebAccessUrl('', WA_URL, false, REPO_ID, CUSTOMER_ID)
-    ).toBeUndefined();
-    expect(
-      getEntryWebAccessUrl(ENTRY_ID, '', false, REPO_ID, CUSTOMER_ID)
-    ).toBeUndefined();
-    expect(
-      getEntryWebAccessUrl(ENTRY_ID, undefined, false, REPO_ID, CUSTOMER_ID)
-    ).toBeUndefined();
+    expect(getEntryWebAccessUrl('', WA_URL, false, REPO_ID, CUSTOMER_ID)).toBeUndefined();
+    expect(getEntryWebAccessUrl(ENTRY_ID, '', false, REPO_ID, CUSTOMER_ID)).toBeUndefined();
+    expect(getEntryWebAccessUrl(ENTRY_ID, undefined, false, REPO_ID, CUSTOMER_ID)).toBeUndefined();
   });
 });
 

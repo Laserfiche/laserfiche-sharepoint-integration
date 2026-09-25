@@ -57,50 +57,36 @@ export default class JobSummaryReporter implements Reporter {
     // under "Flaky Tests"; do the same.
     const passed = tests.filter(
       (t) =>
-        (t.outcome() === 'expected' && t.expectedStatus !== 'failed') ||
-        t.outcome() === 'flaky'
+        (t.outcome() === 'expected' && t.expectedStatus !== 'failed') || t.outcome() === 'flaky'
     );
 
     const files = new Map<string, boolean>(); // file -> any test failed
     for (const t of tests) {
       if (t.outcome() === 'skipped') continue;
       const file = t.location.file;
-      files.set(
-        file,
-        (files.get(file) ?? false) || t.outcome() === 'unexpected'
-      );
+      files.set(file, (files.get(file) ?? false) || t.outcome() === 'unexpected');
     }
     const failedFiles = [...files.values()].filter(Boolean).length;
     const passedFiles = files.size - failedFiles;
 
     const fileInfo: string[] = [];
     if (failedFiles > 0)
-      fileInfo.push(
-        `❌ **${failedFiles} ${noun(failedFiles, 'failure', 'failures')}**`
-      );
+      fileInfo.push(`❌ **${failedFiles} ${noun(failedFiles, 'failure', 'failures')}**`);
     if (passedFiles > 0)
-      fileInfo.push(
-        `✅ **${passedFiles} ${noun(passedFiles, 'pass', 'passes')}**`
-      );
+      fileInfo.push(`✅ **${passedFiles} ${noun(passedFiles, 'pass', 'passes')}**`);
     fileInfo.push(`${files.size} total`);
 
     const testInfo: string[] = [];
     if (failed.length > 0)
-      testInfo.push(
-        `❌ **${failed.length} ${noun(failed.length, 'failure', 'failures')}**`
-      );
+      testInfo.push(`❌ **${failed.length} ${noun(failed.length, 'failure', 'failures')}**`);
     if (passed.length > 0)
-      testInfo.push(
-        `✅ **${passed.length} ${noun(passed.length, 'pass', 'passes')}**`
-      );
+      testInfo.push(`✅ **${passed.length} ${noun(passed.length, 'pass', 'passes')}**`);
     if (expectedFail.length > 0) {
       testInfo.push(
         `🔵 **${expectedFail.length} expected ${noun(expectedFail.length, 'failure', 'failures')}**`
       );
     }
-    testInfo.push(
-      `${failed.length + passed.length + expectedFail.length} total`
-    );
+    testInfo.push(`${failed.length + passed.length + expectedFail.length} total`);
 
     let summary = `## ${TITLE}\n\n### Summary\n\n`;
     summary += `- **Test Files**: ${fileInfo.join(SEPARATOR)}\n`;

@@ -27,18 +27,11 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
     super();
   }
 
-  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (
-    data: ISPDocumentData
-  ) => {
-    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
-      this.close()
-    );
+  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (data: ISPDocumentData) => {
+    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () => this.close());
     await this.secondaryDialogProvider.show(saveToLfDialog);
     if (!saveToLfDialog.successful) {
-      Navigation.navigate(
-        this.context.pageContext.web.absoluteUrl + signInPageRoute,
-        true
-      );
+      Navigation.navigate(this.context.pageContext.web.absoluteUrl + signInPageRoute, true);
     }
   };
 

@@ -9,7 +9,9 @@ const fs = require('fs');
 
 const build = require('@microsoft/sp-build-web');
 
-build.addSuppression(`Warning - [sass] The local CSS class 'ms-Grid' is not camelCase and will not be type-safe.`);
+build.addSuppression(
+  `Warning - [sass] The local CSS class 'ms-Grid' is not camelCase and will not be type-safe.`
+);
 
 var getTasks = build.rig.getTasks;
 build.rig.getTasks = function () {
@@ -28,9 +30,12 @@ build.rig.getTasks = function () {
 // the files; the file-loader emits them back as .css.
 const PACKAGES_LIB_DIR = path.resolve(__dirname, 'lib/Assets/packages');
 const VENDORED_FILES = [
-  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ui-components.js',     'lf-ui-components.js'],
-  ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css',         'indigo-pink.cssasset'],
-  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',   'lf-ms-office-lite.cssasset']
+  ['node_modules/@laserfiche/lf-ui-components/cdn/lf-ui-components.js', 'lf-ui-components.js'],
+  ['node_modules/@laserfiche/lf-ui-components/cdn/indigo-pink.css', 'indigo-pink.cssasset'],
+  [
+    'node_modules/@laserfiche/lf-ui-components/cdn/lf-ms-office-lite.css',
+    'lf-ms-office-lite.cssasset',
+  ],
 ];
 
 // Bootstrap's stylesheet is vendored differently from the files above: it is
@@ -45,7 +50,7 @@ const VENDORED_FILES = [
 // package.json declared 5.x.
 const CSS_LIB_DIR = path.resolve(__dirname, 'lib/Assets/CSS');
 const VENDORED_CSS_FILES = [
-  ['node_modules/bootstrap/dist/css/bootstrap.min.css', 'bootstrap.min.css']
+  ['node_modules/bootstrap/dist/css/bootstrap.min.css', 'bootstrap.min.css'],
 ];
 // npm's dist CSS ends with a `/*# sourceMappingURL=bootstrap.min.css.map */`
 // comment. We vendor the stylesheet without its .map, so source-map-loader
@@ -54,29 +59,31 @@ const VENDORED_CSS_FILES = [
 const stripSourceMappingUrl = (contents) =>
   contents.replace(/\s*\/\*#\s*sourceMappingURL=.*?\*\/\s*$/, '\n');
 
-build.rig.addPreBuildTask(build.subTask('copy-vendored-packages', function (_g, _o, done) {
-  fs.mkdirSync(PACKAGES_LIB_DIR, { recursive: true });
-  for (const [src, name] of VENDORED_FILES) {
-    const from = path.resolve(__dirname, src);
-    const to = path.join(PACKAGES_LIB_DIR, name);
-    fs.copyFileSync(from, to);
-  }
+build.rig.addPreBuildTask(
+  build.subTask('copy-vendored-packages', function (_g, _o, done) {
+    fs.mkdirSync(PACKAGES_LIB_DIR, { recursive: true });
+    for (const [src, name] of VENDORED_FILES) {
+      const from = path.resolve(__dirname, src);
+      const to = path.join(PACKAGES_LIB_DIR, name);
+      fs.copyFileSync(from, to);
+    }
 
-  fs.mkdirSync(CSS_LIB_DIR, { recursive: true });
-  for (const [src, name] of VENDORED_CSS_FILES) {
-    const css = fs.readFileSync(path.resolve(__dirname, src), 'utf8');
-    fs.writeFileSync(path.join(CSS_LIB_DIR, name), stripSourceMappingUrl(css));
-  }
+    fs.mkdirSync(CSS_LIB_DIR, { recursive: true });
+    for (const [src, name] of VENDORED_CSS_FILES) {
+      const css = fs.readFileSync(path.resolve(__dirname, src), 'utf8');
+      fs.writeFileSync(path.join(CSS_LIB_DIR, name), stripSourceMappingUrl(css));
+    }
 
-  done();
-}));
+    done();
+  })
+);
 
 build.configureWebpack.mergeConfig({
   additionalConfiguration: (generatedConfiguration) => {
     generatedConfiguration.module.rules.push(
       {
         test: /\.woff2(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: { loader: 'url-loader' }
+        use: { loader: 'url-loader' },
       },
       {
         test: /\.(js|cssasset)$/,
@@ -86,14 +93,14 @@ build.configureWebpack.mergeConfig({
           options: {
             name: (resourcePath) =>
               '[name].[contenthash:8].' + (resourcePath.endsWith('.cssasset') ? 'css' : 'js'),
-            esModule: false
-          }
-        }
+            esModule: false,
+          },
+        },
       }
     );
 
     return generatedConfiguration;
-  }
+  },
 });
 
 build.initialize(require('gulp'));

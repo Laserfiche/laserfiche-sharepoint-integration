@@ -16,7 +16,10 @@ import RepositoryToolbarHarness from './harness/RepositoryToolbarHarness';
 // exactly one component tree, so page-level locators are equally precise.
 
 test.describe('CreateFolderModal', () => {
-  test('empty name shows a validation message and does not create an entry', async ({ mount, page }) => {
+  test('empty name shows a validation message and does not create an entry', async ({
+    mount,
+    page,
+  }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Create folder in Laserfiche').click();
     await page.getByRole('button', { name: 'Submit' }).click();
@@ -36,7 +39,7 @@ test.describe('CreateFolderModal', () => {
   });
 
   test('a name that already exists keeps the modal open with an error', async ({ mount, page }) => {
-    await mount(<RepositoryToolbarHarness scenario="createEntry-rejects-exists" />);
+    await mount(<RepositoryToolbarHarness scenario='createEntry-rejects-exists' />);
     await page.getByTitle('Create folder in Laserfiche').click();
     await page.locator('#folderName').fill('Invoices');
     await page.getByRole('button', { name: 'Submit' }).click();
@@ -82,7 +85,10 @@ test.describe('ImportFileModal', () => {
     await expect(page.getByText('Please select the file to upload')).toBeVisible();
   });
 
-  test('picking a real file auto-populates the name field without its extension', async ({ mount, page }) => {
+  test('picking a real file auto-populates the name field without its extension', async ({
+    mount,
+    page,
+  }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
@@ -126,7 +132,7 @@ test.describe('ImportFileModal', () => {
     mount,
     page,
   }) => {
-    await mount(<RepositoryToolbarHarness scenario="getEntryByPath-exists" />);
+    await mount(<RepositoryToolbarHarness scenario='getEntryByPath-exists' />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
       name: 'contract.pdf',
@@ -146,7 +152,7 @@ test.describe('ImportFileModal', () => {
   });
 
   test('continuing past the rename confirmation proceeds to import', async ({ mount, page }) => {
-    await mount(<RepositoryToolbarHarness scenario="getEntryByPath-exists" />);
+    await mount(<RepositoryToolbarHarness scenario='getEntryByPath-exists' />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
       name: 'contract.pdf',
@@ -164,7 +170,10 @@ test.describe('ImportFileModal', () => {
       .toBe(true);
   });
 
-  test('OK is disabled and the progress bar is visible while an import is in flight', async ({ mount, page }) => {
+  test('OK is disabled and the progress bar is visible while an import is in flight', async ({
+    mount,
+    page,
+  }) => {
     await mount(<RepositoryToolbarHarness importDelayMs={500} />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
@@ -240,7 +249,10 @@ test.describe('ImportFileModal', () => {
     await expect(page.getByRole('button', { name: 'OK' })).toBeEnabled();
   });
 
-  test('selected template and field values are included in the saved metadata', async ({ mount, page }) => {
+  test('selected template and field values are included in the saved metadata', async ({
+    mount,
+    page,
+  }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Upload file to Laserfiche').click();
     await page.locator('#importFile').setInputFiles({
@@ -270,8 +282,9 @@ test.describe('ImportFileModal', () => {
 
     const calls = await page.evaluate(() => window.__repoClientCalls ?? []);
     const importCall = calls.find((c) => c.method === 'importEntry');
-    const metadata = (importCall.args[0] as { request: { metadata: { templateName: string; fields: unknown[] } } })
-      .request.metadata;
+    const metadata = (
+      importCall.args[0] as { request: { metadata: { templateName: string; fields: unknown[] } } }
+    ).request.metadata;
     expect(metadata.templateName).toBe('Board Meetings');
     expect(metadata.fields).toEqual([{ name: 'Meeting Date', values: ['2026-01-01'] }]);
   });
@@ -308,11 +321,19 @@ test.describe('ImportFileModal', () => {
     await page.getByRole('button', { name: 'OK' }).click();
 
     await expect(
-      page.getByText('Saved a copy to Laserfiche. To keep editing, open or check out from Web Client.')
+      page.getByText(
+        'Saved a copy to Laserfiche. To keep editing, open or check out from Web Client.'
+      )
     ).toBeVisible();
     await expect(page.locator('#importFile')).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'imported' })).toHaveAttribute('href', /DocView\.aspx\?.*id=100/);
-    await expect(page.getByRole('link', { name: 'Show in folder' })).toHaveAttribute('href', /Browse\.aspx.*#\?id=1$/);
+    await expect(page.getByRole('link', { name: 'imported' })).toHaveAttribute(
+      'href',
+      /DocView\.aspx\?.*id=100/
+    );
+    await expect(page.getByRole('link', { name: 'Show in folder' })).toHaveAttribute(
+      'href',
+      /Browse\.aspx.*#\?id=1$/
+    );
 
     await page.getByRole('button', { name: 'Close' }).click();
 
@@ -348,11 +369,13 @@ test.describe('ImportFileModal', () => {
         )
       )
       .toBe(true);
-    await page
-      .locator('lf-tags')
-      .evaluate((el: HTMLElement & { emitSelectedTagsChanged: (tags: Array<{ displayName: string }>) => void }) =>
-        el.emitSelectedTagsChanged([{ displayName: 'Contract' }, { displayName: 'Reviewed' }])
-      );
+    await page.locator('lf-tags').evaluate(
+      (
+        el: HTMLElement & {
+          emitSelectedTagsChanged: (tags: Array<{ displayName: string }>) => void;
+        }
+      ) => el.emitSelectedTagsChanged([{ displayName: 'Contract' }, { displayName: 'Reviewed' }])
+    );
     await page.getByRole('button', { name: 'OK' }).click();
 
     await expect
@@ -364,7 +387,11 @@ test.describe('ImportFileModal', () => {
 
     const calls = await page.evaluate(() => window.__repoClientCalls ?? []);
     const setTagsCall = calls.find((c) => c.method === 'setTags');
-    const args = setTagsCall.args[0] as { repositoryId: string; entryId: number; request: { tags: string[] } };
+    const args = setTagsCall.args[0] as {
+      repositoryId: string;
+      entryId: number;
+      request: { tags: string[] };
+    };
     expect(args.repositoryId).toBe('repo-1');
     expect(args.entryId).toBe(100);
     expect(args.request.tags).toEqual(['Contract', 'Reviewed']);
@@ -407,7 +434,9 @@ test.describe('ImportFileModal', () => {
 
     const templatesLoaded = page
       .locator('lf-field-container')
-      .evaluate((el: HTMLElement & { openTemplatesDropdown: () => Promise<void> }) => el.openTemplatesDropdown());
+      .evaluate((el: HTMLElement & { openTemplatesDropdown: () => Promise<void> }) =>
+        el.openTemplatesDropdown()
+      );
     const spinner = page.locator('lf-field-container mat-panel-title').getByRole('status');
     await expect(spinner).toBeVisible();
     await expect(spinner).toHaveText('Loading...');
@@ -429,7 +458,10 @@ test.describe('ImportFileModal', () => {
 });
 
 test.describe('Toolbar', () => {
-  test('clicking Open with no selection and no parent folder shows an alert modal', async ({ mount, page }) => {
+  test('clicking Open with no selection and no parent folder shows an alert modal', async ({
+    mount,
+    page,
+  }) => {
     await mount(<RepositoryToolbarHarness hasParent={false} />);
     await page.getByTitle('Open entry in Laserfiche').click();
 
@@ -438,8 +470,11 @@ test.describe('Toolbar', () => {
     await expect(page.getByText('Please select file/folder to open')).toBeHidden();
   });
 
-  test('import button is disabled when the open folder is a record series', async ({ mount, page }) => {
-    await mount(<RepositoryToolbarHarness parentEntryType="RecordSeries" />);
+  test('import button is disabled when the open folder is a record series', async ({
+    mount,
+    page,
+  }) => {
+    await mount(<RepositoryToolbarHarness parentEntryType='RecordSeries' />);
     await expect(page.getByTitle('Cannot import into a Record Series')).toBeDisabled();
   });
 });

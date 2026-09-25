@@ -30,10 +30,7 @@ import type { Mock } from 'vitest';
 import SendToLfCommandSet from './SavetoLaserficheCommandSet';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 import { GetDocumentDataCustomDialog } from './GetDocumentDataDialog';
-import {
-  LASERFICHE_SIGNIN_PAGE_NAME,
-  SP_LOCAL_STORAGE_KEY,
-} from '../../webparts/constants';
+import { LASERFICHE_SIGNIN_PAGE_NAME, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 
 function makeContext(): any {
   return {
@@ -76,9 +73,9 @@ describe('onInit', () => {
     await commandSet.onInit();
 
     expect(removeItemMock).toHaveBeenCalledWith(SP_LOCAL_STORAGE_KEY);
-    expect(
-      CreateConfigurations.ensureAdminConfigListCreatedAsync
-    ).toHaveBeenCalledWith(commandSet.context);
+    expect(CreateConfigurations.ensureAdminConfigListCreatedAsync).toHaveBeenCalledWith(
+      commandSet.context
+    );
   });
 });
 
@@ -126,10 +123,7 @@ describe('onListViewUpdated', () => {
     commandSet.tryGetCommand = vi.fn().mockReturnValue(command);
 
     commandSet.onListViewUpdated({
-      selectedRows: [
-        makeRow({ ContentType: 'Document' }),
-        makeRow({ ContentType: 'Document' }),
-      ],
+      selectedRows: [makeRow({ ContentType: 'Document' }), makeRow({ ContentType: 'Document' })],
     } as any);
 
     expect(command.visible).toBe(false);
@@ -163,9 +157,7 @@ describe('onExecute', () => {
       selectedRows: [makeRow({ ContentType: 'Folder' })],
     } as any);
 
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining('Cannot Send a Folder')
-    );
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Cannot Send a Folder'));
     expect(commandSet.trySaveToLaserficheAsync).not.toHaveBeenCalled();
   });
 
@@ -174,9 +166,7 @@ describe('onExecute', () => {
       selectedRows: [makeRow({ FileLeafRef: '' })],
     } as any);
 
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining('add a filename')
-    );
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('add a filename'));
     expect(commandSet.trySaveToLaserficheAsync).not.toHaveBeenCalled();
   });
 
@@ -185,22 +175,16 @@ describe('onExecute', () => {
       selectedRows: [makeRow({ FileLeafRef: 'notes.url' })],
     } as any);
 
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining('Cannot send the .url file')
-    );
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Cannot send the .url file'));
     expect(commandSet.trySaveToLaserficheAsync).not.toHaveBeenCalled();
   });
 
   test('alerts and does not save when the file is checked out', async () => {
     await commandSet.onExecute({
-      selectedRows: [
-        makeRow({ CheckoutUser: 'i:0#.f|membership|user@contoso.com' }),
-      ],
+      selectedRows: [makeRow({ CheckoutUser: 'i:0#.f|membership|user@contoso.com' })],
     } as any);
 
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining('checked out')
-    );
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('checked out'));
     expect(commandSet.trySaveToLaserficheAsync).not.toHaveBeenCalled();
   });
 
@@ -209,9 +193,7 @@ describe('onExecute', () => {
       selectedRows: [makeRow({ File_x0020_Size: 200000000 })],
     } as any);
 
-    expect(window.alert).toHaveBeenCalledWith(
-      expect.stringContaining('below 100MB')
-    );
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('below 100MB'));
     expect(commandSet.trySaveToLaserficheAsync).not.toHaveBeenCalled();
   });
 
@@ -237,16 +219,14 @@ describe('onExecute', () => {
   });
 
   test('looks up the content type when ContentType is empty, then saves', async () => {
-    (commandSet.context.httpClient.get as Mock).mockImplementation(
-      (url: string) => {
-        if (url.includes('/ContentType')) {
-          return Promise.resolve({
-            json: () => Promise.resolve({ Name: 'Document' }),
-          });
-        }
-        return Promise.reject(new Error('unexpected url'));
+    (commandSet.context.httpClient.get as Mock).mockImplementation((url: string) => {
+      if (url.includes('/ContentType')) {
+        return Promise.resolve({
+          json: () => Promise.resolve({ Name: 'Document' }),
+        });
       }
-    );
+      return Promise.reject(new Error('unexpected url'));
+    });
 
     await commandSet.onExecute({
       selectedRows: [makeRow({ ContentType: '' })],
@@ -262,9 +242,7 @@ describe('onExecute', () => {
   });
 
   test('resolves an undefined content type without throwing when the lookup request fails', async () => {
-    (commandSet.context.httpClient.get as Mock).mockRejectedValue(
-      new Error('network error')
-    );
+    (commandSet.context.httpClient.get as Mock).mockRejectedValue(new Error('network error'));
 
     await expect(
       commandSet.onExecute({
@@ -291,8 +269,7 @@ describe('pageConfigurationCheck', () => {
 
   test('sets hasSignInPage to true when the Site Pages list contains LaserficheSignIn', async () => {
     window.fetch = vi.fn().mockResolvedValue({
-      json: () =>
-        Promise.resolve({ value: [{ Title: LASERFICHE_SIGNIN_PAGE_NAME }] }),
+      json: () => Promise.resolve({ value: [{ Title: LASERFICHE_SIGNIN_PAGE_NAME }] }),
     }) as any;
 
     await commandSet.pageConfigurationCheck();
@@ -337,12 +314,8 @@ describe('trySaveToLaserficheAsync', () => {
 
     await commandSet.trySaveToLaserficheAsync(spFileInfo);
 
-    expect(GetDocumentDataCustomDialog).toHaveBeenCalledWith(
-      spFileInfo,
-      commandSet.context
-    );
-    const instance = (GetDocumentDataCustomDialog as unknown as Mock).mock
-      .results[0].value;
+    expect(GetDocumentDataCustomDialog).toHaveBeenCalledWith(spFileInfo, commandSet.context);
+    const instance = (GetDocumentDataCustomDialog as unknown as Mock).mock.results[0].value;
     expect(instance.show).toHaveBeenCalled();
   });
 });

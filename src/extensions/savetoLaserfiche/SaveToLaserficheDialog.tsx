@@ -30,11 +30,7 @@ import { Entry } from '@laserfiche/lf-repository-api-client-v2';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
 import { PathUtils } from '@laserfiche/lf-js-utils';
-import {
-  CANCEL,
-  DOCUMENT_ALREADY_EXISTS,
-  LASERFICHE,
-} from '../../webparts/strings';
+import { CANCEL, DOCUMENT_ALREADY_EXISTS, LASERFICHE } from '../../webparts/strings';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -43,19 +39,18 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
     this.successful = successful;
   };
 
-  closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void> =
-    async (success?: SavedToLaserficheDocumentData) => {
-      await this.close();
-      if (this.closeParent) {
-        await this.closeParent(success);
-      }
-    };
+  closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void> = async (
+    success?: SavedToLaserficheDocumentData
+  ) => {
+    await this.close();
+    if (this.closeParent) {
+      await this.closeParent(success);
+    }
+  };
 
   constructor(
     private spFileData: ISPDocumentData,
-    private closeParent?: (
-      success?: SavedToLaserficheDocumentData
-    ) => Promise<void>
+    private closeParent?: (success?: SavedToLaserficheDocumentData) => Promise<void>
   ) {
     super();
   }
@@ -91,14 +86,10 @@ function SaveToLaserficheDialog(props: {
 }): JSX.Element {
   // useRef, not createRef: createRef hands back a new ref on every render and
   // React nulls the old one, which the mount effect below would then read.
-  const loginComponent = React.useRef<
-    NgElement & WithProperties<LfLoginComponent>
-  >();
+  const loginComponent = React.useRef<NgElement & WithProperties<LfLoginComponent>>();
 
   const region = getRegion();
-  const [success, setSuccess] = React.useState<
-    SavedToLaserficheDocumentData | undefined
-  >();
+  const [success, setSuccess] = React.useState<SavedToLaserficheDocumentData | undefined>();
   const [error, setError] = React.useState<JSX.Element | undefined>();
   const [showSaveTo, setShowSaveTo] = React.useState<boolean>(true);
   const [getConfirmation, Confirmation] = useConfirm();
@@ -130,31 +121,25 @@ function SaveToLaserficheDialog(props: {
         // refresh fails). tryGetValidRepositoryClientAsync then yields
         // undefined: treat that as signed out too, so the sign-in flow starts
         // instead of the save failing on an undefined client.
-        const validRepoClient = loginComponent.current
-          ?.authorization_credentials
+        const validRepoClient = loginComponent.current?.authorization_credentials
           ? await tryGetValidRepositoryClientAsync()
           : undefined;
         if (validRepoClient) {
-          const saveToLF = new SaveDocumentToLaserfiche(
-            props.spFileMetadata,
-            validRepoClient
-          );
+          const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata, validRepoClient);
           try {
             try {
               const repoId = await validRepoClient.getCurrentRepoId();
-              const entryInfo: Entry =
-                await validRepoClient.entriesClient.getEntry({
-                  repositoryId: repoId,
-                  entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
-                });
-              const entryWithPath =
-                await validRepoClient.entriesClient.getEntryByPath({
-                  repositoryId: repoId,
-                  fullPath: PathUtils.combinePaths(
-                    entryInfo.fullPath,
-                    PathUtils.removeFileExtension(props.spFileMetadata.fileName)
-                  ),
-                });
+              const entryInfo: Entry = await validRepoClient.entriesClient.getEntry({
+                repositoryId: repoId,
+                entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
+              });
+              const entryWithPath = await validRepoClient.entriesClient.getEntryByPath({
+                repositoryId: repoId,
+                fullPath: PathUtils.combinePaths(
+                  entryInfo.fullPath,
+                  PathUtils.removeFileExtension(props.spFileMetadata.fileName)
+                ),
+              });
               // v2 returns a GetEntryByPathResponse for a successful lookup, so
               // the response object itself is always truthy: test the entry.
               if (entryWithPath?.entry) {
@@ -227,33 +212,18 @@ function SaveToLaserficheDialog(props: {
         scope={repositoryScopes}
         ref={loginComponent}
       />
-      <div
-        className={`${styles.header}${
-          showSaveTo ? '' : ` ${styles.hideImport}`
-        }`}
-      >
+      <div className={`${styles.header}${showSaveTo ? '' : ` ${styles.hideImport}`}`}>
         <LaserficheDialogTitle title={LASERFICHE} />
 
-        <button
-          className={styles.lfCloseButton}
-          title='close'
-          onClick={saveToDialogCloseClick}
-        >
+        <button className={styles.lfCloseButton} title='close' onClick={saveToDialogCloseClick}>
           <span className='material-icons-outlined'> close </span>
         </button>
       </div>
 
-      <div
-        className={`${styles.contentBox}${
-          showSaveTo ? '' : ` ${styles.hideImport}`
-        }`}
-      >
+      <div className={`${styles.contentBox}${showSaveTo ? '' : ` ${styles.hideImport}`}`}>
         {!success && !error && <LoadingDialog />}
         {success && (
-          <SavedToLaserficheSuccessDialogText
-            successfulSave={success}
-            action={success.action}
-          />
+          <SavedToLaserficheSuccessDialogText successfulSave={success} action={success.action} />
         )}
         {error && (
           <span>
@@ -262,25 +232,14 @@ function SaveToLaserficheDialog(props: {
         )}
       </div>
 
-      <div
-        className={`${styles.footer}${
-          showSaveTo ? '' : ` ${styles.hideImport}`
-        }`}
-      >
-        <SavedToLaserficheSuccessDialogButtons
-          closeClick={saveToDialogCloseClick}
-        />
+      <div className={`${styles.footer}${showSaveTo ? '' : ` ${styles.hideImport}`}`}>
+        <SavedToLaserficheSuccessDialogButtons closeClick={saveToDialogCloseClick} />
       </div>
-      <Confirmation
-        cancelButtonText={CANCEL}
-        headerText={DOCUMENT_ALREADY_EXISTS}
-      />
+      <Confirmation cancelButtonText={CANCEL} headerText={DOCUMENT_ALREADY_EXISTS} />
     </div>
   );
 
-  async function continueSavingDocumentAsync(
-    saveToLF: SaveDocumentToLaserfiche
-  ): Promise<void> {
+  async function continueSavingDocumentAsync(saveToLF: SaveDocumentToLaserfiche): Promise<void> {
     const successSaveToLF = await saveToLF.trySaveDocumentToLaserficheAsync();
     if (!successSaveToLF) {
       // The save resolves undefined only when lf-login has no access token by

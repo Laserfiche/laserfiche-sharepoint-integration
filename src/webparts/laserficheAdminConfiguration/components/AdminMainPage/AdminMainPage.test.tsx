@@ -19,13 +19,11 @@ describe('AdminMainPage', () => {
       loggedIn,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       repoClient: {} as any,
-    } as IAdminPageProps);
+    }) as IAdminPageProps;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (
-      CreateConfigurations.ensureAdminConfigListCreatedAsync as Mock
-    ).mockResolvedValue(undefined);
+    (CreateConfigurations.ensureAdminConfigListCreatedAsync as Mock).mockResolvedValue(undefined);
   });
 
   test('renders "Profile Editor"', () => {
@@ -72,12 +70,8 @@ describe('AdminMainPage', () => {
     expect(profileMapping.tagName).toBe('A');
 
     expect((about as HTMLAnchorElement).href).toMatch(/#\/HomePage$/);
-    expect((profiles as HTMLAnchorElement).href).toMatch(
-      /#\/ManageConfigurationsPage$/
-    );
-    expect((profileMapping as HTMLAnchorElement).href).toMatch(
-      /#\/ManageMappingsPage$/
-    );
+    expect((profiles as HTMLAnchorElement).href).toMatch(/#\/ManageConfigurationsPage$/);
+    expect((profileMapping as HTMLAnchorElement).href).toMatch(/#\/ManageMappingsPage$/);
   });
 
   test('calls ensureAdminConfigListCreatedAsync exactly once with props.context on mount', () => {
@@ -92,12 +86,10 @@ describe('AdminMainPage', () => {
     );
 
     // Assert
-    expect(
-      CreateConfigurations.ensureAdminConfigListCreatedAsync
-    ).toHaveBeenCalledTimes(1);
-    expect(
-      CreateConfigurations.ensureAdminConfigListCreatedAsync
-    ).toHaveBeenCalledWith(props.context);
+    expect(CreateConfigurations.ensureAdminConfigListCreatedAsync).toHaveBeenCalledTimes(1);
+    expect(CreateConfigurations.ensureAdminConfigListCreatedAsync).toHaveBeenCalledWith(
+      props.context
+    );
   });
 
   test('calls ensureAdminConfigListCreatedAsync once even when loggedIn is false', () => {
@@ -112,22 +104,18 @@ describe('AdminMainPage', () => {
     );
 
     // Assert
-    expect(
-      CreateConfigurations.ensureAdminConfigListCreatedAsync
-    ).toHaveBeenCalledTimes(1);
-    expect(
-      CreateConfigurations.ensureAdminConfigListCreatedAsync
-    ).toHaveBeenCalledWith(props.context);
+    expect(CreateConfigurations.ensureAdminConfigListCreatedAsync).toHaveBeenCalledTimes(1);
+    expect(CreateConfigurations.ensureAdminConfigListCreatedAsync).toHaveBeenCalledWith(
+      props.context
+    );
   });
 
   test('logs a console.warn and still renders when ensureAdminConfigListCreatedAsync rejects', async () => {
     // Arrange
-    (
-      CreateConfigurations.ensureAdminConfigListCreatedAsync as Mock
-    ).mockRejectedValue(new Error('boom'));
-    const consoleWarnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => undefined);
+    (CreateConfigurations.ensureAdminConfigListCreatedAsync as Mock).mockRejectedValue(
+      new Error('boom')
+    );
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     // Act
     render(
@@ -138,9 +126,7 @@ describe('AdminMainPage', () => {
 
     // Assert
     await waitFor(() => {
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Error: boom')
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Error: boom'));
     });
     expect(screen.getByText('Profile Editor')).toBeInTheDocument();
   });

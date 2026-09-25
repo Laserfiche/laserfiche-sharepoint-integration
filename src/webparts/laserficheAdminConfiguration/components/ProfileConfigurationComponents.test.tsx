@@ -13,16 +13,10 @@ vi.mock('@laserfiche/lf-repository-api-client-v2', () => {
 });
 
 import type { Mock } from 'vitest';
-import {
-  LfRepoTreeNode,
-  LfRepoTreeNodeService,
-} from '@laserfiche/lf-ui-components-services';
+import { LfRepoTreeNode, LfRepoTreeNodeService } from '@laserfiche/lf-ui-components-services';
 import * as React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import {
-  isNodeSelectable,
-  RepositoryBrowserModal,
-} from './ProfileConfigurationComponents';
+import { isNodeSelectable, RepositoryBrowserModal } from './ProfileConfigurationComponents';
 import { EntryType } from '@laserfiche/lf-repository-api-client-v2';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 
@@ -162,9 +156,7 @@ describe('ProfileConfigurationComponents', () => {
     };
 
     // Act
-    const isNodeSelectableResult = isNodeSelectable(
-      shortcutRecordSeriesTreeNode
-    );
+    const isNodeSelectableResult = isNodeSelectable(shortcutRecordSeriesTreeNode);
 
     // Assert
     expect(isNodeSelectableResult).toBe(false);

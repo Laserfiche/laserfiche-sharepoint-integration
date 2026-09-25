@@ -21,8 +21,7 @@
 
    Hide the empty first copy. The :not(:last-child) guard means these rules
    stop applying on their own once the library emits a single copy again. */
-lf-selection-list-component
-  > .lf-selection-list-scroll-shell:first-child:not(:last-child),
+lf-selection-list-component > .lf-selection-list-scroll-shell:first-child:not(:last-child),
 lf-breadcrumbs > .lf-breadcrumbs-container:first-child:not(:last-child) {
   display: none !important;
 }
@@ -35,9 +34,7 @@ lf-breadcrumbs > .lf-breadcrumbs-container:first-child:not(:last-child) {
   --bs-modal-border-width: var(--bs-border-width);
   --bs-modal-border-radius: var(--bs-border-radius-lg);
   --bs-modal-box-shadow: var(--bs-box-shadow-sm);
-  --bs-modal-inner-border-radius: calc(
-    var(--bs-border-radius-lg) - (var(--bs-border-width))
-  );
+  --bs-modal-inner-border-radius: calc(var(--bs-border-radius-lg) - (var(--bs-border-width)));
   --bs-modal-header-padding: 1rem 1rem;
   --bs-modal-header-border-color: var(--bs-border-color);
   --bs-modal-header-border-width: var(--bs-border-width);

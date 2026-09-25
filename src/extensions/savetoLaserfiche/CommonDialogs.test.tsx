@@ -28,9 +28,7 @@ describe('LoadingDialog', () => {
   test('renders loading text and progress image', () => {
     render(<LoadingDialog />);
 
-    expect(
-      screen.getByText('Saving document to Laserfiche...')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Saving document to Laserfiche...')).toBeInTheDocument();
 
     const img = screen.getByRole('img') as HTMLImageElement;
     expect(img).toHaveAttribute('src', '/_layouts/15/images/progress.gif');
@@ -63,9 +61,7 @@ describe('DelayedSpinner', () => {
   });
 
   test('disappears as soon as loading ends', () => {
-    const { rerender } = render(
-      <DelayedSpinner loading={true} label='Loading things...' />
-    );
+    const { rerender } = render(<DelayedSpinner loading={true} label='Loading things...' />);
     advance(500);
     expect(screen.getByRole('status')).toBeInTheDocument();
 
@@ -75,9 +71,7 @@ describe('DelayedSpinner', () => {
   });
 
   test('never appears when loading ends within 500ms', () => {
-    const { rerender } = render(
-      <DelayedSpinner loading={true} label='Loading things...' />
-    );
+    const { rerender } = render(<DelayedSpinner loading={true} label='Loading things...' />);
     advance(300);
 
     rerender(<DelayedSpinner loading={false} label='Loading things...' />);
@@ -87,9 +81,7 @@ describe('DelayedSpinner', () => {
   });
 
   test('restarts the delay when loading starts again', () => {
-    const { rerender } = render(
-      <DelayedSpinner loading={true} label='Loading things...' />
-    );
+    const { rerender } = render(<DelayedSpinner loading={true} label='Loading things...' />);
     advance(500);
     rerender(<DelayedSpinner loading={false} label='Loading things...' />);
 
@@ -102,13 +94,7 @@ describe('DelayedSpinner', () => {
   });
 
   test('applies the given className to the status row', () => {
-    render(
-      <DelayedSpinner
-        loading={true}
-        label='Loading things...'
-        className='ms-2'
-      />
-    );
+    render(<DelayedSpinner loading={true} label='Loading things...' className='ms-2' />);
 
     advance(500);
 
@@ -116,9 +102,7 @@ describe('DelayedSpinner', () => {
   });
 
   test('unmounting cancels the pending delay', () => {
-    const { unmount } = render(
-      <DelayedSpinner loading={true} label='Loading things...' />
-    );
+    const { unmount } = render(<DelayedSpinner loading={true} label='Loading things...' />);
 
     unmount();
 
@@ -142,24 +126,14 @@ function buildSavedDocument(
 
 describe('SavedToLaserficheSuccessDialogText', () => {
   test('says a copy was saved and how to keep editing', () => {
-    render(
-      <SavedToLaserficheSuccessDialogText
-        successfulSave={buildSavedDocument()}
-      />
-    );
+    render(<SavedToLaserficheSuccessDialogText successfulSave={buildSavedDocument()} />);
 
     expect(screen.getByText(SAVED_A_COPY_TO_LASERFICHE)).toBeInTheDocument();
-    expect(
-      screen.queryByText(/successfully uploaded/i)
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/successfully uploaded/i)).not.toBeInTheDocument();
   });
 
   test('links the document name to the document in a new tab', () => {
-    render(
-      <SavedToLaserficheSuccessDialogText
-        successfulSave={buildSavedDocument()}
-      />
-    );
+    render(<SavedToLaserficheSuccessDialogText successfulSave={buildSavedDocument()} />);
 
     const documentLink = screen.getByRole('link', { name: 'Contract' });
     expect(documentLink).toHaveAttribute('href', FILE_LINK);
@@ -168,11 +142,7 @@ describe('SavedToLaserficheSuccessDialogText', () => {
   });
 
   test('links Show in folder to the parent folder in a new tab', () => {
-    render(
-      <SavedToLaserficheSuccessDialogText
-        successfulSave={buildSavedDocument()}
-      />
-    );
+    render(<SavedToLaserficheSuccessDialogText successfulSave={buildSavedDocument()} />);
 
     const folderLink = screen.getByRole('link', { name: SHOW_IN_FOLDER });
     expect(folderLink).toHaveAttribute('href', FOLDER_LINK);
@@ -187,9 +157,7 @@ describe('SavedToLaserficheSuccessDialogText', () => {
     );
 
     expect(screen.getByText('Contract')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('link', { name: 'Contract' })
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Contract' })).not.toBeInTheDocument();
   });
 
   test('leaves out Show in folder when there is no folder link', () => {
@@ -210,9 +178,7 @@ describe('SavedToLaserficheSuccessDialogText', () => {
       />
     );
 
-    expect(
-      screen.getByText('The existing SharePoint document was deleted.')
-    ).toBeInTheDocument();
+    expect(screen.getByText('The existing SharePoint document was deleted.')).toBeInTheDocument();
     expect(screen.queryByText(/replaced with a link/i)).not.toBeInTheDocument();
   });
 
@@ -296,9 +262,7 @@ describe('SavedToLaserficheSuccessDialogButtons', () => {
     render(<SavedToLaserficheSuccessDialogButtons closeClick={closeClick} />);
 
     expect(screen.getAllByRole('button')).toHaveLength(1);
-    expect(
-      screen.queryByText('View file in Laserfiche')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('View file in Laserfiche')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: CLOSE }));
     expect(closeClick).toHaveBeenCalledTimes(1);
@@ -308,23 +272,14 @@ describe('SavedToLaserficheSuccessDialogButtons', () => {
 describe('SavedToLaserficheSuccessDialog', () => {
   test('shows the Laserfiche title, the saved-copy message and both links', () => {
     render(
-      <SavedToLaserficheSuccessDialog
-        successfulSave={buildSavedDocument()}
-        closeClick={vi.fn()}
-      />
+      <SavedToLaserficheSuccessDialog successfulSave={buildSavedDocument()} closeClick={vi.fn()} />
     );
 
     expect(screen.getByText(LASERFICHE)).toBeInTheDocument();
     expect(screen.getByRole('img')).toHaveAttribute('src', LASERFICHE_ICON_URL);
     expect(screen.getByText(SAVED_A_COPY_TO_LASERFICHE)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Contract' })).toHaveAttribute(
-      'href',
-      FILE_LINK
-    );
-    expect(screen.getByRole('link', { name: SHOW_IN_FOLDER })).toHaveAttribute(
-      'href',
-      FOLDER_LINK
-    );
+    expect(screen.getByRole('link', { name: 'Contract' })).toHaveAttribute('href', FILE_LINK);
+    expect(screen.getByRole('link', { name: SHOW_IN_FOLDER })).toHaveAttribute('href', FOLDER_LINK);
   });
 
   test('Close invokes closeClick', () => {
@@ -346,13 +301,7 @@ describe('MessageDialog', () => {
   test('renders title and message, and Okay invokes clickOkay', () => {
     const clickOkay = vi.fn();
 
-    render(
-      <MessageDialog
-        title='My Title'
-        message='My Message'
-        clickOkay={clickOkay}
-      />
-    );
+    render(<MessageDialog title='My Title' message='My Message' clickOkay={clickOkay} />);
 
     expect(screen.getByText('My Title')).toBeInTheDocument();
     expect(screen.getByText('My Message')).toBeInTheDocument();
@@ -367,10 +316,7 @@ describe('LaserficheDialogTitle', () => {
     render(<LaserficheDialogTitle title='My Dialog' />);
 
     expect(screen.getByText('My Dialog')).toBeInTheDocument();
-    expect(screen.getByRole('img')).toHaveAttribute(
-      'src',
-      LASERFICHE_ICON_URL
-    );
+    expect(screen.getByRole('img')).toHaveAttribute('src', LASERFICHE_ICON_URL);
   });
 });
 
@@ -404,10 +350,7 @@ describe('useConfirm', () => {
     });
 
     expect(screen.getByText('Please Confirm')).toBeInTheDocument();
-    expect(screen.getByRole('img')).toHaveAttribute(
-      'src',
-      LASERFICHE_ICON_URL
-    );
+    expect(screen.getByRole('img')).toHaveAttribute('src', LASERFICHE_ICON_URL);
   });
 
   test('clicking Continue resolves true and hides the confirm UI', async () => {

@@ -13,14 +13,14 @@ import {
 } from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
-import {
-  LASERFICHE_ADMIN_CONFIGURATION_NAME,
-  MANAGE_CONFIGURATIONS,
-} from '../../../constants';
+import { LASERFICHE_ADMIN_CONFIGURATION_NAME, MANAGE_CONFIGURATIONS } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from '../LaserficheAdminConfiguration';
-import { PROFILE_NAME, PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME } from '../../../strings';
+import {
+  PROFILE_NAME,
+  PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME,
+} from '../../../strings';
 import '../../../../Assets/CSS/bootstrap.min.css';
 import './../../../../Assets/CSS/commonStyles.css';
 
@@ -40,14 +40,14 @@ const initialConfig: ProfileConfiguration = {
 export default function AddNewManageConfiguration(
   props: IAddNewManageConfigurationProps
 ): JSX.Element {
-  const {setSaveDisabled} = React.useContext(ProfileConfigContext);
+  const { setSaveDisabled } = React.useContext(ProfileConfigContext);
   const [profileConfig, setProfileConfig] = useState(initialConfig);
   const [validate, setValidate] = useState(false);
   const [configNameError, setConfigNameError] = useState(undefined);
 
-  const handleProfileConfigUpdate: (
+  const handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void = (
     profileConfig: ProfileConfiguration
-  ) => void = (profileConfig: ProfileConfiguration) => {
+  ) => {
     setValidate(false);
     setProfileConfig(profileConfig);
     const validate = validateNewConfiguration(profileConfig);
@@ -67,8 +67,7 @@ export default function AddNewManageConfiguration(
     if (!validate) {
       setValidate(true);
       setSaveDisabled(true);
-    }
-    else {
+    } else {
       setSaveDisabled(false);
     }
   }
@@ -111,30 +110,22 @@ export default function AddNewManageConfiguration(
     setSaveDisabled(false);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] =
-        await GetItemIdForManageConfigurations();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] =
           JSON.parse(configWithCurrentName.JsonValue) ?? [];
         const profileExists = savedProfileConfigurations.find(
-          (config) =>
-            config.ConfigurationName === profileConfig.ConfigurationName
+          (config) => config.ConfigurationName === profileConfig.ConfigurationName
         );
         if (!profileExists) {
-          const allConfigurations =
-            savedProfileConfigurations.concat(profileConfig);
-          await saveSPConfigurationsAsync(
-            configWithCurrentName.Id,
-            allConfigurations
-          );
+          const allConfigurations = savedProfileConfigurations.concat(profileConfig);
+          await saveSPConfigurationsAsync(configWithCurrentName.Id, allConfigurations);
           return true;
         } else {
           setSaveDisabled(true);
           setConfigNameError(
-            <span>
-              {PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME}
-            </span>
+            <span>{PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME}</span>
           );
           return false;
         }
@@ -169,10 +160,7 @@ export default function AddNewManageConfiguration(
 
   async function saveNewPageConfigurationAsync(): Promise<void> {
     const profileConfigAsString = JSON.stringify([profileConfig]);
-    const restApiUrl = `${getSPListURL(
-      props.context,
-      LASERFICHE_ADMIN_CONFIGURATION_NAME
-    )}/items`;
+    const restApiUrl = `${getSPListURL(props.context, LASERFICHE_ADMIN_CONFIGURATION_NAME)}/items`;
     const body: string = JSON.stringify({
       Title: MANAGE_CONFIGURATIONS,
       JsonValue: profileConfigAsString,
@@ -200,21 +188,14 @@ export default function AddNewManageConfiguration(
     if (configNameError) {
       setSaveDisabled(true);
       configNameValidation = configNameError;
-    } else if (
-      !profileConfig.ConfigurationName ||
-      profileConfig.ConfigurationName.length === 0
-    ) {
+    } else if (!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
       setSaveDisabled(true);
-      configNameValidation = (
-        <span>Please specify a name for this configuration</span>
-      );
+      configNameValidation = <span>Please specify a name for this configuration</span>;
     } else if (/[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
       // TODO can we allow special characters
 
       setSaveDisabled(true);
-      configNameValidation = (
-        <span>Invalid Name, only alphanumeric or space are allowed.</span>
-      );
+      configNameValidation = <span>Invalid Name, only alphanumeric or space are allowed.</span>;
     }
   }
 
@@ -238,11 +219,7 @@ export default function AddNewManageConfiguration(
             onChange={handleProfileConfigNameChange}
             placeholder='Profile Name'
           />
-          <div
-            id='configurationExists'
-            hidden={!configNameValidation}
-            style={{ color: 'red' }}
-          >
+          <div id='configurationExists' hidden={!configNameValidation} style={{ color: 'red' }}>
             {configNameValidation}
           </div>
         </div>
@@ -250,19 +227,19 @@ export default function AddNewManageConfiguration(
     </>
   );
   return (
-      <ManageConfiguration
-        header={header}
-        repoClient={props.repoClient}
-        loggedIn={props.loggedIn}
-        profileConfig={profileConfig}
-        loadingContent={true}
-        createNew={true}
-        context={props.context}
-        handleProfileConfigUpdate={handleProfileConfigUpdate}
-        saveConfiguration={saveNewManageConfigurationAsync}
-        validate={validate}
-      >
-        {extraConfiguration}
-      </ManageConfiguration>
+    <ManageConfiguration
+      header={header}
+      repoClient={props.repoClient}
+      loggedIn={props.loggedIn}
+      profileConfig={profileConfig}
+      loadingContent={true}
+      createNew={true}
+      context={props.context}
+      handleProfileConfigUpdate={handleProfileConfigUpdate}
+      saveConfiguration={saveNewManageConfigurationAsync}
+      validate={validate}
+    >
+      {extraConfiguration}
+    </ManageConfiguration>
   );
 }

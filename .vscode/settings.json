@@ -57,13 +57,5 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "powerHeader.autoInsert.languages": ["plaintext", "Log", "json"],
-  "cSpell.words": [
-    "downleveled",
-    "edoc",
-    "Laserfiche",
-    "listview",
-    "spfx",
-    "webpart",
-    "webparts"
-  ]
+  "cSpell.words": ["downleveled", "edoc", "Laserfiche", "listview", "spfx", "webpart", "webparts"]
 }

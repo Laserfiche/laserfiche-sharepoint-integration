@@ -18,8 +18,11 @@ test('loads existing mappings into real, interactable selects', async ({ mount, 
   await expect(spSelect).toBeDisabled();
 });
 
-test('adding a row, picking real select options, and saving posts the new mapping', async ({ mount, page }) => {
-  await mount(<ManageMappingsHarness scenario="empty" />);
+test('adding a row, picking real select options, and saving posts the new mapping', async ({
+  mount,
+  page,
+}) => {
+  await mount(<ManageMappingsHarness scenario='empty' />);
   await expect(page.getByText('Content Type Mappings Laserfiche')).toBeVisible();
 
   await page.getByRole('button', { name: 'Add' }).click();
@@ -42,8 +45,11 @@ test('adding a row, picking real select options, and saving posts the new mappin
   expect(body).toContain('ProfileB');
 });
 
-test('saving with a selection left at "Select" shows a validation message', async ({ mount, page }) => {
-  await mount(<ManageMappingsHarness scenario="empty" />);
+test('saving with a selection left at "Select" shows a validation message', async ({
+  mount,
+  page,
+}) => {
+  await mount(<ManageMappingsHarness scenario='empty' />);
   await expect(page.getByText('Content Type Mappings Laserfiche')).toBeVisible();
 
   await page.getByRole('button', { name: 'Add' }).click();

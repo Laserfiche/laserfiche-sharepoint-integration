@@ -7,15 +7,9 @@ import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
-import {
-  LASERFICHE_ADMIN_CONFIGURATION_NAME,
-  MANAGE_CONFIGURATIONS,
-} from '../../../constants';
+import { LASERFICHE_ADMIN_CONFIGURATION_NAME, MANAGE_CONFIGURATIONS } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-import {
-  DeleteModal,
-  ProfileConfiguration,
-} from '../ProfileConfigurationComponents';
+import { DeleteModal, ProfileConfiguration } from '../ProfileConfigurationComponents';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import '../../../../Assets/CSS/bootstrap.min.css';
 
@@ -27,9 +21,7 @@ export default function ManageConfigurationsPage(
   props: IManageConfigurationPageProps
 ): JSX.Element {
   const [configRows, setConfigRows] = useState<ProfileConfiguration[]>([]);
-  const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
-    undefined
-  );
+  const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -106,10 +98,7 @@ export default function ManageConfigurationsPage(
     setDeleteModal(undefined);
   }
 
-  async function deleteMappingAsync(
-    rows: ProfileConfiguration[],
-    idx: number
-  ): Promise<void> {
+  async function deleteMappingAsync(rows: ProfileConfiguration[], idx: number): Promise<void> {
     const manageConfigs: { id: string; configs: ProfileConfiguration[] } =
       await getManageConfigurationsAsync();
     if (manageConfigs.configs?.length > 0) {
@@ -139,11 +128,7 @@ export default function ManageConfigurationsPage(
           },
           body,
         };
-        await props.context.spHttpClient.post(
-          restApiUrl,
-          SPHttpClient.configurations.v1,
-          options
-        );
+        await props.context.spHttpClient.post(restApiUrl, SPHttpClient.configurations.v1, options);
       }
     }
   }
@@ -166,11 +151,7 @@ export default function ManageConfigurationsPage(
               className={styles.lfMaterialIconButton}
               onClick={() => removeSpecificConfiguration(index)}
             >
-              <span
-                className={`${styles.marginLeftButton} material-icons-outlined`}
-              >
-                delete
-              </span>
+              <span className={`${styles.marginLeftButton} material-icons-outlined`}>delete</span>
             </button>
           </div>
         </td>
@@ -184,19 +165,17 @@ export default function ManageConfigurationsPage(
         <main className='bg-white shadow-sm'>
           <div className='card rounded-0'>
             <div className='card-header d-flex justify-content-between pt-1 pb-1'>
-                <NavLink
-                  to='/AddNewManageConfiguration'
-                  style={{
-                    marginRight: '18px',
-                    fontWeight: '500',
-                    fontSize: '15px',
-                    color: '#0079d6',
-                  }}
-                >
-                  <button className='lf-button primary-button'>
-                    {ADD_PROFILE}
-                  </button>
-                </NavLink>
+              <NavLink
+                to='/AddNewManageConfiguration'
+                style={{
+                  marginRight: '18px',
+                  fontWeight: '500',
+                  fontSize: '15px',
+                  color: '#0079d6',
+                }}
+              >
+                <button className='lf-button primary-button'>{ADD_PROFILE}</button>
+              </NavLink>
             </div>
             <div className='card-body'>
               <table className='table table-bordered table-striped table-hover'>
@@ -213,22 +192,12 @@ export default function ManageConfigurationsPage(
         </main>
       </div>
       {deleteModal !== undefined && (
-        <div
-          className={styles.modal}
-          id='deleteModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='deleteModal' data-backdrop='static' data-keyboard='false'>
           {deleteModal}
         </div>
       )}
       {error !== undefined && (
-        <div
-          className={styles.modal}
-          id='errorModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='errorModal' data-backdrop='static' data-keyboard='false'>
           <div className='modal-dialog modal-dialog-centered'>
             <div className={`modal-content ${styles.wrapper}`}>
               <div className={styles.header}>

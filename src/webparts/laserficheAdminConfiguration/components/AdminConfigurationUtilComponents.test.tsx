@@ -4,10 +4,7 @@
 import type { MockInstance } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import {
-  LoggedOutMessageWrapper,
-  LoginComponent,
-} from './AdminConfigurationUtilComponents';
+import { LoggedOutMessageWrapper, LoginComponent } from './AdminConfigurationUtilComponents';
 import { PLEASE_LOGIN_TO_LASERFICHE } from '../../strings';
 // By path, not by package name: vitest.config.mts's alias would resolve the
 // bare specifier to this same file, but tsc would resolve the real package.
@@ -121,9 +118,7 @@ describe('LoginComponent', () => {
 
   test('initializes the repository client on sign-in after a re-render', async () => {
     // Arrange
-    const ensureRepoClientInitializedAsync = vi
-      .fn()
-      .mockResolvedValue(undefined);
+    const ensureRepoClientInitializedAsync = vi.fn().mockResolvedValue(undefined);
     const setLoggedIn = vi.fn();
     const loginComponent = (): JSX.Element => (
       <LoginComponent
@@ -157,9 +152,7 @@ describe('LoginComponent', () => {
 
   test('does not log an error when unmounted before lf-ui-components loads', async () => {
     // Arrange
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => undefined);
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     // Act
     renderLoginComponent().unmount();

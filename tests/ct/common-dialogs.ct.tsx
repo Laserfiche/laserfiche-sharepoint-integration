@@ -22,15 +22,26 @@ import ConfirmHarness from './harness/ConfirmHarness';
 test.describe('useConfirm', () => {
   test('shows nothing until getConfirmation is called', async ({ mount, page }) => {
     await mount(
-      <ConfirmHarness label="Are you sure?" cancelButtonText="Go back" headerText="Please Confirm" />
+      <ConfirmHarness
+        label='Are you sure?'
+        cancelButtonText='Go back'
+        headerText='Please Confirm'
+      />
     );
     await expect(page.getByRole('button', { name: 'Ask' })).toBeVisible();
     await expect(page.getByText('Please Confirm')).toHaveCount(0);
   });
 
-  test('Continue resolves the confirmation promise true and hides the dialog', async ({ mount, page }) => {
+  test('Continue resolves the confirmation promise true and hides the dialog', async ({
+    mount,
+    page,
+  }) => {
     await mount(
-      <ConfirmHarness label="Are you sure?" cancelButtonText="Go back" headerText="Please Confirm" />
+      <ConfirmHarness
+        label='Are you sure?'
+        cancelButtonText='Go back'
+        headerText='Please Confirm'
+      />
     );
     await page.getByRole('button', { name: 'Ask' }).click();
     await expect(page.getByText('Please Confirm')).toBeVisible();
@@ -45,7 +56,11 @@ test.describe('useConfirm', () => {
 
   test('the cancel button resolves the confirmation promise false', async ({ mount, page }) => {
     await mount(
-      <ConfirmHarness label="Are you sure?" cancelButtonText="Go back" headerText="Please Confirm" />
+      <ConfirmHarness
+        label='Are you sure?'
+        cancelButtonText='Go back'
+        headerText='Please Confirm'
+      />
     );
     await page.getByRole('button', { name: 'Ask' }).click();
     await page.getByRole('button', { name: 'Go back' }).click();
@@ -56,7 +71,11 @@ test.describe('useConfirm', () => {
 
   test('two sequential confirmations resolve independently', async ({ mount, page }) => {
     await mount(
-      <ConfirmHarness label="Are you sure?" cancelButtonText="Go back" headerText="Please Confirm" />
+      <ConfirmHarness
+        label='Are you sure?'
+        cancelButtonText='Go back'
+        headerText='Please Confirm'
+      />
     );
     await page.getByRole('button', { name: 'Ask' }).click();
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -72,7 +91,7 @@ test.describe('useConfirm', () => {
 test.describe('Collapsible', () => {
   test('starts collapsed: children are absent from the DOM', async ({ mount, page }) => {
     await mount(
-      <Collapsible title="Section">
+      <Collapsible title='Section'>
         <span>Hidden content</span>
       </Collapsible>
     );
@@ -82,7 +101,7 @@ test.describe('Collapsible', () => {
 
   test('open={true} shows children immediately', async ({ mount, page }) => {
     await mount(
-      <Collapsible title="Section" open={true}>
+      <Collapsible title='Section' open={true}>
         <span>Visible content</span>
       </Collapsible>
     );
@@ -92,7 +111,7 @@ test.describe('Collapsible', () => {
 
   test('clicking the toggle reveals children and flips the icon', async ({ mount, page }) => {
     await mount(
-      <Collapsible title="Section">
+      <Collapsible title='Section'>
         <span>Toggled content</span>
       </Collapsible>
     );
@@ -107,8 +126,8 @@ test.describe('MessageDialog', () => {
     let clicked = false;
     await mount(
       <MessageDialog
-        title="Sign In Failed"
-        message="Something went wrong"
+        title='Sign In Failed'
+        message='Something went wrong'
         clickOkay={() => {
           clicked = true;
         }}

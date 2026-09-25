@@ -2,11 +2,9 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 vi.mock('@laserfiche/lf-repository-api-client-v2', () => ({
-  TemplateDefinition: vi
-    .fn()
-    .mockImplementation(function ({ name, displayName }) {
-      return { name, displayName };
-    }),
+  TemplateDefinition: vi.fn().mockImplementation(function ({ name, displayName }) {
+    return { name, displayName };
+  }),
   FieldType: {
     Date: 'Date',
     List: 'List',
@@ -20,9 +18,7 @@ import ManageConfigurationComponent from './ManageConfigurationComponent';
 import { ProfileConfiguration } from './ProfileConfigurationComponents';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import {
-  TemplateDefinitionsClient,
-} from '@laserfiche/lf-repository-api-client-v2';
+import { TemplateDefinitionsClient } from '@laserfiche/lf-repository-api-client-v2';
 import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 import { HashRouter } from 'react-router-dom';
@@ -39,16 +35,14 @@ describe('ManageConfigurationComponent', () => {
     const repoClient = {
       getCurrentRepoId: vi.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        listTemplateDefinitionsForEach: vi
-          .fn()
-          .mockImplementation(({ callback }) =>
-            callback({
-              value: [
-                { name: 'Template1', id: '1' },
-                { name: 'Template2', id: '2' },
-              ],
-            })
-          ),
+        listTemplateDefinitionsForEach: vi.fn().mockImplementation(({ callback }) =>
+          callback({
+            value: [
+              { name: 'Template1', id: '1' },
+              { name: 'Template2', id: '2' },
+            ],
+          })
+        ),
 
         listTemplateFieldDefinitionsByTemplateName: vi.fn().mockResolvedValue({
           value: [
@@ -65,9 +59,7 @@ describe('ManageConfigurationComponent', () => {
     // Act
     render(
       <HashRouter>
-        <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}
-        >
+        <ProfileConfigContext.Provider value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}>
           <ManageConfigurationComponent
             repoClient={repoClient}
             profileConfig={mockProfileConfig}
@@ -103,16 +95,14 @@ describe('ManageConfigurationComponent', () => {
     const repoClient = {
       getCurrentRepoId: vi.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        listTemplateDefinitionsForEach: vi
-          .fn()
-          .mockImplementation(({ callback }) =>
-            callback({
-              value: [
-                { name: 'Template1', id: '1' },
-                { name: 'Template2', id: '2' },
-              ],
-            })
-          ),
+        listTemplateDefinitionsForEach: vi.fn().mockImplementation(({ callback }) =>
+          callback({
+            value: [
+              { name: 'Template1', id: '1' },
+              { name: 'Template2', id: '2' },
+            ],
+          })
+        ),
 
         listTemplateFieldDefinitionsByTemplateName: vi.fn().mockResolvedValue({
           value: [
@@ -129,9 +119,7 @@ describe('ManageConfigurationComponent', () => {
     // Act
     render(
       <HashRouter>
-        <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}
-        >
+        <ProfileConfigContext.Provider value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}>
           <ManageConfigurationComponent
             repoClient={repoClient}
             profileConfig={mockProfileConfig}

@@ -1,10 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import {
-  IRepositoryApiClient,
-  RepositoryApiClient,
-} from '@laserfiche/lf-repository-api-client-v2';
+import { IRepositoryApiClient, RepositoryApiClient } from '@laserfiche/lf-repository-api-client-v2';
 import { IRepositoryApiClientExInternal } from './repository-client-types';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
@@ -12,10 +9,7 @@ import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
 
-  public addAuthorizationHeader(
-    request: RequestInit,
-    accessToken: string | undefined
-  ): void {
+  public addAuthorizationHeader(request: RequestInit, accessToken: string | undefined): void {
     const headers: Headers | undefined = new Headers(request.headers);
     const AUTH = 'Authorization';
     headers.set(AUTH, 'Bearer ' + accessToken);
@@ -46,11 +40,7 @@ export class RepositoryClientExInternal {
     url: string,
     response: Response,
     request: RequestInit
-  ) => Promise<boolean> = async (
-    url: string,
-    response: Response,
-    request: RequestInit
-  ) => {
+  ) => Promise<boolean> = async (url: string, response: Response, request: RequestInit) => {
     if (response.status === 401) {
       const lfLogin = document.querySelector('lf-login') as NgElement &
         WithProperties<LfLoginComponent>;
@@ -72,9 +62,7 @@ export class RepositoryClientExInternal {
     repoName: string;
   }> = async () => {
     if (this.repoClient) {
-      const repos = await this.repoClient.repositoriesClient.listRepositories(
-        {}
-      );
+      const repos = await this.repoClient.repositoriesClient.listRepositories({});
       const repo = repos.value?.[0];
       if (repo?.id) {
         return { repoId: repo.id, repoName: repo.name ?? repo.id };

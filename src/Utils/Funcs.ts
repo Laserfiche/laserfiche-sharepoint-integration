@@ -31,30 +31,17 @@ export function getEntryWebAccessUrl(
   }
   let newUrl: string;
   if (isContainer) {
-    newUrl = UrlUtils.combineURLs(
-      waUrl ?? '',
-      'Browse.aspx',
-      commonQueryParams
-    );
+    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', commonQueryParams);
     newUrl += `#?id=${encodeURIComponent(entryId)}`;
   } else {
-    const queryParams: UrlUtils.QueryParameter[] = [
-      ...commonQueryParams,
-      ['id', entryId],
-    ];
+    const queryParams: UrlUtils.QueryParameter[] = [...commonQueryParams, ['id', entryId]];
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
   }
   return newUrl;
 }
 
-export function getSPListURL(
-  context: BaseComponentContext,
-  listName: string
-): string {
-  return (
-    context.pageContext.web.absoluteUrl +
-    `/_api/web/lists/GetByTitle('${listName}')`
-  );
+export function getSPListURL(context: BaseComponentContext, listName: string): string {
+  return context.pageContext.web.absoluteUrl + `/_api/web/lists/GetByTitle('${listName}')`;
 }
 
 export function getRegion(): string {
@@ -82,14 +69,8 @@ export function getRegion(): string {
 export function openLoginWindow(url: string): Window | undefined {
   // Cap to the screen the same way the add-ins do, so the window still fits
   // on smaller displays.
-  const width = Math.min(
-    LOGIN_WINDOW_WIDTH_PX,
-    window.screen.width || LOGIN_WINDOW_WIDTH_PX
-  );
-  const height = Math.min(
-    LOGIN_WINDOW_HEIGHT_PX,
-    window.screen.height || LOGIN_WINDOW_HEIGHT_PX
-  );
+  const width = Math.min(LOGIN_WINDOW_WIDTH_PX, window.screen.width || LOGIN_WINDOW_WIDTH_PX);
+  const height = Math.min(LOGIN_WINDOW_HEIGHT_PX, window.screen.height || LOGIN_WINDOW_HEIGHT_PX);
   const left = Math.round(window.screenX + (window.outerWidth - width) / 2);
   const top = Math.round(window.screenY + (window.outerHeight - height) / 2);
   return (
@@ -151,17 +132,12 @@ export function getErrorDetails(error: unknown): string | undefined {
  * something that is not valid JSON: this is read during render, so a parse
  * error here would take down the component tree.
  */
-export function getSPDocumentDataFromLocalStorage():
-  | ISPDocumentData
-  | undefined {
+export function getSPDocumentDataFromLocalStorage(): ISPDocumentData | undefined {
   try {
     const raw = window.localStorage.getItem(SP_LOCAL_STORAGE_KEY);
     return raw ? (JSON.parse(raw) as ISPDocumentData) : undefined;
   } catch (error) {
-    console.warn(
-      `Unable to read ${SP_LOCAL_STORAGE_KEY} from local storage.`,
-      error
-    );
+    console.warn(`Unable to read ${SP_LOCAL_STORAGE_KEY} from local storage.`, error);
     return undefined;
   }
 }

@@ -31,9 +31,7 @@ function buildContext(getMock: Mock, postMock: Mock): BaseComponentContext {
   } as unknown as BaseComponentContext;
 }
 
-function mockFetchByUrl(
-  handlers: { match: string; response: unknown }[]
-): Mock {
+function mockFetchByUrl(handlers: { match: string; response: unknown }[]): Mock {
   return vi.fn((url: string) => {
     const handler = handlers.find((h) => url.includes(h.match));
     if (handler) {
@@ -71,9 +69,7 @@ describe('CreateConfigurations.ensureAdminConfigListCreatedAsync', () => {
   test('creates the list, columns and security when the list is missing (status 404)', async () => {
     // Arrange
     const get = vi.fn().mockResolvedValue({ status: 404 });
-    const post = vi
-      .fn()
-      .mockResolvedValue(jsonResponse({ Title: 'LaserficheAdminConfiguration' }));
+    const post = vi.fn().mockResolvedValue(jsonResponse({ Title: 'LaserficheAdminConfiguration' }));
     const context = buildContext(get, post);
 
     window.fetch = mockFetchByUrl([
@@ -127,14 +123,10 @@ describe('CreateConfigurations.ensureAdminConfigListCreatedAsync', () => {
         body: expect.stringContaining('"BaseTemplate":100'),
       })
     );
-    expect(post.mock.calls[0][2].body).toContain(
-      '"Title":"LaserficheAdminConfiguration"'
-    );
+    expect(post.mock.calls[0][2].body).toContain('"Title":"LaserficheAdminConfiguration"');
 
     // (3) fields fetch
-    const fieldsCall = (window.fetch as Mock).mock.calls.find(([url]) =>
-      url.includes('/fields')
-    );
+    const fieldsCall = (window.fetch as Mock).mock.calls.find(([url]) => url.includes('/fields'));
     expect(fieldsCall).toBeDefined();
     expect(fieldsCall![1].body).toContain('"FieldTypeKind":3');
 
@@ -157,8 +149,8 @@ describe('CreateConfigurations.ensureAdminConfigListCreatedAsync', () => {
     );
 
     // (7) delete current role assignment for the group
-    const deleteRoleCall = (window.fetch as Mock).mock.calls.find(
-      ([url]) => url.includes('/roleassignments/getbyprincipalid(')
+    const deleteRoleCall = (window.fetch as Mock).mock.calls.find(([url]) =>
+      url.includes('/roleassignments/getbyprincipalid(')
     );
     expect(deleteRoleCall).toBeDefined();
     expect(deleteRoleCall![1].headers['X-HTTP-Method']).toBe('DELETE');
@@ -190,9 +182,7 @@ describe('CreateConfigurations.ensureAdminConfigListCreatedAsync', () => {
     const get = vi.fn().mockResolvedValue({ status: 404 });
     const post = vi.fn().mockRejectedValue(new Error('list creation failed'));
     const context = buildContext(get, post);
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => undefined);
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     window.fetch = mockFetchByUrl([
       {
@@ -230,9 +220,7 @@ describe('CreateConfigurations.ensureAdminConfigListCreatedAsync', () => {
   test('proceeds without throwing when the contextinfo fetch rejects', async () => {
     // Arrange
     const get = vi.fn().mockResolvedValue({ status: 404 });
-    const post = vi
-      .fn()
-      .mockResolvedValue(jsonResponse({ Title: 'LaserficheAdminConfiguration' }));
+    const post = vi.fn().mockResolvedValue(jsonResponse({ Title: 'LaserficheAdminConfiguration' }));
     const context = buildContext(get, post);
 
     window.fetch = vi.fn((url: string) => {

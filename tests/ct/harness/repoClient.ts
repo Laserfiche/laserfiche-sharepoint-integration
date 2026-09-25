@@ -8,10 +8,7 @@
 import type { IRepositoryApiClientExInternal } from '../../../src/repository-client/repository-client-types';
 
 export type RepoClientScenario =
-  | 'default'
-  | 'createEntry-rejects-exists'
-  | 'getEntryByPath-exists'
-  | 'getEntryByPath-404';
+  'default' | 'createEntry-rejects-exists' | 'getEntryByPath-exists' | 'getEntryByPath-404';
 
 declare global {
   interface Window {

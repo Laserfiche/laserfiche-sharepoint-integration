@@ -7,9 +7,9 @@ import { PageContext, SPPermission, SPWeb } from '@microsoft/sp-page-context';
 const mockWebPartContext: Partial<WebPartContext> = {
   pageContext: {
     web: {
-      permissions: new SPPermission({ High: 0, Low: 0 })
-    } as SPWeb
-  } as PageContext
+      permissions: new SPPermission({ High: 0, Low: 0 }),
+    } as SPWeb,
+  } as PageContext,
 };
 
 export default mockWebPartContext as WebPartContext;

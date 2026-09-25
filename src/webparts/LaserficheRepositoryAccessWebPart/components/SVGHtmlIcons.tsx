@@ -230,10 +230,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='circle-success' viewBox='0 0 22 22'>
-            <path
-              fill='#CCCCCC'
-              d='M12,3c5,0,9,4,9,9s-4,9-9,9s-9-4-9-9S7,3,12,3z'
-            />
+            <path fill='#CCCCCC' d='M12,3c5,0,9,4,9,9s-4,9-9,9s-9-4-9-9S7,3,12,3z' />
             <path
               fill='#FFFFFF'
               d='M12,6c-3.3,0-6,2.7-6,6s2.7,6,6,6s6-2.7,6-6S15.3,6,12,6z M11.1,15.2l-2.7-2.7l0.9-0.9l1.7,1.7l4-4l0.9,0.9
@@ -273,10 +270,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='circle-success-18' viewBox='0 0 24 24'>
-            <path
-              fill='#CCCCCC'
-              d='M12,3c5,0,9,4,9,9s-4,9-9,9s-9-4-9-9S7,3,12,3z'
-            />
+            <path fill='#CCCCCC' d='M12,3c5,0,9,4,9,9s-4,9-9,9s-9-4-9-9S7,3,12,3z' />
             <path
               fill='#F2F2F2'
               d='M12,6c-3.3,0-6,2.7-6,6s2.7,6,6,6s6-2.7,6-6S15.3,6,12,6z M11.1,15.2l-2.7-2.7l0.9-0.9l1.7,1.7l4-4l0.9,0.9
@@ -323,17 +317,11 @@ export default class SvgHtmlIcons extends React.Component {
           </symbol>
           <symbol id='checkbox-checked' viewBox='0 0 22 22'>
             <path fill='#646464' d='M20,4v16H4V4H20 M21,3H3v18h18V3L21,3z' />
-            <path
-              fill='#202020'
-              d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z'
-            />
+            <path fill='#202020' d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z' />
           </symbol>
           <symbol id='checkbox-inherited' viewBox='0 0 22 22'>
             <path fill='#646464' d='M20,4v16H4V4H20 M21,3H3v18h18V3L21,3z' />
-            <path
-              fill='#BCBCBC'
-              d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z'
-            />
+            <path fill='#BCBCBC' d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z' />
           </symbol>
           <symbol id='checkbox-indeterminate' viewBox='0 0 22 22'>
             <path fill='#646464' d='M20,4v16H4V4H20 M21,3H3v18h18V3L21,3z' />
@@ -341,10 +329,7 @@ export default class SvgHtmlIcons extends React.Component {
           </symbol>
           <symbol id='checkbox-checked-disabled' viewBox='0 0 22 22'>
             <path fill='#BCBCBC' d='M20,4v16H4V4H20 M21,3H3v18h18V3L21,3z' />
-            <path
-              fill='#BCBCBC'
-              d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z'
-            />
+            <path fill='#BCBCBC' d='M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z' />
           </symbol>
           <symbol id='checkbox-disabled' viewBox='0 0 22 22'>
             <path fill='#BCBCBC' d='M20,4v16H4V4H20 M21,3H3v18h18V3L21,3z' />
@@ -432,10 +417,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='document-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20'
-            />
+            <polygon fill='transparent' points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20' />
             <path fill='gray' d='M13.2,0H2V20H18V5ZM17,6.7V19H3V1h8V6h6Z' />
           </symbol>
           <symbol id='document-16' viewBox='0 0 16 16'>
@@ -607,10 +589,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-database-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20'
-            />
+            <polygon fill='transparent' points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20' />
             <path fill='gray' d='M13.2,0H2V20H18V5ZM17,6.7V19H3V1h8V6h6Z' />
             <path
               fill='#DCA844'
@@ -687,10 +666,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-generic-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20'
-            />
+            <polygon fill='transparent' points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20' />
             <path fill='gray' d='M13.2,0H2V20H18V5ZM17,6.7V19H3V1h8V6h6Z' />
             <rect x='4' y='10' fill='#BCBEC0' width='12' height='1' />
             <rect x='4' y='7' fill='#BCBEC0' width='12' height='1' />
@@ -761,10 +737,7 @@ export default class SvgHtmlIcons extends React.Component {
             <rect x='2' y='6' fill='#C85352' width='9' height='4' />
           </symbol>
           <symbol id='edoc-pdf-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20'
-            />
+            <polygon fill='transparent' points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20' />
             <path fill='gray' d='M13.2,0H2V20H18V5ZM17,6.7V19H3V1h8V6h6Z' />
             <path
               fill='#e42127'
@@ -774,10 +747,7 @@ export default class SvgHtmlIcons extends React.Component {
               fill='#e42127'
               d='M12.35,12.45a2.43,2.43,0,0,1-.7,1.89,2.85,2.85,0,0,1-2,.66H8.21V10H9.77a2.68,2.68,0,0,1,1.91.65A2.37,2.37,0,0,1,12.35,12.45Zm-1.1,0c0-1.07-.47-1.61-1.42-1.61H9.27v3.25h.45C10.74,14.12,11.25,13.58,11.25,12.48Z'
             />
-            <path
-              fill='#e42127'
-              d='M14.17,15h-1V10H16v.87H14.17v1.29h1.7V13h-1.7Z'
-            />
+            <path fill='#e42127' d='M14.17,15h-1V10H16v.87H14.17v1.29h1.7V13h-1.7Z' />
           </symbol>
           <g id='edoc-pdf-16' viewBox='0 0 16 16'>
             <path
@@ -793,10 +763,7 @@ export default class SvgHtmlIcons extends React.Component {
           c0,0.553,0.447,1,1,1h10c0.553,0,1-0.447,1-1V8.04z'
             />
             <path fill='#555555' d='M11.002,18' />
-            <path
-              fill='#C85352'
-              d='M11.002,18L11,14.002h4C15,16.21,13.21,18,11.002,18'
-            />
+            <path fill='#C85352' d='M11.002,18L11,14.002h4C15,16.21,13.21,18,11.002,18' />
             <path
               fill='#C85352'
               d='M9.998,16.995C7.789,16.995,6,15.205,6,12.998C6,10.79,7.789,9,9.998,9
@@ -804,10 +771,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-presentation-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20'
-            />
+            <polygon fill='transparent' points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20' />
             <path fill='gray' d='M14.2,0H3V20H19V5ZM18,6.7V19H4V1h8V6h6Z' />
             <rect fill='#d04525' x='1' y='4' width='9' height='8' />
             <path fill='#bcbec0' d='M11,9v4H7a4,4,0,1,0,4-4Z' />
@@ -973,10 +937,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-spreadsheet-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20'
-            />
+            <polygon fill='transparent' points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20' />
             <path fill='gray' d='M14.2,0H3V20H19V5ZM18,6.7V19H4V1h8V6h6Z' />
             <rect fill='#005f01' x='1' y='4' width='9' height='8' />
             <path
@@ -1050,10 +1011,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-text-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20'
-            />
+            <polygon fill='transparent' points='18 20 2 20 2 0 13.2 0 18 5 18 6.7 18 20' />
             <path fill='gray' d='M13.2,0H2V20H18V5ZM17,6.7V19H3V1h8V6h6Z' />
             <rect x='4' y='10' fill='#BCBEC0' width='12' height='1' />
             <rect x='4' y='7' fill='#BCBEC0' width='12' height='1' />
@@ -1122,10 +1080,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='edoc-wordprocessing-20' viewBox='0 0 20 20'>
-            <polygon
-              fill='transparent'
-              points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20'
-            />
+            <polygon fill='transparent' points='19 20 3 20 3 0 14.2 0 19 5 19 6.7 19 20' />
             <path fill='gray' d='M14.2,0H3V20H19V5ZM18,6.7V19H4V1h8V6h6Z' />
             <rect fill='#2a5598' x='1' y='4' width='9' height='8' />
             <rect fill='#bcbec0' x='11' y='10' width='6' height='1' />
@@ -1301,10 +1256,7 @@ export default class SvgHtmlIcons extends React.Component {
             <path fill='#F73408' d='M19,14.5c-2.5,0-4.5,2-4.5,4.5H19V14.5z' />
             <path fill='#316DD6' d='M14.5,19c0,2.5,2,4.5,4.5,4.5V19H14.5z' />
             <path fill='#FFCF00' d='M19,23.5c2.5,0,4.5-2,4.5-4.5H19V23.5z' />
-            <path
-              fill='#73BE00'
-              d='M19,14.5V19h4.5C23.5,16.5,21.5,14.5,19,14.5z'
-            />
+            <path fill='#73BE00' d='M19,14.5V19h4.5C23.5,16.5,21.5,14.5,19,14.5z' />
           </symbol>
           <symbol id='group-ldap' viewBox='0 0 24 24'>
             <path
@@ -1326,10 +1278,7 @@ export default class SvgHtmlIcons extends React.Component {
       s3,1.3,3,3S18.7,12,17,12z M7,10c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S8.7,10,7,10z'
             />
             <rect x='14' y='15' fill='#C95A00' width='9' height='9' />
-            <polygon
-              fill='#FFFFFF'
-              points='18,21 18,17 17,17 17,22 20,22 20,21 '
-            />
+            <polygon fill='#FFFFFF' points='18,21 18,17 17,17 17,22 20,22 20,21 ' />
           </symbol>
           <symbol id='creator-owner' viewBox='0 0 24 24'>
             <path
@@ -1338,10 +1287,7 @@ export default class SvgHtmlIcons extends React.Component {
       c0.6,0,1-0.7,1-1C20.8,16.1,19.9,12.2,16.4,11.1z M13,11c2.2,0,4-1.8,4-4s-1.8-4-4-4S9,4.8,9,7S10.8,11,13,11z'
             />
             <rect fill='#FFA715' x='15' y='15' width='9' height='9' />
-            <polygon
-              fill='#FFFFFF'
-              points='22,18.4 20.6,17 17,20.6 17,22 18.4,22 18.4,22'
-            />
+            <polygon fill='#FFFFFF' points='22,18.4 20.6,17 17,20.6 17,22 18.4,22 18.4,22' />
           </symbol>
           <symbol id='full-screen' viewBox='0 0 18 18'>
             <path
@@ -1358,12 +1304,7 @@ export default class SvgHtmlIcons extends React.Component {
           </symbol>
           <symbol id='help-grey' viewBox='0 0 13 13'>
             <g transform='translate(-2 -2)'>
-              <rect
-                fill='#FFFFFF'
-                width='2'
-                height='2'
-                transform='translate(7.5 11.167)'
-              />
+              <rect fill='#FFFFFF' width='2' height='2' transform='translate(7.5 11.167)' />
               <path
                 fill='#FFFFFF'
                 d='M12,5A4.012,4.012,0,0,0,8,9h2a2,2,0,0,1,4,0,1.678,1.678,0,0,1-.6,1.4l-1.2,1.3A3.631,3.631,0,0,0,11,14.5V15h2a3.114,3.114,0,0,1,1.2-2.8l.9-.9A3.641,3.641,0,0,0,16,9,4.012,4.012,0,0,0,12,5Z'
@@ -1387,10 +1328,7 @@ export default class SvgHtmlIcons extends React.Component {
           </symbol>
           <symbol id='l-icon' viewBox='0 0 48 48'>
             <path fill='#CF5F1C' d='M0,0v48h48V0H0z' />
-            <polygon
-              fill='#FFFFFF'
-              points='34,37 16,37 16,11 23,11 23,31 34,31 '
-            />
+            <polygon fill='#FFFFFF' points='34,37 16,37 16,11 23,11 23,31 34,31 ' />
           </symbol>
 
           <symbol id='line' viewBox='0 0 18 18'>
@@ -1771,11 +1709,7 @@ export default class SvgHtmlIcons extends React.Component {
           h3V4z M4,9h10v1H4V9z M4,7h10v1H4V7z M4,5h10v1H4V5z'
             />
           </symbol>
-          <symbol
-            id='success'
-            viewBox='0 0 24 24'
-            enable-background='new 0 0 24 24'
-          >
+          <symbol id='success' viewBox='0 0 24 24' enable-background='new 0 0 24 24'>
             <path
               fill='#3bb792'
               d='M12,3c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S17,3,12,3z M10.6,16.8l-4-4L8,11.4l2.6,2.6l6-6L18,9.4L10.6,16.8z'
@@ -1910,10 +1844,7 @@ export default class SvgHtmlIcons extends React.Component {
       c0.6,0,1-0.7,1-1C19.8,16.1,18.9,12.2,15.4,11.1z M12,11c2.2,0,4-1.8,4-4s-1.8-4-4-4S8,4.8,8,7S9.8,11,12,11z'
               />
               <rect x='14' y='15' fill='#C95A00' width='9' height='9' />
-              <polygon
-                fill='#FFFFFF'
-                points='18,21 18,17 17,17 17,22 20,22 20,21 '
-              />
+              <polygon fill='#FFFFFF' points='18,21 18,17 17,17 17,22 20,22 20,21 ' />
             </g>
           </symbol>
           <symbol id='user-ldap' viewBox='0 0 24 24'>
@@ -1924,10 +1855,7 @@ export default class SvgHtmlIcons extends React.Component {
       c0.6,0,1-0.7,1-1C19.8,16.1,18.9,12.2,15.4,11.1z M12,11c2.2,0,4-1.8,4-4s-1.8-4-4-4S8,4.8,8,7S9.8,11,12,11z'
               />
               <rect x='13.9' y='15' fill='#2C61B5' width='9' height='9' />
-              <path
-                fill='#FFFFFF'
-                d='M18.9,18h-1v-1h1V18z M18.9,19h-1v3h1V19z'
-              />
+              <path fill='#FFFFFF' d='M18.9,18h-1v-1h1V18z M18.9,19h-1v3h1V19z' />
             </g>
           </symbol>
           <symbol id='user-windows' viewBox='0 0 24 24'>
@@ -1940,10 +1868,7 @@ export default class SvgHtmlIcons extends React.Component {
               <path fill='#F73408' d='M19,14.5c-2.5,0-4.5,2-4.5,4.5H19V14.5z' />
               <path fill='#316DD6' d='M14.5,19c0,2.5,2,4.5,4.5,4.5V19H14.5z' />
               <path fill='#FFCF00' d='M19,23.5c2.5,0,4.5-2,4.5-4.5H19V23.5z' />
-              <path
-                fill='#73BE00'
-                d='M19,14.5V19h4.5C23.5,16.5,21.5,14.5,19,14.5z'
-              />
+              <path fill='#73BE00' d='M19,14.5V19h4.5C23.5,16.5,21.5,14.5,19,14.5z' />
             </g>
           </symbol>
           <symbol id='x' viewBox='0 0 18 18'>
@@ -1981,21 +1906,13 @@ export default class SvgHtmlIcons extends React.Component {
        M15,11c-0.6,0-1,0.4-1,1s0.4,1,1,1s1-0.4,1-1S15.6,11,15,11z M15,9c0.6,0,1-0.4,1-1s-0.4-1-1-1s-1,0.4-1,1S14.4,9,15,9z'
             />
           </symbol>
-          <symbol
-            id='cancel'
-            viewBox='0 0 24 24'
-            enable-background='new 0 0 24 24'
-          >
+          <symbol id='cancel' viewBox='0 0 24 24' enable-background='new 0 0 24 24'>
             <path
               fill='#d44833'
               d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'
             />
           </symbol>
-          <symbol
-            id='cancel-bleach'
-            viewBox='0 0 24 24'
-            enable-background='new 0 0 24 24'
-          >
+          <symbol id='cancel-bleach' viewBox='0 0 24 24' enable-background='new 0 0 24 24'>
             <path d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z' />
           </symbol>
           <symbol id='check-bold' viewBox='0 0 24 24'>
@@ -2138,15 +2055,8 @@ export default class SvgHtmlIcons extends React.Component {
       h8.018C15.007,3.896,14.113,3.003,13.01,3.003z M19,13c-1.435,0.425-3.556,0.89-6,1v2H9v-2c-2.444-0.11-4.565-0.575-6-1v6h16V13z'
             />
           </symbol>
-          <symbol
-            id='warning'
-            viewBox='0 0 24 24'
-            enable-background='new 0 0 24 24'
-          >
-            <path
-              fill='#d4aa00'
-              d='M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z'
-            />
+          <symbol id='warning' viewBox='0 0 24 24' enable-background='new 0 0 24 24'>
+            <path fill='#d4aa00' d='M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z' />
           </symbol>
           <symbol id='custom' viewBox='0 0 18 18'>
             <path
@@ -2932,10 +2842,7 @@ export default class SvgHtmlIcons extends React.Component {
               r='7.9'
             />
             <g>
-              <path
-                fill='#555555'
-                d='M12.9,10.4c-0.4-0.8-0.9-1.5-1.8-1.8L12.9,10.4z'
-              />
+              <path fill='#555555' d='M12.9,10.4c-0.4-0.8-0.9-1.5-1.8-1.8L12.9,10.4z' />
               <path
                 fill='#555555'
                 d='M10.4,7.9c0.5-0.4,0.8-1,0.8-1.7c0-1.2-1-2.1-2.2-2.1c-0.7,0-1.3,0.3-1.7,0.8L10.4,7.9z'
@@ -3016,10 +2923,7 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </symbol>
           <symbol id='return-folder' viewBox='0 0 16 16'>
-            <path
-              d='M17,5V17H14V8H8v4L1,6.5,8,1V5Z'
-              transform='translate(-1 -1)'
-            />
+            <path d='M17,5V17H14V8H8v4L1,6.5,8,1V5Z' transform='translate(-1 -1)' />
           </symbol>
           <symbol id='saveas' viewBox='0 0 18 18'>
             <path
@@ -3049,31 +2953,11 @@ export default class SvgHtmlIcons extends React.Component {
                   d='M-6160,27V22.5h36V27Zm0-11.751v-4.5h36v4.5Zm0-11.749V-1h36V3.5Z'
                   transform='translate(8604 191)'
                 />
-                <path
-                  fill='#fff'
-                  d='M0,0H0V28'
-                  transform='translate(2451 190)'
-                  stroke-width='4'
-                />
+                <path fill='#fff' d='M0,0H0V28' transform='translate(2451 190)' stroke-width='4' />
               </g>
-              <rect
-                fill='#646464'
-                width='5'
-                height='7'
-                transform='translate(2444 192.5)'
-              />
-              <rect
-                fill='#646464'
-                width='5'
-                height='7'
-                transform='translate(2444 204.5)'
-              />
-              <rect
-                fill='#646464'
-                width='5'
-                height='7'
-                transform='translate(2444 216.5)'
-              />
+              <rect fill='#646464' width='5' height='7' transform='translate(2444 192.5)' />
+              <rect fill='#646464' width='5' height='7' transform='translate(2444 204.5)' />
+              <rect fill='#646464' width='5' height='7' transform='translate(2444 216.5)' />
             </g>
           </symbol>
           <symbol id='list-view' viewBox='0 0 35.999 30.7'>
@@ -3245,14 +3129,8 @@ export default class SvgHtmlIcons extends React.Component {
                 fill='#41a5ee'
                 d='M21.17,3.25H7.83A.83.83,0,0,0,7,4.08V7.62l7.5,2.19L22,7.62V4.08A.83.83,0,0,0,21.17,3.25Z'
               />
-              <polygon
-                fill='#2b7cd3'
-                points='22 7.63 7 7.63 7 12 14.5 14.19 22 12 22 7.63'
-              />
-              <polygon
-                fill='#185abd'
-                points='22 12 7 12 7 16.38 14.5 18.56 22 16.38 22 12'
-              />
+              <polygon fill='#2b7cd3' points='22 7.63 7 7.63 7 12 14.5 14.19 22 12 22 7.63' />
+              <polygon fill='#185abd' points='22 12 7 12 7 16.38 14.5 18.56 22 16.38 22 12' />
               <path
                 fill='#103f91'
                 d='M22,16.38H7v3.54a.83.83,0,0,0,.83.83H21.17a.83.83,0,0,0,.83-.83Z'
@@ -3289,14 +3167,8 @@ export default class SvgHtmlIcons extends React.Component {
           </svg>
           <svg id='office-powerpoint' viewBox='0 0 24 24'>
             <g id='STYLE_COLOR' data-name='STYLE COLOR'>
-              <path
-                fill='#ed6c47'
-                d='M13.25,3.25A8.77,8.77,0,0,0,4.5,12l11.09,2.34Z'
-              />
-              <path
-                fill='#ff8f6b'
-                d='M13.25,3.25A8.77,8.77,0,0,1,22,12l-4.38,3-4.37-3Z'
-              />
+              <path fill='#ed6c47' d='M13.25,3.25A8.77,8.77,0,0,0,4.5,12l11.09,2.34Z' />
+              <path fill='#ff8f6b' d='M13.25,3.25A8.77,8.77,0,0,1,22,12l-4.38,3-4.37-3Z' />
               <path
                 fill='#d35230'
                 d='M13.25,20.75A8.77,8.77,0,0,0,22,12H4.5A8.77,8.77,0,0,0,13.25,20.75Z'
@@ -3337,10 +3209,7 @@ export default class SvgHtmlIcons extends React.Component {
                 d='M14.5,3.25H7.83A.83.83,0,0,0,7,4.08V7.62L14.5,12l3.75,1.58L22,12V7.62Z'
               />
               <rect fill='#107c41' x='7' y='7.62' width='7.5' height='4.38' />
-              <path
-                fill='#33c481'
-                d='M21.17,3.25H14.5V7.62H22V4.08a.83.83,0,0,0-.83-.83Z'
-              />
+              <path fill='#33c481' d='M21.17,3.25H14.5V7.62H22V4.08a.83.83,0,0,0-.83-.83Z' />
               <path
                 fill='#185c37'
                 d='M14.5,12H7v7.92a.83.83,0,0,0,.83.83H21.17a.83.83,0,0,0,.83-.83V16.38Z'
@@ -3380,10 +3249,7 @@ export default class SvgHtmlIcons extends React.Component {
               fill='#fff'
               d='M5,14.88H15.55V4.31H5ZM7.11,5.67h7.08v7.08L11.24,9.8,7.51,13.52,6.33,12.34l3.73-3.72Z'
             />
-            <path
-              fill='#666'
-              d='M4.42,3.76V15.43H16.1V3.76ZM15.55,14.88H5V4.31H15.55Z'
-            />
+            <path fill='#666' d='M4.42,3.76V15.43H16.1V3.76ZM15.55,14.88H5V4.31H15.55Z' />
             <polygon
               fill='#666'
               points='7.51 13.52 11.24 9.8 14.19 12.75 14.19 5.67 7.11 5.67 10.06 8.62 6.33 12.34 7.51 13.52'
@@ -3411,14 +3277,8 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </svg>
           <svg id='overlay-edit' viewBox='4 4 12 12'>
-            <polygon
-              fill='#c49135'
-              points='6.46 14.62 6.46 14.62 6.46 14.62 6.46 14.62'
-            />
-            <polygon
-              fill='#c49135'
-              points='4.05 15.48 6.45 14.63 4.92 13.1 4.05 15.48'
-            />
+            <polygon fill='#c49135' points='6.46 14.62 6.46 14.62 6.46 14.62 6.46 14.62' />
+            <polygon fill='#c49135' points='4.05 15.48 6.45 14.63 4.92 13.1 4.05 15.48' />
             <polygon
               fill='#f7be38'
               points='13.43 4.59 13.43 4.59 4.92 13.1 6.45 14.63 6.45 14.63 6.46 14.62 6.46 14.62 14.7 6.38 13.18 4.85 13.43 4.59'
@@ -3452,14 +3312,8 @@ export default class SvgHtmlIcons extends React.Component {
             />
           </svg>
           <svg id='overlay-edit-other' viewBox='4 4 12 12'>
-            <polygon
-              fill='#c49135'
-              points='6.18 14.67 6.18 14.67 6.18 14.67 6.18 14.67'
-            />
-            <polygon
-              fill='#c49135'
-              points='3.77 15.53 6.17 14.68 4.65 13.15 3.77 15.53'
-            />
+            <polygon fill='#c49135' points='6.18 14.67 6.18 14.67 6.18 14.67 6.18 14.67' />
+            <polygon fill='#c49135' points='3.77 15.53 6.17 14.68 4.65 13.15 3.77 15.53' />
             <polygon
               fill='#f7be38'
               points='13.16 4.64 13.16 4.64 9.32 8.48 10.85 10.01 14.43 6.43 12.9 4.9 13.16 4.64'

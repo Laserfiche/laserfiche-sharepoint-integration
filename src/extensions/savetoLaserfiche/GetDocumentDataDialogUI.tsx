@@ -11,10 +11,7 @@ import {
   MANAGE_MAPPING,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
-import {
-  ISPDocumentData,
-  ProfileMappingConfiguration,
-} from '../../Utils/Types';
+import { ISPDocumentData, ProfileMappingConfiguration } from '../../Utils/Types';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
@@ -30,11 +27,11 @@ import {
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
-import LoadingDialog, {
-  LaserficheDialogTitle,
-  useConfirm,
-} from './CommonDialogs';
-import { COULD_NOT_DETERMINE_CONTENT_TYPE, THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED } from '../../webparts/strings';
+import LoadingDialog, { LaserficheDialogTitle, useConfirm } from './CommonDialogs';
+import {
+  COULD_NOT_DETERMINE_CONTENT_TYPE,
+  THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED,
+} from '../../webparts/strings';
 
 const CANCEL = 'Cancel';
 const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING =
@@ -87,7 +84,9 @@ export function GetDocumentDialogData(props: {
       const libraryUrl = props.context.pageContext.list.title;
 
       if (!props.spFileInfo.spContentType) {
-        const warn = await getConfirmation(THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED);
+        const warn = await getConfirmation(
+          THERE_WAS_AN_ISSUE_DETERMINING_CONTENT_TYPE_OF_ITEM_DEFAULT_MAPPING_WILL_BE_USED
+        );
         if (!warn) {
           console.warn('Content type could not be determined. User chose to cancel operation.');
           await props.handleCancelDialog();
@@ -95,25 +94,20 @@ export function GetDocumentDialogData(props: {
         } else {
           setShowLoading(true);
         }
-      }
-      else {
+      } else {
         setShowLoading(true);
       }
 
-      const allSPFieldValues: { [key: string]: string } =
-        await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
+      const allSPFieldValues: { [key: string]: string } = await getAllFieldsValuesAsync(
+        libraryUrl,
+        props.spFileInfo.fileId
+      );
       const allSPFieldProperties: SPProfileConfigurationData[] =
         await getAllFieldsPropertiesAsync(libraryUrl);
-      const docData = await getDocumentDataAsync(
-        allSPFieldValues,
-        allSPFieldProperties
-      );
+      const docData = await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
 
       if (docData) {
-        window.localStorage.setItem(
-          SP_LOCAL_STORAGE_KEY,
-          JSON.stringify(docData)
-        );
+        window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, JSON.stringify(docData));
 
         props.showSaveToDialog(docData);
       }
@@ -128,10 +122,7 @@ export function GetDocumentDialogData(props: {
     libraryUrl: string
   ): Promise<SPProfileConfigurationData[]> {
     const res = await fetch(
-      `${getSPListURL(
-        props.context,
-        libraryUrl
-      )}/Fields?$filter=Group ne '_Hidden'`,
+      `${getSPListURL(props.context, libraryUrl)}/Fields?$filter=Group ne '_Hidden'`,
       {
         method: 'GET',
         headers: {
@@ -165,8 +156,7 @@ export function GetDocumentDialogData(props: {
     const itemsWithTitleManageMapping = await response.json();
     let matchingMapping = undefined;
     if (itemsWithTitleManageMapping.value?.length > 0) {
-      const manageMappingListItem: IListItem =
-        itemsWithTitleManageMapping.value[0];
+      const manageMappingListItem: IListItem = itemsWithTitleManageMapping.value[0];
       const manageMappingDetails: ProfileMappingConfiguration[] = JSON.parse(
         manageMappingListItem.JsonValue
       );
@@ -174,9 +164,7 @@ export function GetDocumentDialogData(props: {
         (el) => el.SharePointContentType === props.spFileInfo.spContentType
       );
       if (!matchingMapping) {
-        matchingMapping = manageMappingDetails.find(
-          (el) => el.SharePointContentType === 'DEFAULT'
-        );
+        matchingMapping = manageMappingDetails.find((el) => el.SharePointContentType === 'DEFAULT');
       }
     }
 
@@ -229,9 +217,7 @@ export function GetDocumentDialogData(props: {
     );
     const adminConfigListJson = await adminConfigList.json();
 
-    const allConfigs: ProfileConfiguration[] = JSON.parse(
-      adminConfigListJson.value[0].JsonValue
-    );
+    const allConfigs: ProfileConfiguration[] = JSON.parse(adminConfigListJson.value[0].JsonValue);
     const matchingLFConfig = allConfigs.find(
       (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
     );
@@ -280,10 +266,7 @@ export function GetDocumentDialogData(props: {
     fileId: string
   ): Promise<{ [key: string]: string }> {
     const res = await props.context.spHttpClient.get(
-      `${getSPListURL(
-        props.context,
-        libraryUrl
-      )}/items(${fileId})/FieldValuesForEdit`,
+      `${getSPListURL(props.context, libraryUrl)}/items(${fileId})/FieldValuesForEdit`,
       SPHttpClient.configurations.v1,
       {
         headers: {
@@ -342,21 +325,14 @@ export function GetDocumentDialogData(props: {
       if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
 
-        spDocFieldValue = forceTruncateToFieldTypeLength(
-          lfField,
-          spDocFieldValue
-        );
+        spDocFieldValue = forceTruncateToFieldTypeLength(lfField, spDocFieldValue);
         spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
         spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
 
-        if (
-          lfField.isRequired &&
-          (!spDocFieldValue || spDocFieldValue.length === 0)
-        ) {
-          const currentField: SPProfileConfigurationData | undefined =
-            allSPFieldProperties.find(
-              (prop) => prop.InternalName === mapping.spField.InternalName
-            );
+        if (lfField.isRequired && (!spDocFieldValue || spDocFieldValue.length === 0)) {
+          const currentField: SPProfileConfigurationData | undefined = allSPFieldProperties.find(
+            (prop) => prop.InternalName === mapping.spField.InternalName
+          );
           missingRequiredFields.push(currentField);
         }
 
@@ -412,35 +388,26 @@ export function GetDocumentDialogData(props: {
 
           <div className={styles.contentBox}>
             {!(missingFields?.length > 0) && !error && <LoadingDialog />}
-            {missingFields?.length > 0 && (
-              <MissingFieldsDialog missingFields={listFields} />
-            )}
+            {missingFields?.length > 0 && <MissingFieldsDialog missingFields={listFields} />}
             {error}
           </div>
 
           <div className={styles.footer}>
-            <button
-              onClick={props.handleCancelDialog}
-              className='lf-button sec-button'
-            >
+            <button onClick={props.handleCancelDialog} className='lf-button sec-button'>
               {CANCEL}
             </button>
           </div>
         </div>
       )}
-      <Confirmation cancelButtonText={CANCEL} headerText={COULD_NOT_DETERMINE_CONTENT_TYPE}/>
+      <Confirmation cancelButtonText={CANCEL} headerText={COULD_NOT_DETERMINE_CONTENT_TYPE} />
     </>
   );
 }
 
-function MissingFieldsDialog(props: {
-  missingFields: JSX.Element;
-}): JSX.Element {
+function MissingFieldsDialog(props: { missingFields: JSX.Element }): JSX.Element {
   const textInside = (
     <span>
-      {
-        FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS
-      }
+      {FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS}
       {props.missingFields}
       {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
     </span>

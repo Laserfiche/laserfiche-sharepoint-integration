@@ -77,26 +77,18 @@ function buildRepoClient(): {
   };
 }
 
-function mockRepoClient(
-  repoClient: ReturnType<typeof buildRepoClient>
-): void {
-  (RepositoryClientExInternal as unknown as Mock).mockImplementation(
-    function () {
-      return {
-        createRepositoryClientAsync: vi.fn().mockResolvedValue(repoClient),
-      };
-    }
-  );
+function mockRepoClient(repoClient: ReturnType<typeof buildRepoClient>): void {
+  (RepositoryClientExInternal as unknown as Mock).mockImplementation(function () {
+    return {
+      createRepositoryClientAsync: vi.fn().mockResolvedValue(repoClient),
+    };
+  });
 }
 
-function mockSaveDocumentToLaserfiche(
-  trySaveDocumentToLaserficheAsync: Mock
-): void {
-  (SaveDocumentToLaserfiche as unknown as Mock).mockImplementation(
-    function () {
-      return { trySaveDocumentToLaserficheAsync };
-    }
-  );
+function mockSaveDocumentToLaserfiche(trySaveDocumentToLaserficheAsync: Mock): void {
+  (SaveDocumentToLaserfiche as unknown as Mock).mockImplementation(function () {
+    return { trySaveDocumentToLaserficheAsync };
+  });
 }
 
 function buildSuccess(
@@ -193,9 +185,7 @@ let removeItemSpy: MockInstance;
 
 beforeEach(() => {
   vi.resetAllMocks();
-  consoleErrorSpy = vi
-    .spyOn(console, 'error')
-    .mockImplementation(() => undefined);
+  consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
   removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem');
 });
 
@@ -248,9 +238,7 @@ describe('SaveToLaserficheDialog', () => {
     expect(isSuccessfulLoggedIn).not.toHaveBeenCalledWith(true);
     expect(repoClient.getCurrentRepoId).not.toHaveBeenCalled();
     expect(SaveDocumentToLaserfiche).not.toHaveBeenCalled();
-    expect(
-      within(domElement).queryByText(/error saving/i)
-    ).not.toBeInTheDocument();
+    expect(within(domElement).queryByText(/error saving/i)).not.toBeInTheDocument();
   });
 
   test('existing entry at the target path shows the duplicate-name confirmation; Continue proceeds to save, and the header close button then relays the success state', async () => {
@@ -271,13 +259,9 @@ describe('SaveToLaserficheDialog', () => {
 
     await flushEffects();
     expect(
-      within(domElement).getByText(
-        ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
-      )
+      within(domElement).getByText(ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME)
     ).toBeInTheDocument();
-    expect(
-      within(domElement).getByText(DOCUMENT_ALREADY_EXISTS)
-    ).toBeInTheDocument();
+    expect(within(domElement).getByText(DOCUMENT_ALREADY_EXISTS)).toBeInTheDocument();
     expect(trySave).not.toHaveBeenCalled();
 
     fireEvent.click(within(domElement).getByText(CONTINUE));
@@ -285,9 +269,7 @@ describe('SaveToLaserficheDialog', () => {
 
     expect(trySave).toHaveBeenCalled();
     expect(isSuccessfulLoggedIn).toHaveBeenCalledWith(true);
-    expect(
-      within(domElement).getByText(SAVED_A_COPY_TO_LASERFICHE)
-    ).toBeInTheDocument();
+    expect(within(domElement).getByText(SAVED_A_COPY_TO_LASERFICHE)).toBeInTheDocument();
 
     fireEvent.click(within(domElement).getByTitle('close'));
     await waitFor(() => {
@@ -312,9 +294,7 @@ describe('SaveToLaserficheDialog', () => {
 
     await flushEffects();
     expect(
-      within(domElement).getByText(
-        ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
-      )
+      within(domElement).getByText(ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME)
     ).toBeInTheDocument();
 
     fireEvent.click(within(domElement).getByText(CANCEL));
@@ -363,9 +343,7 @@ describe('SaveToLaserficheDialog', () => {
 
     await waitFor(() => expect(trySave).toHaveBeenCalled());
     expect(isSuccessfulLoggedIn).toHaveBeenCalledWith(true);
-    expect(
-      within(domElement).queryByText(/error saving/i)
-    ).not.toBeInTheDocument();
+    expect(within(domElement).queryByText(/error saving/i)).not.toBeInTheDocument();
   });
 
   test.each([401, 403])(
@@ -378,17 +356,14 @@ describe('SaveToLaserficheDialog', () => {
       repoClient.entriesClient.getEntryByPath.mockRejectedValue({ status });
       mockRepoClient(repoClient);
 
-      const { domElement, closeParent, isSuccessfulLoggedIn } =
-        renderDialog();
+      const { domElement, closeParent, isSuccessfulLoggedIn } = renderDialog();
       setLoginToken(domElement, { accessToken: 'token-1' });
 
       await waitFor(() => {
         expect(isSuccessfulLoggedIn).toHaveBeenCalledWith(false);
       });
       expect(closeParent).toHaveBeenCalled();
-      expect(
-        within(domElement).queryByText(/error saving/i)
-      ).not.toBeInTheDocument();
+      expect(within(domElement).queryByText(/error saving/i)).not.toBeInTheDocument();
     }
   );
 
@@ -442,9 +417,7 @@ describe('SaveToLaserficheDialog', () => {
     await waitFor(() => {
       expect(isSuccessfulLoggedIn).toHaveBeenCalledWith(true);
     });
-    expect(
-      await within(domElement).findByText('server error')
-    ).toBeInTheDocument();
+    expect(await within(domElement).findByText('server error')).toBeInTheDocument();
   });
 
   test('a save that resolves undefined (lf-login lost its token mid-flow) reports failed login instead of hanging on the loading spinner', async () => {
@@ -464,9 +437,7 @@ describe('SaveToLaserficheDialog', () => {
       expect(isSuccessfulLoggedIn).toHaveBeenCalledWith(false);
     });
     expect(closeParent).toHaveBeenCalled();
-    expect(
-      within(domElement).queryByText(SAVED_A_COPY_TO_LASERFICHE)
-    ).not.toBeInTheDocument();
+    expect(within(domElement).queryByText(SAVED_A_COPY_TO_LASERFICHE)).not.toBeInTheDocument();
   });
 
   test('the header close button relays the current (still-undefined) success state while a save is pending', async () => {

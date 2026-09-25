@@ -32,13 +32,11 @@ export interface ProfileConfigContextProps {
   saveDisabled: boolean;
   setSaveDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export const ProfileConfigContext = React.createContext<
-  ProfileConfigContextProps | undefined
->(undefined);
+export const ProfileConfigContext = React.createContext<ProfileConfigContextProps | undefined>(
+  undefined
+);
 
-const ProfileConfigStateProvider = (
-  props: React.PropsWithChildren<{}>
-): JSX.Element => {
+const ProfileConfigStateProvider = (props: React.PropsWithChildren<{}>): JSX.Element => {
   const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
 
   const contextValue = {
@@ -57,17 +55,13 @@ export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const [repoClient, setRepoClient] = useState<
-    IRepositoryApiClientExInternal | undefined
-  >(undefined);
-  const [messageErrorModal, setMessageErrorModal] = useState<
-    JSX.Element | undefined
-  >(undefined);
+  const [repoClient, setRepoClient] = useState<IRepositoryApiClientExInternal | undefined>(
+    undefined
+  );
+  const [messageErrorModal, setMessageErrorModal] = useState<JSX.Element | undefined>(undefined);
 
   function isAdmin(): boolean {
-    const permission = new SPPermission(
-      props.context.pageContext.web.permissions.value
-    );
+    const permission = new SPPermission(props.context.pageContext.web.permissions.value);
     const isFullControl = permission.hasPermission(SPPermission.manageWeb);
     return isFullControl;
   }
@@ -75,8 +69,7 @@ export default function LaserficheAdminConfiguration(
   async function ensureRepoClientInitializedAsync(): Promise<void> {
     if (!repoClient) {
       const repoClientCreator = new RepositoryClientExInternal();
-      const newRepoClient =
-        await repoClientCreator.createRepositoryClientAsync();
+      const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
       setRepoClient(newRepoClient);
     }
   }
@@ -101,25 +94,15 @@ export default function LaserficheAdminConfiguration(
                 loggedIn={loggedIn}
                 setLoggedIn={setLoggedIn}
                 setMessageErrorModal={setMessageErrorModal}
-                ensureRepoClientInitializedAsync={
-                  ensureRepoClientInitializedAsync
-                }
+                ensureRepoClientInitializedAsync={ensureRepoClientInitializedAsync}
                 context={props.context}
               />
-              <AdminMainPage
-                context={props.context}
-                loggedIn={loggedIn}
-                repoClient={repoClient}
-              />
+              <AdminMainPage context={props.context} loggedIn={loggedIn} repoClient={repoClient} />
             </>
           )}
           <StackItem>
             <Switch>
-              <Route
-                exact={true}
-                component={() => <HomePage />}
-                path='/HomePage'
-              />
+              <Route exact={true} component={() => <HomePage />} path='/HomePage' />
               <Route exact={true} component={() => <HomePage />} path='/' />
 
               <Route

@@ -60,10 +60,7 @@ export default defineConfig({
       // LfRepoTreeNodeService vi.fn() its manual mock exports.
       {
         find: /^@laserfiche\/lf-ui-components-services$/,
-        replacement: resolve(
-          rootDir,
-          './src/__mocks__/@laserfiche/lf-ui-components-services.js'
-        ),
+        replacement: resolve(rootDir, './src/__mocks__/@laserfiche/lf-ui-components-services.js'),
       },
     ],
   },

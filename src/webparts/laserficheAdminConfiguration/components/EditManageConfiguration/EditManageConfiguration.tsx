@@ -7,31 +7,21 @@ import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
 import { IListItem } from '../IListItem';
 
 import { useEffect, useState } from 'react';
-import {
-  ProfileHeader,
-  validateNewConfiguration,
-} from '../ProfileConfigurationComponents';
+import { ProfileHeader, validateNewConfiguration } from '../ProfileConfigurationComponents';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { ProfileConfiguration } from '../ProfileConfigurationComponents';
-import {
-  LASERFICHE_ADMIN_CONFIGURATION_NAME,
-  MANAGE_CONFIGURATIONS,
-} from '../../../constants';
+import { LASERFICHE_ADMIN_CONFIGURATION_NAME, MANAGE_CONFIGURATIONS } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
 import '../../../../Assets/CSS/bootstrap.min.css';
 import './../../../../Assets/CSS/commonStyles.css';
 
-export default function EditManageConfiguration(
-  props: IEditManageConfigurationProps
-): JSX.Element {
-  const [profileConfig, setProfileConfig] = useState<
-    ProfileConfiguration | undefined
-  >(undefined);
+export default function EditManageConfiguration(props: IEditManageConfigurationProps): JSX.Element {
+  const [profileConfig, setProfileConfig] = useState<ProfileConfiguration | undefined>(undefined);
 
   const [validate, setValidate] = useState(false);
-  const handleProfileConfigUpdate: (
+  const handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void = (
     profileConfig: ProfileConfiguration
-  ) => void = (profileConfig: ProfileConfiguration) => {
+  ) => {
     setValidate(false);
     setProfileConfig(profileConfig);
   };
@@ -84,29 +74,22 @@ export default function EditManageConfiguration(
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] =
-        await GetItemIdForManageConfigurations();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] = JSON.parse(
           configWithCurrentName.JsonValue
         );
         const profileIndex = savedProfileConfigurations.findIndex(
-          (config) =>
-            config.ConfigurationName === profileConfig.ConfigurationName
+          (config) => config.ConfigurationName === profileConfig.ConfigurationName
         );
         if (profileIndex !== -1) {
           savedProfileConfigurations[profileIndex] = profileConfig;
           const configsToSave = savedProfileConfigurations;
-          await saveSPConfigurationsAsync(
-            configWithCurrentName.Id,
-            configsToSave
-          );
+          await saveSPConfigurationsAsync(configWithCurrentName.Id, configsToSave);
           return true;
         } else {
-          throw Error(
-            'Invalid configuration. This configuration no longer exists'
-          );
+          throw Error('Invalid configuration. This configuration no longer exists');
         }
       }
     } else {

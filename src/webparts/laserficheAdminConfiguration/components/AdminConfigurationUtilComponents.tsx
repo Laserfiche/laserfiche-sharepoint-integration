@@ -2,10 +2,7 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import {
-  LfLoginComponent,
-  AbortedLoginError,
-} from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, AbortedLoginError } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
@@ -39,16 +36,13 @@ const LoggedOutMessage: React.FC = () => {
       {`${PLEASE_LOGIN_TO_LASERFICHE}`}
       <div className='pt-2'>
         {` ${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-        <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
-        .
+        <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>.
       </div>
     </div>
   );
 };
 
-export const LoggedOutMessageWrapper: React.FC<{ loggedIn: boolean }> = (
-  props
-) => {
+export const LoggedOutMessageWrapper: React.FC<{ loggedIn: boolean }> = (props) => {
   return <>{!props.loggedIn ? <LoggedOutMessage /> : props.children}</>;
 };
 
@@ -74,9 +68,8 @@ export const LoginComponent: React.FC<{
   // useRef, not createRef: createRef hands back a new ref on every render and
   // React nulls the old one, so the listeners the mount effect registers would
   // read a dead ref after any re-render and skip initializing the repo client.
-  const loginComponent: React.RefObject<
-    NgElement & WithProperties<LfLoginComponent>
-  > = React.useRef();
+  const loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>> =
+    React.useRef();
 
   const requestedAction = React.useRef<'login' | 'logout'>('login');
   const loginWindowRef = React.useRef<Window | undefined>(undefined);
@@ -99,14 +92,8 @@ export const LoginComponent: React.FC<{
           props.setLoggedIn(false);
         };
 
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
+        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+        loginComponent.current.addEventListener('logoutCompleted', logoutCompleted);
         if (loginComponent.current.authorization_credentials) {
           await getAndInitializeRepositoryClientAndServicesAsync();
           props.setLoggedIn(true);
@@ -133,8 +120,7 @@ export const LoginComponent: React.FC<{
   }, []);
 
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
-    const accessToken =
-      loginComponent?.current?.authorization_credentials?.accessToken;
+    const accessToken = loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
       await props.ensureRepoClientInitializedAsync();
     } else {
@@ -144,16 +130,13 @@ export const LoginComponent: React.FC<{
 
   async function pageConfigurationCheck(): Promise<boolean> {
     try {
-      const res = await fetch(
-        `${getSPListURL(props.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await fetch(`${getSPListURL(props.context, 'Site Pages')}/items`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
@@ -258,9 +241,7 @@ export const LoginComponent: React.FC<{
       />
       <button
         onClick={clickLogin}
-        className={`lf-button login-button ${
-          props.loggedIn ? 'sec-button' : 'primary-button'
-        }`}
+        className={`lf-button login-button ${props.loggedIn ? 'sec-button' : 'primary-button'}`}
       >
         {props.loggedIn ? SIGN_OUT : SIGN_IN}
       </button>

@@ -150,10 +150,7 @@ function queryAllSelects(): HTMLSelectElement[] {
   return screen.queryAllByRole('combobox') as HTMLSelectElement[];
 }
 
-const listUrl = getSPListURL(
-  buildContext(),
-  LASERFICHE_ADMIN_CONFIGURATION_NAME
-);
+const listUrl = getSPListURL(buildContext(), LASERFICHE_ADMIN_CONFIGURATION_NAME);
 
 describe('ManageMappingsPage', () => {
   afterEach(() => {
@@ -201,27 +198,19 @@ describe('ManageMappingsPage', () => {
     });
 
     test('renders zero mapping rows when the ManageMapping list has no items, without erroring', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       window.fetch = buildFetchMock({ mappingListItem: undefined });
       renderPage(buildContext());
 
-      await waitFor(() =>
-        expect((window.fetch as Mock).mock.calls.length).toBe(3)
-      );
+      await waitFor(() => expect((window.fetch as Mock).mock.calls.length).toBe(3));
 
       expect(queryAllSelects()).toHaveLength(0);
-      expect(
-        screen.getByText('Content Type Mappings Laserfiche')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Content Type Mappings Laserfiche')).toBeInTheDocument();
       expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     test('logs and does not crash when a fetch call rejects during initial load', async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, 'error')
-        .mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       window.fetch = buildFetchMock({
         rejectContentTypes: new Error('network down'),
       });
@@ -232,9 +221,7 @@ describe('ManageMappingsPage', () => {
           expect.stringContaining('Error getting mappings:')
         );
       });
-      expect(
-        screen.getByText('Content Type Mappings Laserfiche')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Content Type Mappings Laserfiche')).toBeInTheDocument();
     });
   });
 
@@ -294,9 +281,7 @@ describe('ManageMappingsPage', () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText(
-            'Please select a content type from the Laserfiche Profile dropdown'
-          )
+          screen.getByText('Please select a content type from the Laserfiche Profile dropdown')
         ).toBeInTheDocument();
       });
       expect(post).not.toHaveBeenCalled();
@@ -307,9 +292,7 @@ describe('ManageMappingsPage', () => {
       window.fetch = buildFetchMock({ mappingListItem: undefined });
       renderPage(buildContext(post));
 
-      await waitFor(() =>
-        expect((window.fetch as Mock).mock.calls.length).toBe(3)
-      );
+      await waitFor(() => expect((window.fetch as Mock).mock.calls.length).toBe(3));
 
       fireEvent.click(screen.getByText('Add'));
       await waitFor(() => expect(getSelects()).toHaveLength(2));
@@ -355,16 +338,11 @@ describe('ManageMappingsPage', () => {
       expect(requestOptions.headers['IF-MATCH']).toBe('*');
       expect(requestOptions.headers['X-HTTP-Method']).toBe('MERGE');
       const body = JSON.parse(requestOptions.body);
-      const jsonValue = JSON.parse(
-        body.JsonValue
-      ) as ProfileMappingConfiguration[];
+      const jsonValue = JSON.parse(body.JsonValue) as ProfileMappingConfiguration[];
       expect(jsonValue).toHaveLength(2);
+      expect(jsonValue.find((m) => m.SharePointContentType === 'Invoice')).toBeTruthy();
       expect(
-        jsonValue.find((m) => m.SharePointContentType === 'Invoice')
-      ).toBeTruthy();
-      expect(
-        jsonValue.find((m) => m.SharePointContentType === 'Document')
-          .LaserficheContentType
+        jsonValue.find((m) => m.SharePointContentType === 'Document').LaserficheContentType
       ).toBe('ProfileB');
     });
 
@@ -422,9 +400,7 @@ describe('ManageMappingsPage', () => {
       expect(requestOptions.headers['IF-MATCH']).toBe('*');
       expect(requestOptions.headers['X-HTTP-Method']).toBe('MERGE');
       const body = JSON.parse(requestOptions.body);
-      const jsonValue = JSON.parse(
-        body.JsonValue
-      ) as ProfileMappingConfiguration[];
+      const jsonValue = JSON.parse(body.JsonValue) as ProfileMappingConfiguration[];
       expect(jsonValue).toHaveLength(1);
       expect(jsonValue[0]).toMatchObject({
         SharePointContentType: 'Invoice',
@@ -468,9 +444,7 @@ describe('ManageMappingsPage', () => {
       fireEvent.click(screen.getByText('save'));
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Error creating mapping: Save failed')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Error creating mapping: Save failed')).toBeInTheDocument();
       });
     });
   });
@@ -484,9 +458,7 @@ describe('ManageMappingsPage', () => {
       fireEvent.click(screen.getByText('delete'));
 
       expect(screen.getByText('Delete Confirmation')).toBeInTheDocument();
-      expect(container.textContent).toContain(
-        'Do you want to permanently delete "Invoice"?'
-      );
+      expect(container.textContent).toContain('Do you want to permanently delete "Invoice"?');
     });
 
     test('confirming delete removes the row and posts the mapping array minus that entry', async () => {
@@ -533,9 +505,7 @@ describe('ManageMappingsPage', () => {
       fireEvent.click(screen.getByText('Ok'));
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Error deleting mapping: Delete failed')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Error deleting mapping: Delete failed')).toBeInTheDocument();
       });
     });
   });
@@ -566,9 +536,7 @@ describe('ManageMappingsPage', () => {
       fireEvent.click(screen.getByText('Reset'));
 
       await waitFor(() => {
-        expect((window.fetch as Mock).mock.calls.length).toBe(
-          fetchCallsAfterLoad + 3
-        );
+        expect((window.fetch as Mock).mock.calls.length).toBe(fetchCallsAfterLoad + 3);
       });
       await waitFor(() => expect(getSelects()).toHaveLength(2));
 
@@ -588,9 +556,7 @@ describe('ManageMappingsPage', () => {
 
       fireEvent.click(screen.getByText('View SharePoint Content Types'));
 
-      expect(openSpy).toHaveBeenCalledWith(
-        `${ABSOLUTE_URL}/_layouts/15/mngctype.aspx`
-      );
+      expect(openSpy).toHaveBeenCalledWith(`${ABSOLUTE_URL}/_layouts/15/mngctype.aspx`);
     });
   });
 });

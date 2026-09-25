@@ -17,18 +17,9 @@ vi.mock('../../../Utils/Funcs', () => ({
 }));
 
 import type { Mock } from 'vitest';
-import {
-  LfRepoTreeNode,
-  LfRepoTreeNodeService,
-} from '@laserfiche/lf-ui-components-services';
+import { LfRepoTreeNode, LfRepoTreeNodeService } from '@laserfiche/lf-ui-components-services';
 import * as React from 'react';
-import {
-  fireEvent,
-  render,
-  waitFor,
-  screen,
-  within,
-} from '@testing-library/react';
+import { fireEvent, render, waitFor, screen, within } from '@testing-library/react';
 import RepositoryViewWebPart, {
   isNodeSelectable,
   openNode,
@@ -181,9 +172,7 @@ describe('RepositoryViewWebPart', () => {
     };
 
     // Act
-    const isNodeSelectableResult = isNodeSelectable(
-      recordSeriesShortcutTreeNode
-    );
+    const isNodeSelectableResult = isNodeSelectable(recordSeriesShortcutTreeNode);
 
     // Assert
     expect(isNodeSelectableResult).toBe(true);
@@ -278,10 +267,7 @@ describe('RepositoryViewWebPart', () => {
     const header = screen
       .getByText(UPLOAD_FILE_TO_LASERFICHE_TITLE)
       .closest('.modal-header') as HTMLElement;
-    expect(within(header).getByRole('img')).toHaveAttribute(
-      'src',
-      LASERFICHE_ICON_URL
-    );
+    expect(within(header).getByRole('img')).toHaveAttribute('src', LASERFICHE_ICON_URL);
   });
 
   // The real <lf-field-container> isn't loaded in tests, so the attributes it

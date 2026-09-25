@@ -56,9 +56,7 @@ export function DelayedSpinner(props: {
   return (
     <div
       role='status'
-      className={`d-flex align-items-center gap-2${
-        props.className ? ` ${props.className}` : ''
-      }`}
+      className={`d-flex align-items-center gap-2${props.className ? ` ${props.className}` : ''}`}
     >
       <span className='spinner-border spinner-border-sm' aria-hidden='true' />
       <span>{props.label}</span>
@@ -66,8 +64,7 @@ export function DelayedSpinner(props: {
   );
 }
 
-const EXISTING_SP_DOCUMENT_DELETED =
-  'The existing SharePoint document was deleted.';
+const EXISTING_SP_DOCUMENT_DELETED = 'The existing SharePoint document was deleted.';
 const EXISTING_SP_DOCUMENT_REPLACED =
   'The existing SharePoint document was replaced with a link to the document in Laserfiche.';
 
@@ -103,8 +100,7 @@ export function SavedToLaserficheSuccessDialogText(props: {
         </div>
       )}
       <div>
-        {props.action === ActionTypes.MOVE_AND_DELETE &&
-          EXISTING_SP_DOCUMENT_DELETED}
+        {props.action === ActionTypes.MOVE_AND_DELETE && EXISTING_SP_DOCUMENT_DELETED}
         {props.action === ActionTypes.REPLACE && EXISTING_SP_DOCUMENT_REPLACED}
       </div>
     </div>
@@ -125,10 +121,7 @@ export function Collapsible(props: {
   return (
     <>
       <div className={styles.collapseBox}>
-        <button
-          className={styles.lfMaterialIconButton}
-          onClick={handleFilterOpening}
-        >
+        <button className={styles.lfMaterialIconButton} onClick={handleFilterOpening}>
           {!isOpen ? (
             <span className='material-icons-outlined'> chevron_right </span>
           ) : (
@@ -169,14 +162,10 @@ export function SavedToLaserficheSuccessDialog(props: {
           <LaserficheDialogTitle title={LASERFICHE} />
         </div>
         <div className={styles.contentBox}>
-          <SavedToLaserficheSuccessDialogText
-            successfulSave={props.successfulSave}
-          />
+          <SavedToLaserficheSuccessDialogText successfulSave={props.successfulSave} />
         </div>
         <div className={styles.footer}>
-          <SavedToLaserficheSuccessDialogButtons
-            closeClick={props.closeClick}
-          />
+          <SavedToLaserficheSuccessDialogButtons closeClick={props.closeClick} />
         </div>
       </div>
     </div>
@@ -207,11 +196,7 @@ export function MessageDialog(props: {
         </div>
         <div className={styles.contentBox}>{props.message}</div>
         <div className={styles.footer}>
-          <button
-            type='button'
-            className='lf-button primary-button'
-            onClick={props.clickOkay}
-          >
+          <button type='button' className='lf-button primary-button' onClick={props.clickOkay}>
             Okay
           </button>
         </div>
@@ -232,15 +217,13 @@ const createPromise: () => Promise<boolean>[] = () => {
 
 export const useConfirm: () => [
   (text: string) => Promise<unknown>,
-  (props: { cancelButtonText: string; headerText: string }) => JSX.Element
+  (props: { cancelButtonText: string; headerText: string }) => JSX.Element,
 ] = () => {
   const [open, setOpen] = React.useState(false);
   const [resolver, setResolver] = React.useState({ resolve: null });
   const [label, setLabel] = React.useState('');
 
-  const getConfirmation: (text: string) => Promise<boolean> = async (
-    text: string
-  ) => {
+  const getConfirmation: (text: string) => Promise<boolean> = async (text: string) => {
     setLabel(text);
     setOpen(true);
     const [promise, resolve] = await createPromise();
@@ -248,9 +231,7 @@ export const useConfirm: () => [
     return promise;
   };
 
-  const onClick: (status: boolean) => Promise<void> = async (
-    status: boolean
-  ) => {
+  const onClick: (status: boolean) => Promise<void> = async (status: boolean) => {
     setOpen(false);
     resolver.resolve(status);
   };
@@ -258,10 +239,7 @@ export const useConfirm: () => [
   const Confirmation: (props: {
     cancelButtonText: string;
     headerText: string;
-  }) => JSX.Element = (props: {
-    cancelButtonText: string;
-    headerText: string;
-  }) => (
+  }) => JSX.Element = (props: { cancelButtonText: string; headerText: string }) => (
     <>
       {open && (
         <>
@@ -280,10 +258,7 @@ export const useConfirm: () => [
             >
               {CONTINUE}
             </button>
-            <button
-              className='lf-button sec-button'
-              onClick={() => onClick(false)}
-            >
+            <button className='lf-button sec-button' onClick={() => onClick(false)}>
               {props.cancelButtonText}
             </button>
           </div>

@@ -2,5 +2,5 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 module.exports = {
-    LfRepoTreeNodeService: vi.fn()
+  LfRepoTreeNodeService: vi.fn(),
 };

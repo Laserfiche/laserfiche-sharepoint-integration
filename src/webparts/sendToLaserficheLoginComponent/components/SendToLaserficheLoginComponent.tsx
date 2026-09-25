@@ -59,14 +59,11 @@ const SPFX_DEBUG_SESSION_STORAGE_KEY = 'spfx-debug';
 // the key is absent, leaving the popup URL untouched.
 function debugManifestsQueryString(): string {
   try {
-    const debugSettings = sessionStorage.getItem(
-      SPFX_DEBUG_SESSION_STORAGE_KEY
-    );
+    const debugSettings = sessionStorage.getItem(SPFX_DEBUG_SESSION_STORAGE_KEY);
     if (!debugSettings) {
       return '';
     }
-    const manifestsFileUrl: string | undefined =
-      JSON.parse(debugSettings).manifestsFileUrl;
+    const manifestsFileUrl: string | undefined = JSON.parse(debugSettings).manifestsFileUrl;
     if (!manifestsFileUrl) {
       return '';
     }
@@ -85,21 +82,18 @@ const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePo
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ): JSX.Element {
-  const loginComponent: React.RefObject<
-    NgElement & WithProperties<LfLoginComponent>
-  > = React.useRef();
+  const loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>> =
+    React.useRef();
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
-  const [messageErrorModal, setMessageErrorModal] = React.useState<
-    JSX.Element | undefined
-  >(undefined);
+  const [messageErrorModal, setMessageErrorModal] = React.useState<JSX.Element | undefined>(
+    undefined
+  );
 
   // Held in a ref: a plain local resets on every render, so the "post once"
   // guard could let the popup message the opener more than once.
   const sentPostMessage = React.useRef(false);
-  const popupTimeout = React.useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
+  const popupTimeout = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const logoutRequested = React.useRef(false);
 
@@ -158,14 +152,11 @@ export default function SendToLaserficheLoginComponent(
   const loginCompletedInMainWindow: () => Promise<void> = async () => {
     setLoggedIn(true);
     if (spFileMetadata) {
-      const dialog = new SaveToLaserficheCustomDialog(
-        spFileMetadata,
-        async (success) => {
-          if (success) {
-            Navigation.navigate(success.pathBack, true);
-          }
+      const dialog = new SaveToLaserficheCustomDialog(spFileMetadata, async (success) => {
+        if (success) {
+          Navigation.navigate(success.pathBack, true);
         }
-      );
+      });
       await dialog.show();
       if (!dialog.successful) {
         console.warn('Could not sign in successfully');
@@ -178,9 +169,7 @@ export default function SendToLaserficheLoginComponent(
   };
 
   const logoutCompletedInPopup: (ev: Event) => void = (ev: Event) => {
-    const errorOccurred = (ev as CustomEvent).detail as
-      | AbortedLoginError
-      | undefined;
+    const errorOccurred = (ev as CustomEvent).detail as AbortedLoginError | undefined;
 
     // lf-login also raises this with no detail when it decides nobody is signed
     // in yet, which is the normal opening move of a sign-in. Releasing the popup
@@ -201,28 +190,16 @@ export default function SendToLaserficheLoginComponent(
     const loginElement = loginComponent.current;
     const cleanUpFunction: () => void = () => {
       clearPopupTimeout();
-      loginElement.removeEventListener(
-        'loginCompleted',
-        loginCompletedInMainWindow
-      );
+      loginElement.removeEventListener('loginCompleted', loginCompletedInMainWindow);
       loginElement.removeEventListener('loginCompleted', loginCompletedInPopup);
-      loginElement.removeEventListener(
-        'logoutCompleted',
-        logoutCompletedInPopup
-      );
-      loginElement.removeEventListener(
-        'logoutCompleted',
-        logoutCompletedInMainWindow
-      );
+      loginElement.removeEventListener('logoutCompleted', logoutCompletedInPopup);
+      loginElement.removeEventListener('logoutCompleted', logoutCompletedInMainWindow);
     };
 
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
       SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      loginComponent.current.addEventListener(
-        'logoutCompleted',
-        logoutCompletedInPopup
-      );
+      loginComponent.current.addEventListener('logoutCompleted', logoutCompletedInPopup);
       await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
       try {
@@ -258,16 +235,9 @@ export default function SendToLaserficheLoginComponent(
   }, []);
 
   async function handleLoginOrLogoutInMainWindowAsync(): Promise<void> {
-    loginComponent.current.addEventListener(
-      'loginCompleted',
-      loginCompletedInMainWindow
-    );
-    loginComponent.current.addEventListener(
-      'logoutCompleted',
-      logoutCompletedInMainWindow
-    );
-    const isLoggedIn: boolean =
-      loginComponent.current.state === LoginState.LoggedIn;
+    loginComponent.current.addEventListener('loginCompleted', loginCompletedInMainWindow);
+    loginComponent.current.addEventListener('logoutCompleted', logoutCompletedInMainWindow);
+    const isLoggedIn: boolean = loginComponent.current.state === LoginState.LoggedIn;
 
     setLoggedIn(isLoggedIn);
     if (isLoggedIn && spFileMetadata) {
@@ -276,14 +246,11 @@ export default function SendToLaserficheLoginComponent(
   }
 
   async function trySaveToLaserficheAsync(): Promise<void> {
-    const dialog = new SaveToLaserficheCustomDialog(
-      spFileMetadata,
-      async (success) => {
-        if (success) {
-          Navigation.navigate(success.pathBack, true);
-        }
+    const dialog = new SaveToLaserficheCustomDialog(spFileMetadata, async (success) => {
+      if (success) {
+        Navigation.navigate(success.pathBack, true);
       }
-    );
+    });
     await dialog.show();
     if (!dialog.successful) {
       console.warn('Could not sign in successfully');
@@ -292,8 +259,7 @@ export default function SendToLaserficheLoginComponent(
 
   async function handleLoginOrLogoutInPopupAsync(): Promise<void> {
     if (loginComponent.current.state === LoginState.LoggedIn) {
-      const wantsLogout =
-        new URLSearchParams(window.location.search).get('action') === 'logout';
+      const wantsLogout = new URLSearchParams(window.location.search).get('action') === 'logout';
       if (!wantsLogout) {
         // The opener asked for a sign-in and this element already holds a
         // session. Signing out here is what made clicking "Sign in" sign the
@@ -309,14 +275,10 @@ export default function SendToLaserficheLoginComponent(
       return;
     }
 
-    loginComponent.current.addEventListener(
-      'loginCompleted',
-      loginCompletedInPopup
-    );
+    loginComponent.current.addEventListener('loginCompleted', loginCompletedInPopup);
 
     const redirectedFromACS =
-      document.referrer.includes('accounts.') ||
-      document.referrer.includes('signin.');
+      document.referrer.includes('accounts.') || document.referrer.includes('signin.');
     if (!redirectedFromACS) {
       await loginComponent.current.initLoginFlowAsync();
       return;
@@ -358,15 +320,10 @@ export default function SendToLaserficheLoginComponent(
             <div>
               <p>
                 {`${YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART} ${FOR_MORE_INFO_VISIT} `}
-                <a href='https://www.laserfiche.com/products/pricing'>
-                  laserfiche.com
-                </a>
+                <a href='https://www.laserfiche.com/products/pricing'>laserfiche.com</a>
                 {`.`}
               </p>
-              <p>
-                You are not signed in. You can sign in using the following
-                button.
-              </p>
+              <p>You are not signed in. You can sign in using the following button.</p>
             </div>
           )}
         </>
@@ -383,9 +340,7 @@ export default function SendToLaserficheLoginComponent(
     } else if (spFileMetadata?.fileUrl && loggedIn) {
       loginText = (
         <>
-          <div>
-            {`You are now signed in. Attempting to save ${spFileMetadata?.fileName}.`}
-          </div>
+          <div>{`You are now signed in. Attempting to save ${spFileMetadata?.fileName}.`}</div>
           <br />
         </>
       );
@@ -398,10 +353,7 @@ export default function SendToLaserficheLoginComponent(
   function redirect(): void {
     const spFileUrl = spFileMetadata.fileUrl;
     const fileNameWithExtension = spFileMetadata.fileName;
-    const spFileUrlWithoutFileName = spFileUrl.replace(
-      fileNameWithExtension,
-      ''
-    );
+    const spFileUrlWithoutFileName = spFileUrl.replace(fileNameWithExtension, '');
     const path = window.location.origin + spFileUrlWithoutFileName;
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     Navigation.navigate(path, true);
@@ -409,16 +361,13 @@ export default function SendToLaserficheLoginComponent(
 
   async function pageConfigurationCheck(): Promise<boolean> {
     try {
-      const res = await fetch(
-        `${getSPListURL(props.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await fetch(`${getSPListURL(props.context, 'Site Pages')}/items`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
@@ -511,16 +460,12 @@ export default function SendToLaserficheLoginComponent(
     }
   }
 
-  const redirectURL =
-    window.location.origin + window.location.pathname + '?autologin';
+  const redirectURL = window.location.origin + window.location.pathname + '?autologin';
 
   return (
     <React.StrictMode>
       <div className={styles.signInHeader}>
-        <img
-          src={LASERFICHE_ICON_URL}
-          className={styles.laserficheLogo}
-        />
+        <img src={LASERFICHE_ICON_URL} className={styles.laserficheLogo} />
         <span className={styles.signInHeaderText}>{LASERFICHE}</span>
       </div>
 
@@ -539,9 +484,7 @@ export default function SendToLaserficheLoginComponent(
         <div className={styles.buttonRow}>
           <button
             onClick={clickLogin}
-            className={`lf-button login-button ${
-              loggedIn ? 'sec-button' : 'primary-button'
-            }`}
+            className={`lf-button login-button ${loggedIn ? 'sec-button' : 'primary-button'}`}
           >
             {loggedIn ? 'Sign out' : 'Sign in'}
           </button>
