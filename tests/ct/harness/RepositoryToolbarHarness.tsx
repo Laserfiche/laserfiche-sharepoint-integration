@@ -12,6 +12,7 @@ export interface RepositoryToolbarHarnessProps {
   importDelayMs?: number;
   fieldContainerShouldFailInit?: boolean;
   templatesLoadDelayMs?: number;
+  refreshShouldFail?: boolean;
 }
 
 export default function RepositoryToolbarHarness(
@@ -56,6 +57,9 @@ export default function RepositoryToolbarHarness(
       refreshFolderBrowserAsync={async () => {
         window.__repoClientCalls = window.__repoClientCalls ?? [];
         window.__repoClientCalls.push({ method: 'refreshFolderBrowserAsync', args: [] });
+        if (props.refreshShouldFail) {
+          throw new Error('Unable to refresh the folder');
+        }
       }}
     />
   );

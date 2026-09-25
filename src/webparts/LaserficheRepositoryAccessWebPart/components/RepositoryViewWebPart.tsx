@@ -419,6 +419,18 @@ export function RepositoryBrowserToolbar(props: {
   );
 }
 
+// Called once an entry has been created, so a failed refresh must not be
+// reported as a failed create: retrying would then create a duplicate.
+async function tryRefreshFolderBrowserAsync(
+  refreshFolderBrowserAsync: () => Promise<void>
+): Promise<void> {
+  try {
+    await refreshFolderBrowserAsync();
+  } catch (err) {
+    console.error('Unable to refresh the folder list:', err);
+  }
+}
+
 // <lf-field-container> fetches the template list itself, the first time its
 // Template dropdown opens, and shows nothing while it waits. Wrapping the
 // service it fetches through is the only way to tell that load is running.
@@ -682,7 +694,7 @@ function ImportFileModal(props: {
       const importedEntry = await props.repoClient.entriesClient.importEntry(requestParameters);
       await safeSetTagsAsync(repoId, importedEntry.id, selectedTagNames);
       setFileUploadPercentage(100);
-      await props.refreshFolderBrowserAsync();
+      await tryRefreshFolderBrowserAsync(props.refreshFolderBrowserAsync);
       props.onImported({
         fileName: importedEntry.name ?? fileName,
         fileLink: getEntryWebAccessUrl(
@@ -912,7 +924,7 @@ function CreateFolderModal(props: {
             await props.repoClient.entriesClient.createEntry(requestParameters);
 
           array.push(newFolderEntry);
-          await props.refreshFolderBrowserAsync();
+          await tryRefreshFolderBrowserAsync(props.refreshFolderBrowserAsync);
           props.closeCreateFolderModal();
           setFolderName('');
         } catch {

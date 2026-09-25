@@ -62,6 +62,21 @@ test.describe('CreateFolderModal', () => {
     expect(calls.some((c) => c.method === 'refreshFolderBrowserAsync')).toBe(true);
   });
 
+  // The folder already exists by then: reporting "Object already exists" would
+  // be wrong, and submitting again would really hit that error.
+  test('a failed folder list refresh after creating the folder still closes the modal', async ({
+    mount,
+    page,
+  }) => {
+    await mount(<RepositoryToolbarHarness refreshShouldFail={true} />);
+    await page.getByTitle('Create folder in Laserfiche').click();
+    await page.locator('#folderName').fill('Contracts');
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    await expect(page.locator('#folderName')).toBeHidden();
+    await expect(page.getByText('Object already exists')).toHaveCount(0);
+  });
+
   test('closing and reopening starts with an empty name field', async ({ mount, page }) => {
     await mount(<RepositoryToolbarHarness />);
     await page.getByTitle('Create folder in Laserfiche').click();
@@ -338,6 +353,25 @@ test.describe('ImportFileModal', () => {
     await page.getByRole('button', { name: 'Close' }).click();
 
     await expect(page.getByText(/Saved a copy to Laserfiche/)).toHaveCount(0);
+  });
+
+  // The document is already in Laserfiche by then: reporting the upload as
+  // failed would invite a retry, and that retry would create a duplicate.
+  test('a failed folder list refresh after a successful import still shows the saved-copy dialog', async ({
+    mount,
+    page,
+  }) => {
+    await mount(<RepositoryToolbarHarness refreshShouldFail={true} />);
+    await page.getByTitle('Upload file to Laserfiche').click();
+    await page.locator('#importFile').setInputFiles({
+      name: 'contract.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('data'),
+    });
+    await page.getByRole('button', { name: 'OK' }).click();
+
+    await expect(page.getByText(/Saved a copy to Laserfiche/)).toBeVisible();
+    await expect(page.getByText(/Error uploading/)).toHaveCount(0);
   });
 
   test("tag picker lists the repository's tags", async ({ mount, page }) => {
