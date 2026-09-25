@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import * as React from 'react';
-require('./../../../../Assets/CSS/commonStyles.css');
-require('../../../../Assets/CSS/bootstrap.min.css');
+import './../../../../Assets/CSS/commonStyles.css';
+import '../../../../Assets/CSS/bootstrap.min.css';
 
 const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';

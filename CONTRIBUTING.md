@@ -3,39 +3,56 @@ Licensed under the MIT License. See LICENSE.md in the project root for license i
 
 # Contributing to laserfiche-sharepoint-integration
 
-We encourage and appreciate feedback and contribution from the community!
+We encourage and appreciate feedback and contributions from the community!
 
 - [Code of Conduct](#coc)
-- [Question or Problem](#question)
-- [Issue and Feature Requests](#issue)
-- [PR Submission Guidelines](#submit-pr)
-- [Coding Rules](#rules)
+- [Questions](#question)
+- [Issues and Feature Requests](#issue)
+- [Making a Change](#change)
+- [Coding Guidelines](#rules)
+- [Submitting a Pull Request](#submit-pr)
 
 ## <a name="coc"></a> Code of Conduct
 
- Please read and follow our [Code of Conduct](./code_of_conduct.md).
+Please read and follow our [Code of Conduct](./code_of_conduct.md).
 
-## <a name="question"></a> Question or Problem?
+## <a name="question"></a> Questions
 
-Please post general questions on [Laserfiche Answers](https://answers.laserfiche.com/). Please include *laserfiche-sharepoint-integration* for reference.
+Post general questions on [Laserfiche Answers](https://answers.laserfiche.com/), and mention _laserfiche-sharepoint-integration_.
 
-## <a name="issue"></a> Issue and Feature Requests
+## <a name="issue"></a> Issues and Feature Requests
 
-Search [Github Issues](https://github.com/Laserfiche/laserfiche-sharepoint-integration/issues) for existing bug reports or feature requests related to your question. Please submit an Issue or Feature Request if yours has not already been addressed.
+Search [GitHub Issues](https://github.com/Laserfiche/laserfiche-sharepoint-integration/issues) for an existing bug report or feature request first. If yours isn't there, open a new one.
 
-## <a name="submit-pr"></a> PR Submission Guidelines
+## <a name="change"></a> Making a Change
 
-- Search Github [Pull Requests](https://github.com/Laserfiche/laserfiche-sharepoint-integration/pulls) for PRs related to your submission. Make sure that this is not a duplicate.
-- Link the issue addressed by the PR.
-- Add unit tests or document manual tests to validate the changes.
-- The workflow triggers all unit tests. For a pull request to be accepted, all unit tests must pass when the workflow runs.
+1. Branch off **`1.x`**, the active release branch. `main` is no longer used.
+2. Set up the project as described in the [README](./README.md#getting-started). Use Node.js 22 and install with `npm ci`.
+3. Make your change test-first (see below), then check that it builds and passes locally:
 
-After the submission, core members of the project will review the code.
+   ```bash
+   npm test          # unit tests
+   npm run test:ct   # component tests (type-checked first)
+   npm run bundle    # release build (fails on any lint warning)
+   ```
 
-## <a name="rules"></a> Coding Rules
+[`AGENTS.md`](./AGENTS.md) covers the project's conventions in more depth: pinned versions, SharePoint's script-loading restrictions, and the test setup.
 
-Please follow the rules as you work on the code:
+## <a name="rules"></a> Coding Guidelines
 
-- Please add unit tests for each fixed bug or added feature.
-- Please use clean and informative names.
-- Leave the code better than you found it.
+- **Don't repeat yourself.** Before adding a component, style, string, icon or helper, look for an existing one and reuse it. If similar code exists in more than one place, extract it to a shared place and use it everywhere. [`AGENTS.md`](./AGENTS.md#1-reuse-before-you-add-dry) lists where the shared pieces live.
+- **Write tests first.** Add a test that fails, make it pass, then refactor. Every bug fix starts with a test that reproduces the bug. Test what users see, not implementation details.
+- **Keep tests current.** When behavior changes, update its tests in the same change. Don't skip or delete a failing test to get a change through.
+- **Keep it clean.** Use small functions and components with clear, informative names. Explain _why_ in comments, not _what_. Leave the code better than you found it.
+- **Follow the formatters.** Prettier and ESLint (the SPFx config) define the code style.
+
+## <a name="submit-pr"></a> Submitting a Pull Request
+
+- Search the existing [Pull Requests](https://github.com/Laserfiche/laserfiche-sharepoint-integration/pulls) to make sure yours isn't a duplicate.
+- Target **`1.x`**, and give the PR a short, imperative title that names the affected component.
+- Link the issue the PR addresses.
+- Include tests for the change. If part of it can only be verified in SharePoint, describe the manual steps you ran.
+- Update the documentation (`jekyll_files/`, the README or `AGENTS.md`) if the change affects it.
+- CI runs the release build, unit tests and component tests. All must pass before a PR can be merged.
+
+After you submit, the project's core members will review the code.

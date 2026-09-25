@@ -21,19 +21,8 @@ import { getSPListURL } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from '../LaserficheAdminConfiguration';
 import { PROFILE_NAME, PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME } from '../../../strings';
-require('../../../../Assets/CSS/bootstrap.min.css');
-require('./../../../../Assets/CSS/commonStyles.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
-
-declare global {
-  // eslint-disable-next-line
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line
-      ['lf-repository-browser']: any;
-    }
-  }
-}
+import '../../../../Assets/CSS/bootstrap.min.css';
+import './../../../../Assets/CSS/commonStyles.css';
 
 const rootFolder: LfFolder = {
   id: '1',
@@ -237,7 +226,7 @@ export default function AddNewManageConfiguration(
 
   const extraConfiguration = (
     <>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      <div className={`${styles.formGroupRow} row mb-3`}>
         <label htmlFor='configurationName' className='col-sm-3 col-form-label'>
           {PROFILE_NAME} <span style={{ color: 'red' }}>*</span>
         </label>

@@ -36,14 +36,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   hasSignInPage = false;
   hasAdminPage = false;
 
-  public async onInit(): Promise<void> {
+  public override async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     await CreateConfigurations.ensureAdminConfigListCreatedAsync(this.context);
     return Promise.resolve();
   }
 
-  public onListViewUpdated(
+  public override onListViewUpdated(
     event: IListViewCommandSetListViewUpdatedParameters
   ): void {
     const compareOneCommand: Command = this.tryGetCommand('SAVE_TO_LASERFICHE');
@@ -55,7 +55,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  public async onExecute(
+  public override async onExecute(
     event: IListViewCommandSetExecuteEventParameters
   ): Promise<void> {
     const spDocumentProperties: RowAccessor = event.selectedRows[0];

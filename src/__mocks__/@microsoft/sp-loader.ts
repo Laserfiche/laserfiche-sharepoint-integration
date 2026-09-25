@@ -3,7 +3,7 @@
 
 module.exports = {
   SPComponentLoader: {
-    loadCss: jest.fn(),
-    loadScript: jest.fn(),
+    loadCss: vi.fn(),
+    loadScript: vi.fn(),
   },
 };

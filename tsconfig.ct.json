@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    /* The inherited rootDir (SPFx's base config) is src/, which the CT files
+       sit outside of; with noEmit it has nothing to do here. */
+    "rootDir": ".",
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  /* src files come in through the tests' imports, but ambient declarations
+     (asset modules, custom-element JSX typings) are never imported, so they
+     have to be listed. */
+  "include": [
+    "tests/ct/**/*.ts",
+    "tests/ct/**/*.tsx",
+    "playwright-ct.config.ts",
+    "src/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", "lib", "temp", "dist"]
+}

@@ -6,19 +6,9 @@ import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { IAdminPageProps } from './IAdminPageProps';
 import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
-require('../../../../Assets/CSS/bootstrap.min.css');
-require('./../../../../Assets/CSS/commonStyles.css');
 import styles from './../LaserficheAdminConfiguration.module.scss';
-
-declare global {
-  // eslint-disable-next-line
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line
-      ['lf-login']: any;
-    }
-  }
-}
+import '../../../../Assets/CSS/bootstrap.min.css';
+import './../../../../Assets/CSS/commonStyles.css';
 
 export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {

@@ -1,0 +1,18 @@
+# Normalize line endings to LF. .editorconfig and .prettierrc already declare
+# end_of_line = lf; this is what makes git enforce it, so a checkout on Windows
+# no longer reintroduces CRLF and editing a file cannot leave it mixed.
+* text=auto eol=lf
+
+# Binary assets git must never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.sppkg binary
+*.zip binary

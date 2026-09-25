@@ -18,21 +18,8 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-require('../../../../Assets/CSS/bootstrap.min.css');
-require('./../../../../Assets/CSS/commonStyles.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
-
-declare global {
-  // eslint-disable-next-line
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line
-      ['lf-login']: any;
-      // eslint-disable-next-line
-      ['lf-repository-browser']: any;
-    }
-  }
-}
+import '../../../../Assets/CSS/bootstrap.min.css';
+import './../../../../Assets/CSS/commonStyles.css';
 
 export default function EditManageConfiguration(
   props: IEditManageConfigurationProps

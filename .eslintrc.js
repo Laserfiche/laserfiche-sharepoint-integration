@@ -5,6 +5,11 @@ require('@rushstack/eslint-config/patch/modern-module-resolution');
 module.exports = {
   extends: ['@microsoft/eslint-config-spfx/lib/profiles/react'],
   parserOptions: { tsconfigRootDir: __dirname },
+  // SPFx's own lint task (part of `gulp build`) only ever scans src/, so this
+  // is defensive: it keeps a manually-invoked `eslint .` from trying to lint
+  // the Playwright component tests against tsconfig.json, which doesn't
+  // include them (see tsconfig.ct.json).
+  ignorePatterns: ['tests/**', 'playwright-ct.config.ts'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -17,13 +22,15 @@ module.exports = {
       rules: {
         // Prevent usage of the JavaScript null value, while allowing code to access existing APIs that may require null. https://www.npmjs.com/package/@rushstack/eslint-plugin
         '@rushstack/no-new-null': 1,
-        // Require Jest module mocking APIs to be called before any other statements in their code block. https://www.npmjs.com/package/@rushstack/eslint-plugin
-        '@rushstack/hoist-jest-mock': 1,
         // Require regular expressions to be constructed from string constants rather than dynamically building strings at runtime. https://www.npmjs.com/package/@rushstack/eslint-plugin-security
         '@rushstack/security/no-unsafe-regexp': 1,
+        // Require chunk names for dynamic imports in SPFx projects. https://www.npmjs.com/package/@rushstack/eslint-plugin
+        '@rushstack/import-requires-chunk-name': 1,
+        // Ensure that React components rendered with ReactDOM.render() are unmounted with ReactDOM.unmountComponentAtNode(). https://www.npmjs.com/package/@rushstack/eslint-plugin
+        '@rushstack/pair-react-dom-render-unmount': 1,
         // STANDARDIZED BY:   @typescript-eslint\eslint-plugin\dist\configs\recommended.json
         '@typescript-eslint/adjacent-overload-signatures': 1,
-                // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
+        // RATIONALE:         Code is more readable when the type of every variable is immediately obvious.
         //                    Even if the compiler may be able to infer a type, this inference will be unavailable
         //                    to a person who is reviewing a GitHub diff.  This rule makes writing code harder,
         //                    but writing code is a much less important activity than reading it.
@@ -281,9 +288,9 @@ module.exports = {
         // ====================================================================
         // @microsoft/eslint-plugin-spfx
         // ====================================================================
-        '@microsoft/spfx/import-requires-chunk-name': 1,
+        // NOTE: import-requires-chunk-name and pair-react-dom-render-unmount moved from
+        // @microsoft/eslint-plugin-spfx to @rushstack/eslint-plugin in SPFx 1.23; see above.
         '@microsoft/spfx/no-require-ensure': 2,
-        '@microsoft/spfx/pair-react-dom-render-unmount': 1,
       },
     },
     {
@@ -306,7 +313,15 @@ module.exports = {
         '**/test/*.ts',
         '**/test/*.tsx',
       ],
-      rules: {},
+      rules: {
+        // Mocking @microsoft/sp-* and @laserfiche/* surfaces routinely needs
+        // `any` (untyped mock factories, casting instances past base-class
+        // constructors that vi.mock replaces, etc.) -- `gulp bundle --ship`
+        // promotes any lint warning to a build failure (it fails on stderr
+        // output, not just lint errors), so this can't be left as a warning
+        // the way DEBUG builds tolerate it.
+        '@typescript-eslint/no-explicit-any': 0,
+      },
     },
   ],
 };

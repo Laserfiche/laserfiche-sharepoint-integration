@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import * as React from 'react';
-import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AddNewManageConfiguration from './AddNewManageConfiguration';
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
@@ -38,7 +37,7 @@ describe('AddNewManageConfiguration', () => {
 
   beforeEach(() => {
     const spHttpClient = {
-      post: jest.fn(),
+      post: vi.fn(),
     };
     mockWebPartContext = {
       spHttpClient: spHttpClient as unknown as SPHttpClient,
@@ -55,7 +54,7 @@ describe('AddNewManageConfiguration', () => {
     render(
       <BrowserRouter>
         <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: jest.fn(), saveDisabled: false }}
+          value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}
         >
           <AddNewManageConfiguration
             context={mockWebPartContext}
@@ -84,8 +83,8 @@ describe('AddNewManageConfiguration', () => {
         JsonValue: JSON.stringify([mockProfileConfig]),
       },
     ];
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi
         .fn()
         .mockResolvedValue({ value: mockManageConfigurationConfig }),
     });
@@ -133,8 +132,8 @@ describe('AddNewManageConfiguration', () => {
         JsonValue: JSON.stringify([mockProfileConfig]),
       },
     ];
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi
         .fn()
         .mockResolvedValue({ value: mockManageConfigurationConfig }),
     });

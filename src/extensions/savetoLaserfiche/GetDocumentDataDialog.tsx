@@ -56,7 +56,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
     ReactDOM.render(element, this.domElement);
   }
 
-  protected onAfterClose(): void {
+  protected override onAfterClose(): void {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
   }

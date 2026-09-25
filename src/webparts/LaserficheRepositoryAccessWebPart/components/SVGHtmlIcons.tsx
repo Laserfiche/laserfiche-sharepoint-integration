@@ -4,7 +4,7 @@
 import * as React from 'react';
 
 export default class SvgHtmlIcons extends React.Component {
-  public render(): React.ReactElement {
+  public override render(): React.ReactElement {
     return (
       <div>
         <svg

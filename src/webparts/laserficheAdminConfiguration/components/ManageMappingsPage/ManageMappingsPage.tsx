@@ -18,8 +18,7 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 import styles from './../LaserficheAdminConfiguration.module.scss';
-require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
+import '../../../../Assets/CSS/bootstrap.min.css';
 
 interface SPContentType {
   ID: string;
@@ -567,7 +566,7 @@ export default function ManageMappingsPage(
             <select
               name='SharePointContentType'
               disabled
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].SharePointContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -583,7 +582,7 @@ export default function ManageMappingsPage(
             <select
               name='LaserficheContentType'
               disabled
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].LaserficheContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -616,7 +615,7 @@ export default function ManageMappingsPage(
           <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].SharePointContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -631,7 +630,7 @@ export default function ManageMappingsPage(
           <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].LaserficheContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}

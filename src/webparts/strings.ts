@@ -13,6 +13,8 @@ export const MANAGE_CONFIGURATIONS_PAGE_TITLE =
 export const SIGN_IN = 'Sign in';
 export const SIGN_OUT = 'Sign out';
 export const SIGN_IN_FAILED = 'Sign in failed';
+export const POPUP_BLOCKED =
+  'Unable to open the Laserfiche sign in window. Please allow pop-ups for this site and try again.';
 
 export const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
@@ -86,3 +88,13 @@ export const DOCUMENT_ALREADY_EXISTS = 'Document already exists';
 export const GO_BACK = 'Go back';
 
 export const CONTINUE = 'Continue';
+
+export const UNKNOWN_ERROR = 'An unknown error occurred.';
+export const UNABLE_TO_LOAD_TEMPLATES_AND_FIELDS =
+  'Unable to load templates and fields.';
+export const LOADING = 'Loading...';
+
+export const LASERFICHE = 'Laserfiche';
+export const SAVED_A_COPY_TO_LASERFICHE =
+  'Saved a copy to Laserfiche. To keep editing, open or check out from Web Client.';
+export const SHOW_IN_FOLDER = 'Show in folder';

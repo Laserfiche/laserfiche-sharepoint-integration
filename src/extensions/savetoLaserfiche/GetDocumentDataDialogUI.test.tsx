@@ -1,13 +1,13 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@microsoft/sp-dialog', () => ({
+vi.mock('@microsoft/sp-dialog', () => ({
   BaseDialog: class {},
 }));
-jest.mock('./SaveToLaserficheDialog', () => ({
-  SaveToLaserficheDialog: jest.fn(),
+vi.mock('./SaveToLaserficheDialog', () => ({
+  SaveToLaserficheDialog: vi.fn(),
 }));
-jest.mock('@microsoft/sp-http-base', () => {
+vi.mock('@microsoft/sp-http', () => {
   return {
     SPHttpClient: {
       configurations: {
@@ -16,37 +16,29 @@ jest.mock('@microsoft/sp-http-base', () => {
     },
   };
 });
-jest.mock('@laserfiche/lf-repository-api-client', () => ({
-  TemplateFieldInfo: jest.fn().mockImplementation(({ name }) => ({
-    name,
-  })),
-  ValueToUpdate: jest.fn().mockImplementation(({ value }) => ({
-    value: value,
-  })),
-  FieldToUpdate: jest.fn().mockImplementation(({ values }) => ({
-    values,
-  })),
-  PutFieldValsRequest: jest.fn().mockImplementation(({ fields }) => ({
-    fields,
-  })),
+vi.mock('@laserfiche/lf-repository-api-client-v2', () => ({
+  TemplateFieldDefinition: vi.fn().mockImplementation(function ({ name }) {
+    return { name };
+  }),
+  FieldToUpdate: vi.fn().mockImplementation(function ({ name, values }) {
+    return { name, values };
+  }),
 }));
 
 import { render, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { GetDocumentDialogData } from './GetDocumentDataDialogUI';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
-import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http-base';
+import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
-import {
-  TemplateFieldInfo,
-} from '@laserfiche/lf-repository-api-client';
+import { TemplateFieldDefinition } from '@laserfiche/lf-repository-api-client-v2';
 import { ISPDocumentData } from '../../Utils/Types';
 
 describe('GetDocumentDataDialog', () => {
   test('getDocumentDataDialog correctly matches SP field data to Laserfiche fields', async () => {
     const mockContext: BaseComponentContext = {
       spHttpClient: {
-        get: jest.fn((url) => {
+        get: vi.fn((url) => {
           if (url.includes('FieldValuesForEdit')) {
             return Promise.resolve({
               ok: true,
@@ -73,7 +65,7 @@ describe('GetDocumentDataDialog', () => {
                           mappedFields: [
                             {
                               id: 'dd',
-                              lfField: new TemplateFieldInfo({
+                              lfField: new TemplateFieldDefinition({
                                 name: 'testField',
                               }),
                               spField: {
@@ -131,12 +123,12 @@ describe('GetDocumentDataDialog', () => {
 
     let spDocData: ISPDocumentData;
 
-    window.fetch = jest
+    window.fetch = vi
       .fn()
       .mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
     Object.defineProperty(window, 'localStorage', {
       value: {
-        setItem: jest.fn().mockImplementation((key, value) => {
+        setItem: vi.fn().mockImplementation((key, value) => {
           spDocData = JSON.parse(value);
         }),
       },
@@ -152,8 +144,8 @@ describe('GetDocumentDataDialog', () => {
 
     render(
       <GetDocumentDialogData
-        showSaveToDialog={jest.fn()}
-        handleCancelDialog={jest.fn()}
+        showSaveToDialog={vi.fn()}
+        handleCancelDialog={vi.fn()}
         spFileInfo={spFileInfo}
         context={mockContext}
       />
@@ -161,16 +153,16 @@ describe('GetDocumentDataDialog', () => {
     await waitFor(() => {
       expect(spDocData.documentName).toEqual('%(DocumentName)');
       expect(spDocData.templateName).toEqual('Test Template');
-      expect(spDocData.metadata!.metadata!.fields!.testField).toEqual({
-        values: [{ value: 'Document Title' }],
-      });
+      expect(spDocData.metadata!.fields).toEqual([
+        { name: 'testField', values: ['Document Title'] },
+      ]);
     });
   });
 
   test('getDocumentDataDialog correctly matches SP field data to Laserfiche fields with special characters', async () => {
     const mockContext: BaseComponentContext = {
       spHttpClient: {
-        get: jest.fn((url) => {
+        get: vi.fn((url) => {
           if (url.includes('FieldValuesForEdit')) {
             return Promise.resolve({
               ok: true,
@@ -198,7 +190,7 @@ describe('GetDocumentDataDialog', () => {
                           mappedFields: [
                             {
                               id: 'dd',
-                              lfField: new TemplateFieldInfo({
+                              lfField: new TemplateFieldDefinition({
                                 name: 'testField',
                               }),
                               spField: {
@@ -256,12 +248,12 @@ describe('GetDocumentDataDialog', () => {
 
     let spDocData: ISPDocumentData;
 
-    window.fetch = jest
+    window.fetch = vi
       .fn()
       .mockResolvedValue({ json: () => Promise.resolve({ value: [] }) });
     Object.defineProperty(window, 'localStorage', {
       value: {
-        setItem: jest.fn().mockImplementation((key, value) => {
+        setItem: vi.fn().mockImplementation((key, value) => {
           spDocData = JSON.parse(value);
         }),
       },
@@ -277,8 +269,8 @@ describe('GetDocumentDataDialog', () => {
 
     render(
       <GetDocumentDialogData
-        showSaveToDialog={jest.fn()}
-        handleCancelDialog={jest.fn()}
+        showSaveToDialog={vi.fn()}
+        handleCancelDialog={vi.fn()}
         spFileInfo={spFileInfo}
         context={mockContext}
       />
@@ -286,9 +278,9 @@ describe('GetDocumentDataDialog', () => {
     await waitFor(() => {
       expect(spDocData.documentName).toEqual('%(DocumentName)');
       expect(spDocData.templateName).toEqual('Test Template');
-      expect(spDocData.metadata!.metadata!.fields!.testField).toEqual({
-        values: [{ value: 'Document Title' }],
-      });
+      expect(spDocData.metadata!.fields).toEqual([
+        { name: 'testField', values: ['Document Title'] },
+      ]);
     });
   });
 });

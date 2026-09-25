@@ -1,7 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => {
+vi.mock('@laserfiche/lf-repository-api-client-v2', () => {
   return {
     EntryType: {
       Folder: 'Folder',
@@ -12,18 +12,18 @@ jest.mock('@laserfiche/lf-repository-api-client', () => {
   };
 });
 
+import type { Mock } from 'vitest';
 import {
   LfRepoTreeNode,
   LfRepoTreeNodeService,
 } from '@laserfiche/lf-ui-components-services';
 import * as React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import {
   isNodeSelectable,
   RepositoryBrowserModal,
 } from './ProfileConfigurationComponents';
-import { EntryType } from '@laserfiche/lf-repository-api-client';
+import { EntryType } from '@laserfiche/lf-repository-api-client-v2';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 
 describe('ProfileConfigurationComponents', () => {
@@ -38,7 +38,7 @@ describe('ProfileConfigurationComponents', () => {
   test('should assign correct entryTypes to viewableEntryTypes', async () => {
     // Arrange
     let setViewableEntryTypes: EntryType[] = [];
-    const LfRepoTreeNodeServiceMock = LfRepoTreeNodeService as jest.Mock;
+    const LfRepoTreeNodeServiceMock = LfRepoTreeNodeService as Mock;
     LfRepoTreeNodeServiceMock.mockImplementation(function () {
       return {
         get viewableEntryTypes() {
@@ -53,8 +53,8 @@ describe('ProfileConfigurationComponents', () => {
     // Act
     render(
       <RepositoryBrowserModal
-        CloseFolderBrowserUp={jest.fn()}
-        SelectFolder={jest.fn()}
+        CloseFolderBrowserUp={vi.fn()}
+        SelectFolder={vi.fn()}
         selectedEntryNodePath=''
         repoClient={repoClient}
       />
