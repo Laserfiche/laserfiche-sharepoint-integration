@@ -29,6 +29,7 @@ Where the shared pieces live:
 | User-facing strings                                                                                                                             | `src/webparts/strings.ts`                                      |
 | Helpers                                                                                                                                         | `src/Utils/Funcs.ts`                                           |
 | Sign in / Sign out through the LaserficheSignIn popup (`useSignInPopup`)                                                                        | `src/Utils/useSignInPopup.tsx`                                 |
+| The `<lf-login>` element every page and dialog signs in through (`LaserficheLogin`); never render a bare `<lf-login>`                           | `src/Utils/LaserficheLogin.tsx`                                |
 | JSX typings for the `lf-ui-components` custom elements (never redeclare them inside a component)                                                | `src/lf-ui-components-elements.d.ts`                           |
 | Images                                                                                                                                          | `src/Assets/Images/`                                           |
 

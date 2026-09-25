@@ -2,17 +2,16 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import React from 'react';
-import { getRegion, isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
-  clientId,
-  repositoryScopes,
 } from '../../constants';
 import {
   YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN,
@@ -56,8 +55,6 @@ export const LoginComponent: React.FC<{
   setMessageErrorModal: (val: JSX.Element | undefined) => void;
   ensureRepoClientInitializedAsync: () => Promise<void>;
 }> = (props) => {
-  const region = getRegion();
-
   const redirectPage = window.location.origin + window.location.pathname;
 
   // useRef, not createRef: createRef hands back a new ref on every render and
@@ -129,16 +126,7 @@ export const LoginComponent: React.FC<{
 
   return (
     <div className={styles.loginButton}>
-      <lf-login
-        redirect_uri={redirectPage}
-        authorize_url_host_name={region}
-        redirect_behavior='Replace'
-        client_id={clientId}
-        scope={repositoryScopes}
-        login_type={LoginType.Cloud}
-        ref={loginComponent}
-        hidden
-      />
+      <LaserficheLogin ref={loginComponent} redirectUri={redirectPage} />
       <button
         onClick={signInOrOutAsync}
         className={`lf-button login-button ${props.loggedIn ? 'sec-button' : 'primary-button'}`}

@@ -4,12 +4,10 @@
 import * as React from 'react';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
-  clientId,
-  repositoryScopes,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -19,7 +17,8 @@ import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
-import { getRegion, isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { isLfLoginSignedIn } from '../../../Utils/Funcs';
+import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './LaserficheRepositoryAccess.module.scss';
 import { SIGN_IN, SIGN_OUT } from '../../strings';
@@ -63,8 +62,6 @@ export default function LaserficheRepositoryAccessWebPart(
       await syncSignedInState.current?.();
     },
   });
-
-  const region = getRegion();
 
   const redirectPage = window.location.origin + window.location.pathname;
 
@@ -133,16 +130,7 @@ export default function LaserficheRepositoryAccessWebPart(
       </div>
       <div className='p-3'>
         <div className={styles.loginButton}>
-          <lf-login
-            redirect_uri={redirectPage}
-            redirect_behavior='Replace'
-            client_id={clientId}
-            scope={repositoryScopes}
-            authorize_url_host_name={region}
-            login_type={LoginType.Cloud}
-            ref={loginComponent}
-            hidden
-          />
+          <LaserficheLogin ref={loginComponent} redirectUri={redirectPage} />
           <button
             onClick={signInOrOutAsync}
             className={`lf-button login-button ${loggedIn ? 'sec-button' : 'primary-button'}`}

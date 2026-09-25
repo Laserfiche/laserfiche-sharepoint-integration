@@ -2,15 +2,10 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent, LoginType } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
-import {
-  clientId,
-  repositoryScopes,
-  LF_UI_COMPONENTS_URL,
-  SP_LOCAL_STORAGE_KEY,
-} from '../../webparts/constants';
+import { LF_UI_COMPONENTS_URL, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 import LoadingDialog, {
   LaserficheDialogTitle,
   SavedToLaserficheSuccessDialogButtons,
@@ -25,7 +20,7 @@ import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
-import { getRegion } from '../../Utils/Funcs';
+import { LaserficheLogin } from '../../Utils/LaserficheLogin';
 import { Entry } from '@laserfiche/lf-repository-api-client-v2';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
@@ -88,7 +83,6 @@ function SaveToLaserficheDialog(props: {
   // React nulls the old one, which the mount effect below would then read.
   const loginComponent = React.useRef<NgElement & WithProperties<LfLoginComponent>>();
 
-  const region = getRegion();
   const [success, setSuccess] = React.useState<SavedToLaserficheDocumentData | undefined>();
   const [error, setError] = React.useState<JSX.Element | undefined>();
   const [showSaveTo, setShowSaveTo] = React.useState<boolean>(true);
@@ -203,16 +197,7 @@ function SaveToLaserficheDialog(props: {
 
   return (
     <div className={styles.wrapper}>
-      <lf-login
-        hidden
-        redirect_uri=''
-        authorize_url_host_name={region}
-        redirect_behavior='Replace'
-        client_id={clientId}
-        scope={repositoryScopes}
-        login_type={LoginType.Cloud}
-        ref={loginComponent}
-      />
+      <LaserficheLogin ref={loginComponent} redirectUri='' />
       <div className={`${styles.header}${showSaveTo ? '' : ` ${styles.hideImport}`}`}>
         <LaserficheDialogTitle title={LASERFICHE} />
 

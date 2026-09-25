@@ -8,11 +8,8 @@ import {
   AbortedLoginError,
   LfLoginComponent,
   LoginState,
-  LoginType,
 } from '@laserfiche/types-lf-ui-components';
 import {
-  clientId,
-  repositoryScopes,
   LASERFICHE_ICON_URL,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
@@ -23,11 +20,8 @@ import {
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
-import {
-  getEntryWebAccessUrl,
-  getRegion,
-  getSPDocumentDataFromLocalStorage,
-} from '../../../Utils/Funcs';
+import { getEntryWebAccessUrl, getSPDocumentDataFromLocalStorage } from '../../../Utils/Funcs';
+import { LaserficheLogin } from '../../../Utils/LaserficheLogin';
 import { useSignInPopup } from '../../../Utils/useSignInPopup';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 import { LASERFICHE, SIGN_IN, SIGN_OUT } from '../../strings';
@@ -92,8 +86,6 @@ export default function SendToLaserficheLoginComponent(
       } as AbortedLoginError);
     }, POPUP_LOGIN_TIMEOUT_MS);
   };
-
-  const region = getRegion();
 
   const spFileMetadata = getSPDocumentDataFromLocalStorage();
 
@@ -322,16 +314,7 @@ export default function SendToLaserficheLoginComponent(
 
       <div className={styles.signInLabel}>{loginText}</div>
       <div className={styles.loginButton}>
-        <lf-login
-          redirect_uri={redirectURL}
-          authorize_url_host_name={region}
-          redirect_behavior='Replace'
-          client_id={clientId}
-          scope={repositoryScopes}
-          login_type={LoginType.Cloud}
-          ref={loginComponent}
-          hidden
-        />
+        <LaserficheLogin ref={loginComponent} redirectUri={redirectURL} />
         <div className={styles.buttonRow}>
           <button
             onClick={signInOrOutAsync}
