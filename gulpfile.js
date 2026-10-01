@@ -7,6 +7,24 @@ const gulp = require('gulp');
 const path = require('path');
 const fs = require('fs');
 
+// SPFx's own check accepts Node 18, 20 and 22 and throws a stack trace. This
+// project builds on the one major .nvmrc pins, so say so up front and
+// plainly. SPFx's override flag opts out of both checks.
+const requiredNodeMajor = fs
+  .readFileSync(path.resolve(__dirname, '.nvmrc'), 'utf8')
+  .match(/\d+/)[0];
+if (
+  process.versions.node.split('.')[0] !== requiredNodeMajor &&
+  process.env.SPFX_OVERRIDE_NODE_VERSION_CHECK !== 'true'
+) {
+  console.error(
+    `This project builds on Node ${requiredNodeMajor} (see .nvmrc), but you are running Node ${process.versions.node}.\n` +
+      `Switch with: nvm use ${requiredNodeMajor}\n` +
+      'To try this Node version locally anyway, set SPFX_OVERRIDE_NODE_VERSION_CHECK=true (never in CI).'
+  );
+  process.exit(1);
+}
+
 const build = require('@microsoft/sp-build-web');
 
 build.addSuppression(
