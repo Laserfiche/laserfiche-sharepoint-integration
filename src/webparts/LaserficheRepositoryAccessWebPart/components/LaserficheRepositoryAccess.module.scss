@@ -1,9 +1,10 @@
 @font-face {
   font-family: 'Open Sans';
-  src: local('Open Sans'), local('OpenSans'),
+  src:
+    local('Open Sans'),
+    local('OpenSans'),
     url(https://lfxstatic.com/libs/Open_Sans/OpenSans.woff) format('woff'),
-    url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf)
-      format('truetype');
+    url(https://lfxstatic.com/libs/Open_Sans/OpenSans-Regular.ttf) format('truetype');
 }
 
 .lfAdhocMinHeight {
@@ -52,11 +53,7 @@
 .modalContent {
   width: 500px;
   background-color: #fff;
-  overflow: auto;
-  max-height: -webkit-fill-available;
   margin: 30px 0px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .wrapper {
@@ -64,6 +61,7 @@
   flex-direction: column;
   max-height: calc(100vh - 50px);
   min-width: 500px;
+  overflow: hidden;
 }
 
 .header {
@@ -86,6 +84,9 @@
   /* 50px - padding */
   line-height: 24px;
   align-items: center;
+  /* keep pinned to the top of the wrapper instead of being squeezed by a
+     tall, scrolling body */
+  flex-shrink: 0;
 }
 
 .contentBox {
@@ -105,7 +106,6 @@
   padding-bottom: var(--content-padding-bottom, 20px);
   padding-left: var(--content-padding-left, 20px);
   padding-right: var(--content-padding-right, 20px);
-  max-height: calc(100vh - var(--header-min-height) - var(--footer-min-height));
 }
 
 .footer {
@@ -128,6 +128,9 @@
   height: 60px;
   /* 50px - padding */
   line-height: 30px;
+  /* keep pinned to the bottom of the wrapper instead of being squeezed by a
+     tall, scrolling body */
+  flex-shrink: 0;
 }
 
 .browserTitle {
@@ -146,4 +149,13 @@
 
 .lfComponentContainer {
   margin: 5px;
+}
+
+/* lf-repository-browser sizes its own internals off a definite height, so the
+   height belongs on one box only. The element fills this container via its own
+   flex-grow, which keeps the two from disagreeing. */
+.repositoryBrowserContainer {
+  display: flex;
+  flex-direction: column;
+  height: 420px;
 }

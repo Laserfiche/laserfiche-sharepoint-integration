@@ -1,7 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => {
+vi.mock('@laserfiche/lf-repository-api-client-v2', () => {
   return {
     EntryType: {
       Folder: 'Folder',
@@ -12,28 +12,28 @@ jest.mock('@laserfiche/lf-repository-api-client', () => {
   };
 });
 
-jest.mock('../../../Utils/Funcs', () => ({
-  getEntryWebAccessUrl: jest.fn(),
+vi.mock('../../../Utils/Funcs', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../Utils/Funcs')>()),
+  getEntryWebAccessUrl: vi.fn(),
 }));
 
-import {
-  LfRepoTreeNode,
-  LfRepoTreeNodeService,
-} from '@laserfiche/lf-ui-components-services';
+import type { Mock } from 'vitest';
+import { LfRepoTreeNode, LfRepoTreeNodeService } from '@laserfiche/lf-ui-components-services';
 import * as React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { fireEvent, render, waitFor, screen, within } from '@testing-library/react';
 import RepositoryViewWebPart, {
   isNodeSelectable,
   openNode,
   RepositoryBrowserToolbar,
 } from './RepositoryViewWebPart';
-import { EntryType } from '@laserfiche/lf-repository-api-client';
+import { EntryType } from '@laserfiche/lf-repository-api-client-v2';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import {
   CANNOT_IMPORT_INTO_RECORD_SERIES,
   UPLOAD_FILE_TO_LASERFICHE,
+  UPLOAD_FILE_TO_LASERFICHE_TITLE,
 } from '../../strings';
+import { LASERFICHE_ICON_URL } from '../../constants';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 
 describe('RepositoryViewWebPart', () => {
@@ -48,7 +48,7 @@ describe('RepositoryViewWebPart', () => {
   test('should assign correct entryTypes to viewableEntryTypes', async () => {
     // Arrange
     let setViewableEntryTypes: EntryType[] = [];
-    const LfRepoTreeNodeServiceMock = LfRepoTreeNodeService as jest.Mock;
+    const LfRepoTreeNodeServiceMock = LfRepoTreeNodeService as Mock;
     LfRepoTreeNodeServiceMock.mockImplementation(function () {
       return {
         get viewableEntryTypes() {
@@ -65,6 +65,7 @@ describe('RepositoryViewWebPart', () => {
       <RepositoryViewWebPart
         repoClient={repoClient}
         webClientUrl={''}
+        customerId={''}
         loggedIn={false}
       />
     );
@@ -78,6 +79,51 @@ describe('RepositoryViewWebPart', () => {
         EntryType.RecordSeries,
       ]);
     });
+  });
+
+  // The repository browser's load errors can carry text from a server
+  // response, and a line break in one would start a forged console line.
+  test('logs a failed repository browser load on one console line', async () => {
+    // Arrange
+    (LfRepoTreeNodeService as Mock).mockImplementation(function () {
+      return {};
+    });
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { container, rerender } = render(
+      <RepositoryViewWebPart
+        repoClient={repoClient}
+        webClientUrl=''
+        customerId=''
+        loggedIn={true}
+      />
+    );
+    const repositoryBrowser = container.querySelector('lf-repository-browser') as HTMLElement & {
+      initAsync: Mock;
+    };
+    repositoryBrowser.initAsync.mockRejectedValue(
+      new Error('Access denied\r\nINFO Forged log entry')
+    );
+
+    // Act
+    // A new repository client (as after signing in) loads the browser again.
+    rerender(
+      <RepositoryViewWebPart
+        repoClient={{ ...repoClient }}
+        webClientUrl=''
+        customerId=''
+        loggedIn={true}
+      />
+    );
+
+    // Assert
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Access denied\\r\\nINFO Forged log entry')
+      );
+    });
+    const logged = consoleErrorSpy.mock.calls.flat().map(String).join(' ');
+    expect(logged).not.toMatch(/[\r\n]/);
+    consoleErrorSpy.mockRestore();
   });
 
   test('isNodeSelectable should return true for Folder node', async () => {
@@ -172,9 +218,7 @@ describe('RepositoryViewWebPart', () => {
     };
 
     // Act
-    const isNodeSelectableResult = isNodeSelectable(
-      recordSeriesShortcutTreeNode
-    );
+    const isNodeSelectableResult = isNodeSelectable(recordSeriesShortcutTreeNode);
 
     // Assert
     expect(isNodeSelectableResult).toBe(true);
@@ -207,6 +251,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -229,6 +274,7 @@ describe('RepositoryViewWebPart', () => {
       } as LfRepoTreeNode,
       repoClient,
       webClientUrl: '',
+      customerId: '',
       selectedItem: {} as LfRepoTreeNode,
       loggedIn: false,
       refreshFolderBrowserAsync: async () => {},
@@ -242,23 +288,74 @@ describe('RepositoryViewWebPart', () => {
 
     expect(button).toBeEnabled();
   });
+
+  // No repoClient, so the dialog skips loading templates and tags.
+  function openUploadDialog(): void {
+    render(
+      <RepositoryBrowserToolbar
+        parentItem={{ entryType: EntryType.Folder } as LfRepoTreeNode}
+        repoClient={undefined}
+        webClientUrl=''
+        customerId=''
+        selectedItem={{} as LfRepoTreeNode}
+        loggedIn={false}
+        refreshFolderBrowserAsync={async () => {}}
+      />
+    );
+    fireEvent.click(screen.getByTitle(UPLOAD_FILE_TO_LASERFICHE));
+  }
+
+  test('upload dialog title shows the Laserfiche icon', () => {
+    // Act
+    openUploadDialog();
+
+    // Assert
+    const header = screen
+      .getByText(UPLOAD_FILE_TO_LASERFICHE_TITLE)
+      .closest('.modal-header') as HTMLElement;
+    expect(within(header).getByRole('img')).toHaveAttribute('src', LASERFICHE_ICON_URL);
+  });
+
+  // The real <lf-field-container> isn't loaded in tests, so the attributes it
+  // is given are as close to its collapsed panels as this suite can get.
+  test('upload dialog starts with the Template and Fields sections collapsed', () => {
+    // Act
+    openUploadDialog();
+
+    // Assert
+    const fieldContainer = document.querySelector('lf-field-container');
+    expect(fieldContainer).toHaveAttribute('collapsible', 'true');
+    expect(fieldContainer).toHaveAttribute('start_collapsed', 'true');
+  });
+
+  test('upload dialog has no import options', () => {
+    // Act
+    openUploadDialog();
+
+    // Assert
+    expect(screen.getByText(UPLOAD_FILE_TO_LASERFICHE_TITLE)).toBeVisible();
+    expect(screen.queryByText('Import options')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Generate text')).not.toBeInTheDocument();
+  });
 });
 
 describe('openNode', () => {
-  let setParentItem: jest.Mock;
+  let setParentItem: Mock;
   let props: {
     repoClient: IRepositoryApiClientExInternal;
     webClientUrl: string;
+    customerId: string;
     loggedIn: boolean;
   };
 
   beforeEach(() => {
-    setParentItem = jest.fn();
+    setParentItem = vi.fn();
     props = {
       repoClient: {
-        getCurrentRepoId: jest.fn().mockResolvedValue('repoId'),
+        getCurrentRepoId: vi.fn().mockResolvedValue('repoId'),
       } as unknown as IRepositoryApiClientExInternal,
       webClientUrl: 'http://webclient.url',
+      customerId: 'customerId',
       loggedIn: true,
     };
   });
@@ -266,7 +363,7 @@ describe('openNode', () => {
   test('should set parent item if entryType is Folder', async () => {
     // Arrante
     const openedNode = { entryType: EntryType.Folder } as LfRepoTreeNode;
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     // Act
     await openNode(openedNode, setParentItem, props);
@@ -279,7 +376,7 @@ describe('openNode', () => {
   test('should set parent item if entryType is RecordSeries', async () => {
     // Arrange
     const openedNode = { entryType: EntryType.RecordSeries } as LfRepoTreeNode;
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     // Act
     await openNode(openedNode, setParentItem, props);
@@ -297,7 +394,7 @@ describe('openNode', () => {
       isContainer: false,
     } as LfRepoTreeNode;
 
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     // Act
     await openNode(openedNode, setParentItem, props);
@@ -309,7 +406,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });
@@ -323,7 +421,7 @@ describe('openNode', () => {
       isContainer: false,
     } as LfRepoTreeNode;
 
-    window.open = jest.fn();
+    window.open = vi.fn();
 
     // Act
     await openNode(openedNode, setParentItem, props);
@@ -335,7 +433,8 @@ describe('openNode', () => {
       'nodeId',
       'http://webclient.url',
       false,
-      'repoId'
+      'repoId',
+      'customerId'
     );
     expect(window.open).toHaveBeenCalled();
   });

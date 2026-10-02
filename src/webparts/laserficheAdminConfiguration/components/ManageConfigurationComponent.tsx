@@ -2,11 +2,11 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import {
-  ODataValueContextOfIListOfWTemplateInfo,
-  ODataValueOfIListOfTemplateFieldInfo,
-  TemplateFieldInfo,
-  WTemplateInfo,
-} from '@laserfiche/lf-repository-api-client';
+  TemplateDefinition,
+  TemplateDefinitionCollectionResponse,
+  TemplateFieldDefinition,
+  TemplateFieldDefinitionCollectionResponse,
+} from '@laserfiche/lf-repository-api-client-v2';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
 import * as React from 'react';
 import { useState } from 'react';
@@ -20,15 +20,17 @@ import {
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 import { MANAGE_CONFIGURATIONS_PAGE_TITLE } from '../../strings';
+import { formatErrorForLog } from '../../../Utils/Funcs';
 
 export default function ManageConfiguration(
   props: React.PropsWithChildren<IManageConfigurationProps>
 ): JSX.Element {
   const [availableLfTemplates, setAvailableLfTemplates] = useState<
-    WTemplateInfo[] | undefined
+    TemplateDefinition[] | undefined
   >([]);
-  const [lfFieldsForSelectedTemplate, setLfFieldsForSelectedTemplate] =
-    useState<TemplateFieldInfo[] | undefined>(undefined);
+  const [lfFieldsForSelectedTemplate, setLfFieldsForSelectedTemplate] = useState<
+    TemplateFieldDefinition[] | undefined
+  >(undefined);
   const [availableSPFields, setAvailableSPFields] = useState<
     SPProfileConfigurationData[] | undefined
   >(undefined);
@@ -36,33 +38,31 @@ export default function ManageConfiguration(
   const [showErrorModal, setShowErrorModal] = useState<string | undefined>();
   const [templateWarning, setTemplateWarning] = useState<boolean>(false);
 
-  async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
+  async function getAllAvailableTemplates(): Promise<TemplateDefinition[]> {
     const repoId = await props.repoClient.getCurrentRepoId();
-    const templateInfo: WTemplateInfo[] = [];
-    await props.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
-      {
-        callback: async (response: ODataValueContextOfIListOfWTemplateInfo) => {
-          if (response.value) {
-            templateInfo.push(...response.value);
-          }
-          return true;
-        },
-        repoId,
-      }
-    );
+    const templateInfo: TemplateDefinition[] = [];
+    await props.repoClient.templateDefinitionsClient.listTemplateDefinitionsForEach({
+      callback: async (response: TemplateDefinitionCollectionResponse) => {
+        if (response.value) {
+          templateInfo.push(...response.value);
+        }
+        return true;
+      },
+      repositoryId: repoId,
+    });
     return templateInfo;
   }
 
   const getLaserficheFieldsAsync: (
     templateName: string
-  ) => Promise<TemplateFieldInfo[]> = async (templateName: string) => {
+  ) => Promise<TemplateFieldDefinition[]> = async (templateName: string) => {
     if (templateName?.length > 0) {
       const repoId = await props.repoClient.getCurrentRepoId();
-      const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
-        await props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
-          { repoId, templateName: templateName }
+      const apiTemplateResponse: TemplateFieldDefinitionCollectionResponse =
+        await props.repoClient.templateDefinitionsClient.listTemplateFieldDefinitionsByTemplateName(
+          { repositoryId: repoId, templateName: templateName }
         );
-      const fieldsValues: TemplateFieldInfo[] = apiTemplateResponse.value;
+      const fieldsValues: TemplateFieldDefinition[] = apiTemplateResponse.value;
       return fieldsValues;
     } else {
       return null;
@@ -72,7 +72,7 @@ export default function ManageConfiguration(
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       try {
-        const templates: WTemplateInfo[] = await getAllAvailableTemplates();
+        const templates: TemplateDefinition[] = await getAllAvailableTemplates();
         templates.sort();
         setAvailableLfTemplates(templates);
         if (props.profileConfig.selectedTemplateName) {
@@ -80,29 +80,25 @@ export default function ManageConfiguration(
             (r) => r.name === props.profileConfig.selectedTemplateName
           );
           if (selectedTemplateExists) {
-            const templateFields: TemplateFieldInfo[] =
-              await getLaserficheFieldsAsync(
-                props.profileConfig.selectedTemplateName
-              );
+            const templateFields: TemplateFieldDefinition[] = await getLaserficheFieldsAsync(
+              props.profileConfig.selectedTemplateName
+            );
             setLfFieldsForSelectedTemplate(templateFields);
           } else {
             setTemplateWarning(true);
             templates.push(
-              new WTemplateInfo({
+              new TemplateDefinition({
                 displayName: props.profileConfig.selectedTemplateName,
               })
             );
           }
         }
-        const spColumns: SPProfileConfigurationData[] =
-          await getAllSharePointSiteColumnsAsync();
+        const spColumns: SPProfileConfigurationData[] = await getAllSharePointSiteColumnsAsync();
         spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(spColumns);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.error(
-          `Error initializing configuration component: ${err}`
-        );
+        console.error(`Error initializing configuration component: ${formatErrorForLog(err)}`);
       }
     };
     if (props.repoClient) {
@@ -110,9 +106,7 @@ export default function ManageConfiguration(
     }
   }, [props.repoClient]);
 
-  async function getAllSharePointSiteColumnsAsync(): Promise<
-    SPProfileConfigurationData[]
-  > {
+  async function getAllSharePointSiteColumnsAsync(): Promise<SPProfileConfigurationData[]> {
     const restApiUrl: string =
       props.context.pageContext.web.absoluteUrl +
       "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
@@ -139,9 +133,7 @@ export default function ManageConfiguration(
     if (templateFields) {
       const array = [];
       for (let index = 0; index < templateFields.length; index++) {
-        const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
-          36
-        );
+        const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
         const laserficheField = templateFields[index];
         if (laserficheField.isRequired) {
           array.push({
@@ -186,8 +178,7 @@ export default function ManageConfiguration(
     }
   }
 
-  const { setSaveDisabled, saveDisabled } =
-    React.useContext(ProfileConfigContext);
+  const { setSaveDisabled, saveDisabled } = React.useContext(ProfileConfigContext);
   function hasError(hasError: boolean): void {
     if (hasError) {
       setSaveDisabled(true);
@@ -201,16 +192,11 @@ export default function ManageConfiguration(
       <div className='p-3'>
         <main className='bg-white shadow-sm'>
           <div className='addPageSpinloader' hidden={props.loadingContent}>
-            {!props.loadingContent && (
-              <Spinner size={SpinnerSize.large} label='loading' />
-            )}
-            ,
+            {!props.loadingContent && <Spinner size={SpinnerSize.large} label='loading' />},
           </div>
           <div hidden={!props.loadingContent}>
             <div className='card rounded-0'>
-              <div className='card-header d-flex justify-content-between'>
-                {props.header}
-              </div>
+              <div className='card-header d-flex justify-content-between'>{props.header}</div>
               <div className='card-body'>
                 {props.children}
                 <ConfigurationBody
@@ -223,9 +209,7 @@ export default function ManageConfiguration(
                   handleProfileConfigUpdate={props.handleProfileConfigUpdate}
                 />
               </div>
-              <h6 className='card-header border-top'>
-                {MANAGE_CONFIGURATIONS_PAGE_TITLE}
-              </h6>
+              <h6 className='card-header border-top'>{MANAGE_CONFIGURATIONS_PAGE_TITLE}</h6>
               <div className='card-body'>
                 <SharePointLaserficheColumnMatching
                   profileConfig={props.profileConfig}
@@ -236,15 +220,9 @@ export default function ManageConfiguration(
                   hasError={hasError}
                 />
               </div>
-              <div
-                className={`${styles.footerIcons} card-footer bg-transparent`}
-              >
+              <div className={`${styles.footerIcons} card-footer bg-transparent`}>
                 {props.loggedIn && (
-                  <NavLink
-                    id='navid'
-                    to='/ManageConfigurationsPage'
-                    className={styles.navLink}
-                  >
+                  <NavLink id='navid' to='/ManageConfigurationsPage' className={styles.navLink}>
                     <button className='lf-button sec-button'>Back</button>
                   </NavLink>
                 )}
@@ -252,7 +230,7 @@ export default function ManageConfiguration(
                   className={`${styles.marginLeftButton} lf-button primary-button`}
                   onClick={saveConfigurationAsync}
                   disabled={saveDisabled}
-                  data-testid="saveButton"
+                  data-testid='saveButton'
                 >
                   Save
                 </button>
@@ -269,9 +247,7 @@ export default function ManageConfiguration(
           id='ConfirmModal'
         >
           <div className='modal-dialog modal-dialog-centered'>
-            <div
-              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-            >
+            <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
               <div className='modal-body'>
                 {props.createNew ? 'Profile Added' : 'Profile Updated'}
               </div>
@@ -279,7 +255,6 @@ export default function ManageConfiguration(
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={onClickConfirmButton}
                 >
                   OK
@@ -290,27 +265,17 @@ export default function ManageConfiguration(
         </div>
       )}
       {showErrorModal && (
-        <div
-          className={styles.modal}
-          data-backdrop='static'
-          data-keyboard='false'
-          id='ErrorModal'
-        >
+        <div className={styles.modal} data-backdrop='static' data-keyboard='false' id='ErrorModal'>
           <div className='modal-dialog modal-dialog-centered'>
-            <div
-              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
-            >
+            <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
               <div className={`modal-header ${styles.header}`}>
                 Error {props.createNew ? 'Saving' : 'Updating'} Profile
               </div>
-              <div className={`modal-body ${styles.contentBox}`}>
-                {showErrorModal}
-              </div>
+              <div className={`modal-body ${styles.contentBox}`}>{showErrorModal}</div>
               <div className={`modal-footer ${styles.footer}`}>
                 <button
                   type='button'
                   className='lf-button primary-button'
-                  data-dismiss='modal'
                   onClick={onClickErrorButton}
                 >
                   OK

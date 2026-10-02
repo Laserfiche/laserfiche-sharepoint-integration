@@ -9,3 +9,37 @@
 .template-adhoc-expansion-panel.mat-expansion-panel {
   background: inherit;
 }
+
+/* lf-ui-components v21 registers lf-selection-list-component and lf-breadcrumbs
+   as custom elements *and* uses them inside lf-repository-browser's own
+   template. Angular renders the inner element once as part of the parent's
+   view, and the custom element upgrade then bootstraps a second, input-less
+   copy of the same component into the same host. The empty copy is emitted
+   first, and because the selection list's shell is height: 100%, it fills the
+   whole entry container and pushes the real list - column header included - a
+   full viewport down inside .lf-repo-entry-container's scroll area.
+
+   Hide the empty first copy. The :not(:last-child) guard means these rules
+   stop applying on their own once the library emits a single copy again. */
+lf-selection-list-component > .lf-selection-list-scroll-shell:first-child:not(:last-child),
+lf-breadcrumbs > .lf-breadcrumbs-container:first-child:not(:last-child) {
+  display: none !important;
+}
+.modal-dialog:not(.modal *) {
+  --bs-modal-padding: 1rem;
+  --bs-modal-margin: 0.5rem;
+  --bs-modal-color: var(--bs-body-color);
+  --bs-modal-bg: var(--bs-body-bg);
+  --bs-modal-border-color: var(--bs-border-color-translucent);
+  --bs-modal-border-width: var(--bs-border-width);
+  --bs-modal-border-radius: var(--bs-border-radius-lg);
+  --bs-modal-box-shadow: var(--bs-box-shadow-sm);
+  --bs-modal-inner-border-radius: calc(var(--bs-border-radius-lg) - (var(--bs-border-width)));
+  --bs-modal-header-padding: 1rem 1rem;
+  --bs-modal-header-border-color: var(--bs-border-color);
+  --bs-modal-header-border-width: var(--bs-border-width);
+  --bs-modal-title-line-height: 1.5;
+  --bs-modal-footer-gap: 0.5rem;
+  --bs-modal-footer-border-color: var(--bs-border-color);
+  --bs-modal-footer-border-width: var(--bs-border-width);
+}

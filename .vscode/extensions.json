@@ -1,7 +1,3 @@
 {
-  "recommendations": [
-    "esbenp.prettier-vscode",
-    "bradlc.vscode-tailwindcss",
-    "epivision.vscode-file-header"
-  ]
+  "recommendations": ["esbenp.prettier-vscode", "epivision.vscode-file-header"]
 }

@@ -35,12 +35,6 @@
       ]
     }
   },
-  "externals": {
-    "bootstrap": {
-      "path": "node_modules/bootstrap/dist/js/bootstrap.min.js",
-      "globalName": "bootstrap"
-    }
-  },
   "localizedResources": {
     "LaserficheRepositoryAccessWebPartWebPartStrings": "lib/webparts/LaserficheRepositoryAccessWebPart/loc/{locale}.js",
     "LaserficheAdminConfigurationWebPartStrings": "lib/webparts/laserficheAdminConfiguration/loc/{locale}.js",

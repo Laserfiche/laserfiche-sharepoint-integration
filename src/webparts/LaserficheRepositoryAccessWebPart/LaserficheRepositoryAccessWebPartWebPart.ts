@@ -18,11 +18,11 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
     ReactDom.render(element, this.domElement);
   }
 
-  protected onDispose(): void {
+  protected override onDispose(): void {
     ReactDom.unmountComponentAtNode(this.domElement);
   }
 
-  protected get dataVersion(): Version {
+  protected override get dataVersion(): Version {
     return Version.parse('1.0');
   }
 }

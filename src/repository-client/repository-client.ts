@@ -1,10 +1,7 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-import {
-  IRepositoryApiClient,
-  RepositoryApiClient,
-} from '@laserfiche/lf-repository-api-client';
+import { IRepositoryApiClient, RepositoryApiClient } from '@laserfiche/lf-repository-api-client-v2';
 import { IRepositoryApiClientExInternal } from './repository-client-types';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
@@ -12,10 +9,7 @@ import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
 
-  public addAuthorizationHeader(
-    request: RequestInit,
-    accessToken: string | undefined
-  ): void {
+  public addAuthorizationHeader(request: RequestInit, accessToken: string | undefined): void {
     const headers: Headers | undefined = new Headers(request.headers);
     const AUTH = 'Authorization';
     headers.set(AUTH, 'Bearer ' + accessToken);
@@ -36,7 +30,7 @@ export class RepositoryClientExInternal {
       this.addAuthorizationHeader(request, accessToken);
       return {
         regionalDomain: lfLogin.account_endpoints.regionalDomain,
-      }; // update this if you are using a different region
+      };
     } else {
       throw new Error('No access token');
     }
@@ -44,13 +38,9 @@ export class RepositoryClientExInternal {
 
   public afterFetchResponseAsync: (
     url: string,
-    response: ResponseInit,
+    response: Response,
     request: RequestInit
-  ) => Promise<boolean> = async (
-    url: string,
-    response: ResponseInit,
-    request: RequestInit
-  ) => {
+  ) => Promise<boolean> = async (url: string, response: Response, request: RequestInit) => {
     if (response.status === 401) {
       const lfLogin = document.querySelector('lf-login') as NgElement &
         WithProperties<LfLoginComponent>;
@@ -72,12 +62,10 @@ export class RepositoryClientExInternal {
     repoName: string;
   }> = async () => {
     if (this.repoClient) {
-      const repos = await this.repoClient.repositoriesClient.getRepositoryList(
-        {}
-      );
-      const repo = repos[0];
-      if (repo.repoId) {
-        return { repoId: repo.repoId, repoName: repo.repoName ?? repo.repoId };
+      const repos = await this.repoClient.repositoriesClient.listRepositories({});
+      const repo = repos.value?.[0];
+      if (repo?.id) {
+        return { repoId: repo.id, repoName: repo.name ?? repo.id };
       } else {
         throw new Error('Current repoId undefined.');
       }
@@ -87,6 +75,9 @@ export class RepositoryClientExInternal {
   };
 
   public async createRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
+    // Assign onto the client instance rather than spreading it into a plain
+    // object: the v2 client exposes `defaultRequestHeaders` as a prototype
+    // accessor, which an object spread would silently drop.
     const partialRepoClient: IRepositoryApiClient =
       RepositoryApiClient.createFromHttpRequestHandler({
         beforeFetchRequestAsync: this.beforeFetchRequestAsync,
@@ -98,7 +89,7 @@ export class RepositoryClientExInternal {
         this.repoClient._repoName = undefined;
       }
     };
-    this.repoClient = {
+    this.repoClient = Object.assign(partialRepoClient, {
       clearCurrentRepo,
       _repoId: undefined,
       _repoName: undefined,
@@ -128,8 +119,7 @@ export class RepositoryClientExInternal {
           return repo;
         }
       },
-      ...partialRepoClient,
-    };
+    });
     return this.repoClient;
   }
 }

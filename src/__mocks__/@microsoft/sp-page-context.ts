@@ -4,9 +4,7 @@
 export class SPPermission {
   public static fullMask = new SPPermission();
 
-  constructor(
-    public permissions: { High: number; Low: number } = { High: 0, Low: 0 }
-  ) { }
+  constructor(public permissions: { High: number; Low: number } = { High: 0, Low: 0 }) {}
 
   public hasPermission(permission: SPPermission): boolean {
     return true;

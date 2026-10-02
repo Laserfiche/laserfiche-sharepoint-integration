@@ -1,25 +1,51 @@
 {
-  "extends": "./node_modules/@microsoft/rush-stack-compiler-4.5/includes/tsconfig-web.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./node_modules/@microsoft/rush-stack-compiler-5.3/includes/tsconfig-web.json",
   "compilerOptions": {
-    "target": "ES2017",
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    /* Language and environment.
+       SPFx 1.23 supports evergreen browsers only (IE11 was dropped in 1.13), so
+       ES2020 output is safe and smaller than the downleveled ES2017 emit.
+       Do not go past ES2021 without care: ES2022 flips useDefineForClassFields
+       on, which changes field-initialization order in the SPFx web part,
+       command set and dialog base classes. */
+    "target": "ES2020",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "useDefineForClassFields": false,
     "jsx": "react",
-    "esModuleInterop": true,
-    "declaration": true,
-    "sourceMap": true,
     "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "outDir": "lib",
-    "inlineSources": false,
-    "strictNullChecks": false,
-    "strict": true,
-    "noUnusedLocals": false,
-    "noImplicitAny": true,
+
+    /* Modules — webpack does the bundling, so resolve the way it does
+       (honors the "exports" field of modern packages). */
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    /* Each file is transpiled in isolation (webpack loader, Vitest),
+       so reject constructs that need whole-program information. */
+    "isolatedModules": true,
     "typeRoots": ["./node_modules/@types", "./node_modules/@microsoft"],
-    "types": ["webpack-env", "jest"],
-    "lib": ["dom", "es2017"]
+    /* Vitest's test globals are referenced from src/vitest-env.d.ts. */
+    "types": ["webpack-env"],
+
+    /* Emit */
+    "outDir": "lib",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": true,
+    "inlineSources": false,
+
+    /* Type checking */
+    "strict": true,
+    "noImplicitAny": true,
+    /* TODO: turn on — currently ~180 errors to fix across the web parts. */
+    "strictNullChecks": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Reported by ESLint (@typescript-eslint/no-unused-vars) instead. */
+    "noUnusedLocals": false,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "lib", "temp", "dist"]
 }

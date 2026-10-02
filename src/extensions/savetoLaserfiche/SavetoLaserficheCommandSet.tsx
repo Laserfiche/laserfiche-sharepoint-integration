@@ -14,10 +14,7 @@ import { PathUtils } from '@laserfiche/lf-js-utils';
 import { SPHttpClient } from '@microsoft/sp-http';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 import { getSPListURL } from '../../Utils/Funcs';
-import {
-  LASERFICHE_SIGNIN_PAGE_NAME,
-  SP_LOCAL_STORAGE_KEY,
-} from '../../webparts/constants';
+import { LASERFICHE_SIGNIN_PAGE_NAME, SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -36,16 +33,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   hasSignInPage = false;
   hasAdminPage = false;
 
-  public async onInit(): Promise<void> {
+  public override async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     await CreateConfigurations.ensureAdminConfigListCreatedAsync(this.context);
     return Promise.resolve();
   }
 
-  public onListViewUpdated(
-    event: IListViewCommandSetListViewUpdatedParameters
-  ): void {
+  public override onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): void {
     const compareOneCommand: Command = this.tryGetCommand('SAVE_TO_LASERFICHE');
     if (compareOneCommand) {
       // This command should be hidden unless exactly one row is selected.
@@ -55,16 +50,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  public async onExecute(
-    event: IListViewCommandSetExecuteEventParameters
-  ): Promise<void> {
+  public override async onExecute(event: IListViewCommandSetExecuteEventParameters): Promise<void> {
     const spDocumentProperties: RowAccessor = event.selectedRows[0];
     const fileId = spDocumentProperties.getValueByName('ID');
     const fileSize = spDocumentProperties.getValueByName('File_x0020_Size');
     const fileUrl = spDocumentProperties.getValueByName('FileRef');
     const fileName = spDocumentProperties.getValueByName('FileLeafRef');
-    const isCheckedOut =
-      spDocumentProperties.getValueByName('CheckoutUser')?.length > 0;
+    const isCheckedOut = spDocumentProperties.getValueByName('CheckoutUser')?.length > 0;
 
     let spContentType = spDocumentProperties.getValueByName('ContentType');
     if (!spContentType) {
@@ -79,9 +71,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     if (spContentType === 'Folder') {
       alert('Cannot Send a Folder To Laserfiche');
     } else if (!fileNoName || fileNoName.length === 0) {
-      alert(
-        'Please add a filename to the selected file before trying to save to Laserfiche.'
-      );
+      alert('Please add a filename to the selected file before trying to save to Laserfiche.');
     } else if (fileExtensionOnly === 'url') {
       alert('Cannot send the .url file to Laserfiche');
     } else if (isCheckedOut) {
@@ -129,16 +119,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
   public async pageConfigurationCheck(): Promise<void> {
     try {
-      const res = await fetch(
-        `${getSPListURL(this.context, 'Site Pages')}/items`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await fetch(`${getSPListURL(this.context, 'Site Pages')}/items`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
@@ -157,10 +144,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     spFileUrl: string;
     fileId: string;
   }): Promise<void> {
-    const saveToDialog = new GetDocumentDataCustomDialog(
-      spFileInfo,
-      this.context
-    );
+    const saveToDialog = new GetDocumentDataCustomDialog(spFileInfo, this.context);
     await saveToDialog.show();
   }
 }

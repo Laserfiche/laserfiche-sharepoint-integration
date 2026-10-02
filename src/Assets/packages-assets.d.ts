@@ -10,7 +10,3 @@ declare module '*/packages/indigo-pink.cssasset' {
   const url: string;
   export default url;
 }
-declare module '*/packages/zone.umd.min.js' {
-  const url: string;
-  export default url;
-}

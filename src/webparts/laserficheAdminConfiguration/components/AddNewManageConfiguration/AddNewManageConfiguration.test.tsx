@@ -2,16 +2,15 @@
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
 import * as React from 'react';
-import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AddNewManageConfiguration from './AddNewManageConfiguration';
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
 import { BrowserRouter } from 'react-router-dom';
-import { MANAGE_CONFIGURATIONS_PAGE_TITLE, PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME } from '../../../strings';
 import {
-  ProfileConfigContext,
-  ProfileConfigContextProps,
-} from '../LaserficheAdminConfiguration';
+  MANAGE_CONFIGURATIONS_PAGE_TITLE,
+  PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME,
+} from '../../../strings';
+import { ProfileConfigContext, ProfileConfigContextProps } from '../LaserficheAdminConfiguration';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { SPHttpClient } from '@microsoft/sp-http-base';
 import { SPWeb, PageContext, SPPermission } from '@microsoft/sp-page-context';
@@ -24,9 +23,7 @@ class SaveDisabledStateMock implements ProfileConfigContextProps {
   }
   setSaveDisabled: React.Dispatch<React.SetStateAction<boolean>> = (val) => {
     if (typeof val === 'function') {
-      this._saveDisabled = (val as (prevState: boolean) => boolean)(
-        this._saveDisabled
-      );
+      this._saveDisabled = (val as (prevState: boolean) => boolean)(this._saveDisabled);
     } else {
       this._saveDisabled = val;
     }
@@ -38,7 +35,7 @@ describe('AddNewManageConfiguration', () => {
 
   beforeEach(() => {
     const spHttpClient = {
-      post: jest.fn(),
+      post: vi.fn(),
     };
     mockWebPartContext = {
       spHttpClient: spHttpClient as unknown as SPHttpClient,
@@ -54,9 +51,7 @@ describe('AddNewManageConfiguration', () => {
     // Arrange/Act
     render(
       <BrowserRouter>
-        <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: jest.fn(), saveDisabled: false }}
-        >
+        <ProfileConfigContext.Provider value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}>
           <AddNewManageConfiguration
             context={mockWebPartContext}
             repoClient={new RepositoryClientExInternal().repoClient}
@@ -84,10 +79,8 @@ describe('AddNewManageConfiguration', () => {
         JsonValue: JSON.stringify([mockProfileConfig]),
       },
     ];
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest
-        .fn()
-        .mockResolvedValue({ value: mockManageConfigurationConfig }),
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ value: mockManageConfigurationConfig }),
     });
 
     // Act
@@ -112,9 +105,7 @@ describe('AddNewManageConfiguration', () => {
     // Assert
     await waitFor(() => {
       expect(
-        screen.getByText(
-          PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME
-        )
+        screen.getByText(PROFILE_WITH_NAME_ALREADY_EXISTS_PROVIDE_DIFFERENT_NAME)
       ).toBeInTheDocument();
       expect(screen.getByTestId('saveButton')).toBeDisabled();
     });
@@ -133,10 +124,8 @@ describe('AddNewManageConfiguration', () => {
         JsonValue: JSON.stringify([mockProfileConfig]),
       },
     ];
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest
-        .fn()
-        .mockResolvedValue({ value: mockManageConfigurationConfig }),
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ value: mockManageConfigurationConfig }),
     });
 
     // Act

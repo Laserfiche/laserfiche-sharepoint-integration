@@ -1,12 +1,11 @@
 // Copyright (c) Laserfiche.
 // Licensed under the MIT License. See LICENSE.md in the project root for license information.
 
-jest.mock('@laserfiche/lf-repository-api-client', () => ({
-  WTemplateInfo: jest.fn().mockImplementation(({ name, displayName }) => ({
-    name,
-    displayName,
-  })),
-  WFieldType: {
+vi.mock('@laserfiche/lf-repository-api-client-v2', () => ({
+  TemplateDefinition: vi.fn().mockImplementation(function ({ name, displayName }) {
+    return { name, displayName };
+  }),
+  FieldType: {
     Date: 'Date',
     List: 'List',
     Time: 'Time',
@@ -19,9 +18,7 @@ import ManageConfigurationComponent from './ManageConfigurationComponent';
 import { ProfileConfiguration } from './ProfileConfigurationComponents';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import {
-  TemplateDefinitionsClient,
-} from '@laserfiche/lf-repository-api-client';
+import { TemplateDefinitionsClient } from '@laserfiche/lf-repository-api-client-v2';
 import mockWebPartContext from '../../../__mocks__/@microsoft/sp-webpart-base';
 import { ProfileConfigContext } from './LaserficheAdminConfiguration';
 import { HashRouter } from 'react-router-dom';
@@ -36,20 +33,18 @@ describe('ManageConfigurationComponent', () => {
     } as ProfileConfiguration;
 
     const repoClient = {
-      getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
+      getCurrentRepoId: vi.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        getTemplateDefinitionsForEach: jest
-          .fn()
-          .mockImplementation(({ callback }) =>
-            callback({
-              value: [
-                { name: 'Template1', id: '1' },
-                { name: 'Template2', id: '2' },
-              ],
-            })
-          ),
+        listTemplateDefinitionsForEach: vi.fn().mockImplementation(({ callback }) =>
+          callback({
+            value: [
+              { name: 'Template1', id: '1' },
+              { name: 'Template2', id: '2' },
+            ],
+          })
+        ),
 
-        getTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
+        listTemplateFieldDefinitionsByTemplateName: vi.fn().mockResolvedValue({
           value: [
             { name: 'Field1', id: '1', required: true },
             { name: 'Field2', id: '2' },
@@ -57,26 +52,24 @@ describe('ManageConfigurationComponent', () => {
         }),
       } as unknown as TemplateDefinitionsClient,
     } as unknown as IRepositoryApiClientExInternal;
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ value: [] }),
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ value: [] }),
     });
 
     // Act
     render(
       <HashRouter>
-        <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: jest.fn(), saveDisabled: false }}
-        >
+        <ProfileConfigContext.Provider value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}>
           <ManageConfigurationComponent
             repoClient={repoClient}
             profileConfig={mockProfileConfig}
-            handleProfileConfigUpdate={jest.fn()}
+            handleProfileConfigUpdate={vi.fn()}
             validate={true}
             loggedIn={true}
             loadingContent={false}
             createNew={false}
             context={mockWebPartContext}
-            saveConfiguration={jest.fn()}
+            saveConfiguration={vi.fn()}
           />
         </ProfileConfigContext.Provider>
       </HashRouter>
@@ -100,20 +93,18 @@ describe('ManageConfigurationComponent', () => {
     } as ProfileConfiguration;
 
     const repoClient = {
-      getCurrentRepoId: jest.fn().mockResolvedValue('1234'),
+      getCurrentRepoId: vi.fn().mockResolvedValue('1234'),
       templateDefinitionsClient: {
-        getTemplateDefinitionsForEach: jest
-          .fn()
-          .mockImplementation(({ callback }) =>
-            callback({
-              value: [
-                { name: 'Template1', id: '1' },
-                { name: 'Template2', id: '2' },
-              ],
-            })
-          ),
+        listTemplateDefinitionsForEach: vi.fn().mockImplementation(({ callback }) =>
+          callback({
+            value: [
+              { name: 'Template1', id: '1' },
+              { name: 'Template2', id: '2' },
+            ],
+          })
+        ),
 
-        getTemplateFieldDefinitionsByTemplateName: jest.fn().mockResolvedValue({
+        listTemplateFieldDefinitionsByTemplateName: vi.fn().mockResolvedValue({
           value: [
             { name: 'Field1', id: '1' },
             { name: 'Field2', id: '2' },
@@ -121,26 +112,24 @@ describe('ManageConfigurationComponent', () => {
         }),
       } as unknown as TemplateDefinitionsClient,
     } as unknown as IRepositoryApiClientExInternal;
-    window.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ value: [] }),
+    window.fetch = vi.fn().mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ value: [] }),
     });
 
     // Act
     render(
       <HashRouter>
-        <ProfileConfigContext.Provider
-          value={{ setSaveDisabled: jest.fn(), saveDisabled: false }}
-        >
+        <ProfileConfigContext.Provider value={{ setSaveDisabled: vi.fn(), saveDisabled: false }}>
           <ManageConfigurationComponent
             repoClient={repoClient}
             profileConfig={mockProfileConfig}
-            handleProfileConfigUpdate={jest.fn()}
+            handleProfileConfigUpdate={vi.fn()}
             validate={true}
             loggedIn={true}
             loadingContent={false}
             createNew={false}
             context={mockWebPartContext}
-            saveConfiguration={jest.fn()}
+            saveConfiguration={vi.fn()}
           />
         </ProfileConfigContext.Provider>
       </HashRouter>

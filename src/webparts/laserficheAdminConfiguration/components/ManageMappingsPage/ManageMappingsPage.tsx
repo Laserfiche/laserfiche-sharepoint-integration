@@ -3,10 +3,7 @@
 
 import * as React from 'react';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
-import {
-  DeleteModal,
-  ProfileConfiguration,
-} from '../ProfileConfigurationComponents';
+import { DeleteModal, ProfileConfiguration } from '../ProfileConfigurationComponents';
 import { ChangeEvent, useState } from 'react';
 import { IManageMappingsPageProps } from './IManageMappingsPageProps';
 import { IListItem } from '../IListItem';
@@ -15,11 +12,10 @@ import {
   MANAGE_CONFIGURATIONS,
   MANAGE_MAPPING,
 } from '../../../constants';
-import { getSPListURL } from '../../../../Utils/Funcs';
+import { formatErrorForLog, getSPListURL } from '../../../../Utils/Funcs';
 import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 import styles from './../LaserficheAdminConfiguration.module.scss';
-require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
+import '../../../../Assets/CSS/bootstrap.min.css';
 
 interface SPContentType {
   ID: string;
@@ -33,16 +29,10 @@ const laserficheValidationMapping =
   'Please select a content type from the Laserfiche Profile dropdown';
 const validationOf = 'Mapping already exists for this SharePoint content type';
 
-export default function ManageMappingsPage(
-  props: IManageMappingsPageProps
-): JSX.Element {
+export default function ManageMappingsPage(props: IManageMappingsPageProps): JSX.Element {
   const [mappingRows, setMappingRows] = useState([]);
-  const [sharePointContentTypes, setSharePointContentTypes] = useState<
-    string[]
-  >([]);
-  const [laserficheContentTypes, setLaserficheContentTypes] = useState<
-    string[]
-  >([]);
+  const [sharePointContentTypes, setSharePointContentTypes] = useState<string[]>([]);
+  const [laserficheContentTypes, setLaserficheContentTypes] = useState<string[]>([]);
   const [deleteModal, setDeleteModal] = useState(undefined);
   const [validationMessage, setValidationMessage] = useState(undefined);
 
@@ -61,7 +51,7 @@ export default function ManageMappingsPage(
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error(`Error getting mappings: ${err.message}`);
+      console.error(`Error getting mappings: ${formatErrorForLog(err)}`);
     }
   }
 
@@ -106,8 +96,7 @@ export default function ManageMappingsPage(
   }
 
   async function getAllSharePointContentTypesAsync(): Promise<void> {
-    const restApiUrl =
-      props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
+    const restApiUrl = props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
     const res = await fetch(restApiUrl, {
       method: 'GET',
       headers: {
@@ -116,9 +105,7 @@ export default function ManageMappingsPage(
       },
     });
     const results = await res.json();
-    const array: string[] = results.value.map(
-      (contentType: SPContentType) => contentType.Name
-    );
+    const array: string[] = results.value.map((contentType: SPContentType) => contentType.Name);
     array.sort((a, b) => (a > b ? 1 : -1));
     setSharePointContentTypes(array);
   }
@@ -245,9 +232,7 @@ export default function ManageMappingsPage(
   ): Promise<void> {
     let exitEntry = false;
     for (let i = 0; i < jsonValue.length; i++) {
-      if (
-        jsonValue[i].SharePointContentType === rows[idx].SharePointContentType
-      ) {
+      if (jsonValue[i].SharePointContentType === rows[idx].SharePointContentType) {
         exitEntry = true;
         break;
       }
@@ -281,11 +266,7 @@ export default function ManageMappingsPage(
         },
         body: body,
       };
-      await props.context.spHttpClient.post(
-        restApiUrl,
-        SPHttpClient.configurations.v1,
-        options
-      );
+      await props.context.spHttpClient.post(restApiUrl, SPHttpClient.configurations.v1, options);
       rows[idx].toggle = !rows[idx].toggle;
       setMappingRows(rows);
       if (jsonValue.length + 1 === rows.length) {
@@ -303,13 +284,10 @@ export default function ManageMappingsPage(
     itemId: string
   ): Promise<void> {
     const spContentTypeMatch = jsonValue.find(
-      (mapping) =>
-        mapping.SharePointContentType === rows[idx].SharePointContentType
+      (mapping) => mapping.SharePointContentType === rows[idx].SharePointContentType
     );
     if (!spContentTypeMatch || spContentTypeMatch.id === rows[idx].id) {
-      const matchingId = jsonValue.findIndex(
-        (mapping) => mapping.id === rows[idx].id
-      );
+      const matchingId = jsonValue.findIndex((mapping) => mapping.id === rows[idx].id);
       jsonValue[matchingId] = { ...rows[idx] };
       rows[idx].toggle = !rows[idx].toggle;
       jsonValue[matchingId].toggle = rows[idx].toggle;
@@ -333,24 +311,14 @@ export default function ManageMappingsPage(
         },
         body: body,
       };
-      await props.context.spHttpClient.post(
-        restApiUrl,
-        SPHttpClient.configurations.v1,
-        options
-      );
+      await props.context.spHttpClient.post(restApiUrl, SPHttpClient.configurations.v1, options);
       setMappingRows(rows);
       if (
-        rows.some(
-          (item: ProfileMappingConfiguration) =>
-            item.SharePointContentType === 'Select'
-        )
+        rows.some((item: ProfileMappingConfiguration) => item.SharePointContentType === 'Select')
       ) {
         setValidationMessage(sharepointValidationMapping);
       } else if (
-        rows.some(
-          (item: ProfileMappingConfiguration) =>
-            item.LaserficheContentType === 'Select'
-        )
+        rows.some((item: ProfileMappingConfiguration) => item.LaserficheContentType === 'Select')
       ) {
         setValidationMessage(laserficheValidationMapping);
       } else {
@@ -371,9 +339,7 @@ export default function ManageMappingsPage(
       if (results) {
         const itemId = results.id;
         const mappings = results.mappings;
-        const matchingMappingIndex = mappings.findIndex(
-          (mapping) => mapping.id === rows[idx].id
-        );
+        const matchingMappingIndex = mappings.findIndex((mapping) => mapping.id === rows[idx].id);
         if (matchingMappingIndex > -1) {
           mappings.splice(matchingMappingIndex, 1);
           const restApiUrl = `${getSPListURL(
@@ -402,8 +368,7 @@ export default function ManageMappingsPage(
             options
           );
           const existingSPContentType = newMappings.find(
-            (mapping) =>
-              mapping.SharePointContentType === rows[idx].SharePointContentType
+            (mapping) => mapping.SharePointContentType === rows[idx].SharePointContentType
           );
           if (!existingSPContentType) {
             setValidationMessage(undefined);
@@ -501,17 +466,15 @@ export default function ManageMappingsPage(
     setMappingRows(rows);
   };
 
-  const saveSpecificMappingAsync: (idx: number) => Promise<void> = async (
-    idx: number
-  ) => {
+  const saveSpecificMappingAsync: (idx: number) => Promise<void> = async (idx: number) => {
     const rows = [...mappingRows];
     await createNewMappingAsync(idx, rows);
   };
 
-  const handleChange: (
+  const handleChange: (event: ChangeEvent<HTMLSelectElement>, idx: number) => void = (
     event: ChangeEvent<HTMLSelectElement>,
     idx: number
-  ) => void = (event: ChangeEvent<HTMLSelectElement>, idx: number) => {
+  ) => {
     const item = {
       id: event.target.id,
       name: event.target.name,
@@ -547,13 +510,11 @@ export default function ManageMappingsPage(
     }
   };
 
-  const sharePointContentTypesDisplay = sharePointContentTypes.map(
-    (contentType) => (
-      <option key={contentType} value={contentType}>
-        {contentType}
-      </option>
-    )
-  );
+  const sharePointContentTypesDisplay = sharePointContentTypes.map((contentType) => (
+    <option key={contentType} value={contentType}>
+      {contentType}
+    </option>
+  ));
   const lfContentTypesDisplay = laserficheContentTypes.map((contentType) => (
     <option key={contentType} value={contentType}>
       {contentType}
@@ -567,7 +528,7 @@ export default function ManageMappingsPage(
             <select
               name='SharePointContentType'
               disabled
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].SharePointContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -583,7 +544,7 @@ export default function ManageMappingsPage(
             <select
               name='LaserficheContentType'
               disabled
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].LaserficheContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -616,7 +577,7 @@ export default function ManageMappingsPage(
           <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].SharePointContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -631,7 +592,7 @@ export default function ManageMappingsPage(
           <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
-              className='custom-select'
+              className='form-select'
               value={mappingRows[index].LaserficheContentType}
               id={mappingRows[index].id}
               onChange={(e) => handleChange(e, index)}
@@ -714,12 +675,7 @@ export default function ManageMappingsPage(
         </div>
       </div>
       {deleteModal !== undefined && (
-        <div
-          className={styles.modal}
-          id='deleteModal'
-          data-backdrop='static'
-          data-keyboard='false'
-        >
+        <div className={styles.modal} id='deleteModal' data-backdrop='static' data-keyboard='false'>
           {deleteModal}
         </div>
       )}

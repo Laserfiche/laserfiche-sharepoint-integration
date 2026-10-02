@@ -1,0 +1,15 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "version": "1.23.2",
+    "useGulp": true,
+    "libraryName": "laserfiche-sharepoint-integration",
+    "libraryId": "9d9d4fa7-bbf4-489a-acd5-0e1709d40e8b",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "laserfiche-sharepoint-integration",
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
