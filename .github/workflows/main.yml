@@ -49,12 +49,12 @@ jobs:
         run: npm ci
 
       - name: Build solution
-        run: gulp build
+        run: npx gulp build
 
       - name: Bundle and package
         run: |
-          gulp bundle --ship
-          gulp package-solution --ship
+          npx gulp bundle --ship
+          npx gulp package-solution --ship
 
       - name: Rename .sppkg to include version
         working-directory: ${{ env.packagePath }}

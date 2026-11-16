@@ -125,8 +125,8 @@ Triggers on push/PR to `\d+.x` branches (so `1.x`, future `2.x`) and `workflow_d
 - `if 1.x`: auto-tag the commit `1.0.0.${run_number}`
 - `sed -i` replaces the literal `"1.0.0.0"` in `config/package-solution.json` and `package.json` with the run-number version
 - `npm ci`
-- `gulp build`
-- `gulp bundle --ship && gulp package-solution --ship`
+- `npx gulp build`
+- `npx gulp bundle --ship && npx gulp package-solution --ship`
 - Renames artifact to `LaserficheSharePointOnlineIntegration.1.0.0.${run_number}.sppkg`
 - `npm test`
 - Uploads the `.sppkg` + `UserDocuments/` as a workflow artifact
