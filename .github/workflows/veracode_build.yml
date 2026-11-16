@@ -26,7 +26,7 @@ jobs:
       run: npm ci
 
     - name: Build solution
-      run: gulp build
+      run: npx gulp build
 
     - name: 'create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
